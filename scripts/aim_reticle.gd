@@ -18,6 +18,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
+
 func set_mode(mode: ReticleMode) -> void:
 	if current_mode != mode:
 		current_mode = mode
