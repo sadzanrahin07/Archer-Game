@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://c2katana_sheath_01"]
+
+[ext_resource type="ArrayMesh" path="res://models/katana_sheathed_mesh.res" id="1_sheathed_mesh"]
+
+[node name="KatanaSheath" type="Node3D"]
+
+[node name="SheathMesh" type="MeshInstance3D" parent="."]
+mesh = ExtResource("1_sheathed_mesh")

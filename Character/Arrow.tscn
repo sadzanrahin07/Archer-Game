@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://arrow_scene_uid_01"]
+
+[ext_resource type="Script" path="res://Character/arrow.gd" id="1_arrow_script"]
+[ext_resource type="PackedScene" uid="uid://do0ur42lwd57a" path="res://Bow and arrow/arrow.glb" id="2_arrow_glb"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_arrow"]
+size = Vector3(0.06, 0.06, 0.8)
+
+[node name="Arrow" type="RigidBody3D"]
+collision_layer = 4
+collision_mask = 10
+script = ExtResource("1_arrow_script")
+
+[node name="arrow" parent="." instance=ExtResource("2_arrow_glb")]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.4)
+shape = SubResource("BoxShape3D_arrow")

@@ -1,0 +1,134 @@
+# ==============================================================================
+# Godot 4 Engine Git Ignore File
+# Project: Archer Game
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Godot Cache & Imported Binaries
+# Note: DO NOT ignore '*.import' files. Those contain asset import metadata.
+# Only the '.godot/' cache directory (and legacy Godot 3 '.import/') are ignored.
+# ------------------------------------------------------------------------------
+.godot/
+.import/
+
+# Imported translations (generated from CSV / PO)
+*.translation
+
+# Export presets (Uncomment if export_presets.cfg contains sensitive signing credentials/keystores)
+# export_presets.cfg
+export.cfg
+
+# ------------------------------------------------------------------------------
+# Exported Game Builds & Packaging
+# ------------------------------------------------------------------------------
+build/
+builds/
+build_ios/
+bin/
+export/
+exports/
+
+# Export binaries & packages (Godot PCK, Mobile & Desktop builds)
+*.pck
+*.apk
+*.aab
+*.ipa
+*.exe
+*.dmg
+*.wasm
+*.tpz
+*.app/
+*.xcarchive/
+
+# ------------------------------------------------------------------------------
+# iOS & Xcode Artifacts
+# ------------------------------------------------------------------------------
+**/DerivedData/
+*.xcuserdata/
+xcuserdata/
+*.xcscmblueprint
+*.xcuserstate
+*.xcuserdatad
+*.mobileprovision
+
+# ------------------------------------------------------------------------------
+# Asset Creation & 3D Software Backups
+# ------------------------------------------------------------------------------
+# Blender autosaves and backups
+*.blend1
+*.blend2
+*.blend3
+*.blend4
+*.blend5
+
+# VRM / MToon temporary cached resources
+*.vrm.res
+
+# ------------------------------------------------------------------------------
+# Backup, Verification & Editor Scratch Files
+# ------------------------------------------------------------------------------
+*.bak
+*.bak[0-9]
+*.before.*
+*.orig
+*.tmp
+*.temp
+*~
+*.swp
+*.swo
+
+# ------------------------------------------------------------------------------
+# Large Documentation / Non-Code Assets (>100MB exceeds GitHub limits)
+# Note: If you want to track this file in Git, configure Git LFS (git lfs track "*.pdf")
+# ------------------------------------------------------------------------------
+Archer-Game-Desktop-Mobile-and-100-Stages.pdf
+*.pdf
+
+# ------------------------------------------------------------------------------
+# IDEs & Code Editors
+# ------------------------------------------------------------------------------
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# JetBrains / Rider / Android Studio
+.idea/
+*.iml
+
+# Mono / .NET (if using C# in Godot)
+.mono/
+data_*/
+mono_crash.*.json
+
+# ------------------------------------------------------------------------------
+# Operating System Files
+# ------------------------------------------------------------------------------
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+[Dd]esktop.ini
+
+# Linux
+.directory
+.fuse_hidden*
+
+# ------------------------------------------------------------------------------
+# Logs & Crash Reports
+# ------------------------------------------------------------------------------
+*.log
+logs/
+crash_logs/

@@ -1,0 +1,58 @@
+[gd_scene load_steps=6 format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_WoodPlank"]
+albedo_color = Color(0.46, 0.32, 0.2, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="Mesh_Deck"]
+material = SubResource("Mat_WoodPlank")
+size = Vector3(2.4, 0.18, 7.5)
+
+[sub_resource type="StandardMaterial3D" id="Mat_Piling"]
+albedo_color = Color(0.34, 0.23, 0.14, 1)
+roughness = 0.9
+
+[sub_resource type="CylinderMesh" id="Mesh_Piling"]
+material = SubResource("Mat_Piling")
+top_radius = 0.14
+bottom_radius = 0.14
+height = 2.2
+
+[sub_resource type="BoxShape3D" id="Shape_Deck"]
+size = Vector3(2.4, 0.25, 7.5)
+
+[node name="Dock" type="Node3D"]
+
+[node name="Deck" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+mesh = SubResource("Mesh_Deck")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("Shape_Deck")
+
+[node name="PilingFL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.15, -0.4, 3.4)
+mesh = SubResource("Mesh_Piling")
+
+[node name="PilingFR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.15, -0.4, 3.4)
+mesh = SubResource("Mesh_Piling")
+
+[node name="PilingML" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.15, -0.4, 0)
+mesh = SubResource("Mesh_Piling")
+
+[node name="PilingMR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.15, -0.4, 0)
+mesh = SubResource("Mesh_Piling")
+
+[node name="PilingBL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.15, -0.4, -3.4)
+mesh = SubResource("Mesh_Piling")
+
+[node name="PilingBR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.15, -0.4, -3.4)
+mesh = SubResource("Mesh_Piling")

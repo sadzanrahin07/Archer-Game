@@ -1,0 +1,9 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://Character/archery_anim.glb" id="1_archery_anim"]
+
+[node name="CharacterBody3D" type="CharacterBody3D"]
+
+[node name="archery_anim" parent="." instance=ExtResource("1_archery_anim")]
+
+[editable path="archery_anim"]

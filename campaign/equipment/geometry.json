@@ -1,0 +1,54 @@
+{
+	"elven": {
+		"bottom": [
+			0,
+			-0.825,
+			-0.140879517431175
+		],
+		"mesh": "res://campaign/equipment/elven.res",
+		"top": [
+			0,
+			0.825,
+			-0.14082543087331
+		]
+	},
+	"fantasy": {
+		"bottom": [
+			0,
+			-0.825,
+			-0.119753715596129
+		],
+		"mesh": "res://campaign/equipment/fantasy.res",
+		"top": [
+			0,
+			0.825,
+			-0.119764657172758
+		]
+	},
+	"marble": {
+		"bottom": [
+			0,
+			-0.825,
+			-0.1339299510309
+		],
+		"mesh": "res://campaign/equipment/marble.res",
+		"top": [
+			0,
+			0.825,
+			-0.133120113568421
+		]
+	},
+	"marble_arrow": {
+		"bottom": [
+			0,
+			-0.825,
+			-0.000175538384243225
+		],
+		"mesh": "res://campaign/equipment/marble_arrow.res",
+		"top": [
+			0,
+			0.825,
+			-0.000175538384243225
+		]
+	}
+}

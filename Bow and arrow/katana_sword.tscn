@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://c2katana_blade_01"]
+
+[ext_resource type="ArrayMesh" path="res://models/katana_sword_mesh.res" id="1_mesh"]
+
+[node name="KatanaSword" type="Node3D"]
+
+[node name="BladeMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
+mesh = ExtResource("1_mesh")

@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://brha0x1wc6xte"]
+
+[ext_resource type="PackedScene" path="res://scenes/archer_test_stage.tscn" id="1_uwodc"]
+
+[node name="ArcherTestStage" unique_id=781099703 instance=ExtResource("1_uwodc")]

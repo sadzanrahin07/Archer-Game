@@ -1,0 +1,32 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/archer_controller.gd" id="1_ctrl"]
+[ext_resource type="PackedScene" path="res://scenes/vroid_archer_character.scn" id="1_jggnj"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_b0l3x"]
+radius = 0.3
+height = 1.55
+
+[node name="Archer" type="CharacterBody3D" unique_id=1141975208]
+script = ExtResource("1_ctrl")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=372393208]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.775, 0)
+shape = SubResource("CapsuleShape3D_b0l3x")
+
+[node name="Visuals" type="Node3D" parent="." unique_id=1072900015]
+
+[node name="CharacterModel" type="Node3D" parent="Visuals" unique_id=5059690 instance=ExtResource("1_jggnj")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
+
+[node name="CameraPivot" type="Node3D" parent="." unique_id=1272139610]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 1.42, 0)
+
+[node name="SpringArm3D" type="SpringArm3D" parent="CameraPivot" unique_id=1706217843]
+spring_length = 2.8
+margin = 0.1
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot/SpringArm3D" unique_id=1284810815]
+fov = 72.0
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=132191774]

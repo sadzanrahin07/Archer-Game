@@ -1,0 +1,65 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/archery_distance_marker.gd" id="1_hebdg"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8van5"]
+albedo_color = Color(0.48, 0.35, 0.22, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="BoxMesh_wv5yl"]
+material = SubResource("StandardMaterial3D_8van5")
+size = Vector3(1.2, 0.62, 0.05)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yepqn"]
+albedo_color = Color(0.6, 0.46, 0.3, 1)
+roughness = 0.8
+
+[sub_resource type="BoxMesh" id="BoxMesh_8d5tn"]
+material = SubResource("StandardMaterial3D_yepqn")
+size = Vector3(1.24, 0.07, 0.1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4jaf2"]
+albedo_color = Color(0.32, 0.22, 0.14, 1)
+roughness = 0.9
+
+[sub_resource type="BoxMesh" id="BoxMesh_dv6m2"]
+material = SubResource("StandardMaterial3D_4jaf2")
+size = Vector3(0.04, 0.44, 0.36)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bj037"]
+size = Vector3(1.22, 0.55, 0.5)
+
+[node name="ArcheryDistanceMarker" type="StaticBody3D" unique_id=1348961470]
+script = ExtResource("1_hebdg")
+
+[node name="FrontBoard" type="MeshInstance3D" parent="." unique_id=1078122986]
+transform = Transform3D(1, 0, 0, 0, 0.8290376, 0.5591929, 0, -0.5591929, 0.8290376, 0, 0.285, -0.16)
+mesh = SubResource("BoxMesh_wv5yl")
+
+[node name="NumberLabel" type="Label3D" parent="FrontBoard" unique_id=925089494]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0.02, -0.032)
+render_priority = 2
+modulate = Color(1, 0.98, 0.94, 1)
+outline_modulate = Color(0.12, 0.08, 0.05, 1)
+text = "20"
+font_size = 96
+
+[node name="BackBoard" type="MeshInstance3D" parent="." unique_id=1623965600]
+transform = Transform3D(1, 0, 0, 0, 0.8290376, -0.5591929, 0, 0.5591929, 0.8290376, 0, 0.285, 0.16)
+mesh = SubResource("BoxMesh_wv5yl")
+
+[node name="RidgeCap" type="MeshInstance3D" parent="." unique_id=1847777044]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.54, 0)
+mesh = SubResource("BoxMesh_8d5tn")
+
+[node name="SideSupportL" type="MeshInstance3D" parent="." unique_id=1302401932]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.58, 0.22, 0)
+mesh = SubResource("BoxMesh_dv6m2")
+
+[node name="SideSupportR" type="MeshInstance3D" parent="." unique_id=5000802]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.58, 0.22, 0)
+mesh = SubResource("BoxMesh_dv6m2")
+
+[node name="@CollisionShape3D@2" type="CollisionShape3D" parent="." unique_id=684740347]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.27, 0)
+shape = SubResource("BoxShape3D_bj037")

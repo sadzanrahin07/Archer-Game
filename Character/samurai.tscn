@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://4yj4b6dcxkq3"]
+
+[ext_resource type="PackedScene" uid="uid://cvtfbtgfaxcoo" path="res://scenes/samurai.tscn" id="1_2wlsp"]
+
+[node name="Samurai" unique_id=779762094 instance=ExtResource("1_2wlsp")]

@@ -1,0 +1,36 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2mjlg"]
+albedo_color = Color(0.48, 0.32, 0.18, 1)
+roughness = 0.75
+
+[sub_resource type="BoxMesh" id="BoxMesh_8cksf"]
+material = SubResource("StandardMaterial3D_2mjlg")
+size = Vector3(2.6, 0.16, 0.18)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_lhwgd"]
+material = SubResource("StandardMaterial3D_2mjlg")
+top_radius = 0.09
+bottom_radius = 0.1
+height = 0.52
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_cb1dp"]
+size = Vector3(2.6, 0.48, 0.3)
+
+[node name="ParkourHurdle" type="StaticBody3D" unique_id=1090838209]
+
+[node name="Crossbar" type="MeshInstance3D" parent="." unique_id=42124978]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.42, 0)
+mesh = SubResource("BoxMesh_8cksf")
+
+[node name="PostLeft" type="MeshInstance3D" parent="." unique_id=1035837689]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.15, 0.26, 0)
+mesh = SubResource("CylinderMesh_lhwgd")
+
+[node name="PostRight" type="MeshInstance3D" parent="." unique_id=1764295838]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.15, 0.26, 0)
+mesh = SubResource("CylinderMesh_lhwgd")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2077494150]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.24, 0)
+shape = SubResource("BoxShape3D_cb1dp")

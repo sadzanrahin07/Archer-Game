@@ -1,0 +1,36 @@
+[gd_scene format=3]
+
+[ext_resource type="ArrayMesh" path="res://models/birch_tree_mesh.res" id="1_mesh"]
+[ext_resource type="Texture2D" path="res://materials/Bark_Birch.png" id="2_bark"]
+[ext_resource type="Texture2D" path="res://assests/Stylized Nature MegaKit[Standard]/glTF/Leaves_NormalTree_C.png" id="3_leaves"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bark"]
+cull_mode = 2
+albedo_texture = ExtResource("2_bark")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_leaves"]
+transparency = 2
+alpha_scissor_threshold = 0.25
+cull_mode = 2
+albedo_color = Color(0.95, 1.05, 0.95, 1)
+albedo_texture = ExtResource("3_leaves")
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_trunk"]
+height = 6.0
+radius = 0.44
+
+[node name="BirchTree" type="Node3D"]
+
+[node name="TreeMesh" type="MeshInstance3D" parent="."]
+mesh = ExtResource("1_mesh")
+visibility_range_end = 95.0
+visibility_range_end_margin = 18.0
+visibility_range_fade_mode = 1
+surface_material_override/0 = SubResource("StandardMaterial3D_bark")
+surface_material_override/1 = SubResource("StandardMaterial3D_leaves")
+
+[node name="TreeStaticBody" type="StaticBody3D" parent="."]
+
+[node name="TrunkCollision" type="CollisionShape3D" parent="TreeStaticBody"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
+shape = SubResource("CylinderShape3D_trunk")

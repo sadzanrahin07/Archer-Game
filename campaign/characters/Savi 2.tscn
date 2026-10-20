@@ -1,0 +1,64 @@
+[gd_scene format=3 uid="uid://p8q4k0h8d0ia"]
+
+[ext_resource type="PackedScene" path="res://Savi/7185862033116711190.vrm" id="1_m102x"]
+[ext_resource type="AnimationLibrary" path="res://A1.fbx" id="2_aaad5"]
+[ext_resource type="AnimationLibrary" path="res://A2.fbx" id="3_ygw24"]
+[ext_resource type="AnimationLibrary" path="res://Archer/X bow.fbx" id="4_fl65j"]
+
+[node name="7185862033116711190" unique_id=559843760 instance=ExtResource("1_m102x")]
+
+[node name="GeneralSkeleton" parent="." index="0" unique_id=781329312]
+bones/1/position = Vector3(1.4807861e-07, 0.97228706, 0.053137857)
+bones/1/rotation = Quaternion(0, -3.5527137e-15, 3.5527137e-15, 1)
+bones/3/rotation = Quaternion(1.4528632e-07, -1.9984014e-14, 0, 1)
+bones/4/rotation = Quaternion(3.9115548e-08, -3.1086245e-15, 0, 1)
+bones/9/rotation = Quaternion(-7.450581e-09, 3.996803e-15, 0, 1)
+bones/10/rotation = Quaternion(-1.937151e-07, 2.3092639e-14, 1.4210855e-14, 1)
+bones/21/rotation = Quaternion(0.5000002, 0.5, 0.49999985, -0.49999997)
+bones/22/rotation = Quaternion(-1.8179417e-05, 1, -5.9604645e-08, 0)
+bones/23/rotation = Quaternion(1.0536716e-08, -0.70710665, -1.3697726e-07, 0.7071069)
+bones/24/rotation = Quaternion(1.08580906e-07, 0.7071065, -1.8644708e-07, 0.70710707)
+bones/25/rotation = Quaternion(0, 7.4505806e-08, 0, 1)
+bones/26/rotation = Quaternion(-1.4901161e-08, 2.9802322e-08, -7.4505806e-08, 1)
+bones/28/rotation = Quaternion(-2.9802322e-08, 1.0430813e-07, -1.4901161e-08, 1)
+bones/29/rotation = Quaternion(0, 0, -5.9604645e-08, 1)
+bones/30/rotation = Quaternion(-5.960463e-08, 1.1920926e-07, 0, 1)
+bones/31/rotation = Quaternion(-2.9802326e-08, 1.0430814e-07, 4.470349e-08, 1)
+bones/32/rotation = Quaternion(-1.4901163e-08, 1.4901163e-08, -1.4901163e-08, 1)
+bones/34/rotation = Quaternion(-2.9802326e-08, 1.0430814e-07, 4.470349e-08, 1)
+bones/37/rotation = Quaternion(-0.21418683, 0.6738874, 0.21418674, 0.67388713)
+bones/38/rotation = Quaternion(2.980232e-08, -4.4703484e-08, -5.9604645e-08, 1)
+bones/39/scale = Vector3(1.0003966, 0.9999946, 0.99960905)
+bones/40/rotation = Quaternion(0.5000001, -0.5, -0.49999988, -0.5)
+bones/41/rotation = Quaternion(1.3753772e-05, 1, -1.1920929e-07, 1.3411045e-07)
+bones/42/rotation = Quaternion(8.429369e-08, 0.7071066, 1.2644053e-07, 0.70710695)
+bones/43/rotation = Quaternion(1.0727227e-07, -0.7071064, 1.8775572e-07, 0.7071071)
+bones/44/rotation = Quaternion(2.9802322e-08, -8.940697e-08, -1.4901161e-08, 1)
+bones/45/rotation = Quaternion(1.4901161e-08, 1.4901161e-08, 0, 1)
+bones/46/rotation = Quaternion(-2.9802322e-08, -8.940697e-08, -4.4703484e-08, 1)
+bones/47/rotation = Quaternion(0, -1.0430813e-07, -5.9604645e-08, 1)
+bones/48/rotation = Quaternion(0, 0, 5.9604645e-08, 1)
+bones/49/rotation = Quaternion(-1.4901163e-08, 7.450581e-08, 7.450581e-08, 1)
+bones/50/rotation = Quaternion(-2.9802322e-08, -1.4901161e-07, -2.9802322e-08, 1)
+bones/51/rotation = Quaternion(-5.9604645e-08, 0, 0, 1)
+bones/53/rotation = Quaternion(0, -1.1920929e-07, -5.9604645e-08, 1)
+bones/54/rotation = Quaternion(0, 0, 7.4505806e-08, 1)
+bones/55/rotation = Quaternion(-2.9802322e-08, 2.9802322e-08, -2.9802322e-08, 1)
+bones/56/rotation = Quaternion(-0.21418686, -0.67388743, -0.21418668, 0.6738872)
+bones/57/rotation = Quaternion(5.9604645e-08, 7.4505806e-08, 2.980232e-08, 1)
+bones/58/scale = Vector3(1.0003965, 0.99999416, 0.9996093)
+bones/59/rotation = Quaternion(-3.7925219e-13, -2.168119e-06, 1, 5.684342e-14)
+bones/60/rotation = Quaternion(-4.947197e-09, 1, 3.8165604e-06, 6.6727757e-10)
+bones/89/rotation = Quaternion(-3.1753555e-09, 0.70710826, -0.7071053, 2.9695602e-09)
+bones/90/rotation = Quaternion(8.7607e-08, 1, 2.0861626e-07, 5.3815434e-08)
+bones/91/rotation = Quaternion(-6.5495165e-11, -2.168119e-06, 1, 9.305843e-09)
+bones/92/rotation = Quaternion(-5.2808464e-09, 1, 3.8277362e-06, 3.1634137e-10)
+bones/121/rotation = Quaternion(3.421344e-09, 0.7071082, -0.70710534, -3.0714924e-09)
+bones/122/rotation = Quaternion(1.0796014e-07, 1, 1.7881393e-07, 8.812149e-08)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." index="2" unique_id=715648571]
+libraries/A1 = ExtResource("2_aaad5")
+libraries/A2 = ExtResource("3_ygw24")
+"libraries/X bow" = ExtResource("4_fl65j")
+
+[node name="Armature" type="Node3D" parent="."]

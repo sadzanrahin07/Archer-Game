@@ -1,0 +1,1158 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/props/rock_path_round_wide.tscn" id="1_g6tb1"]
+[ext_resource type="PackedScene" path="res://scenes/props/rock_path_round_small_2.tscn" id="2_28oso"]
+[ext_resource type="PackedScene" path="res://scenes/props/rock_path_round_small_1.tscn" id="3_dhh38"]
+[ext_resource type="PackedScene" path="res://scenes/props/birch_tree_green.tscn" id="4_lwsaf"]
+[ext_resource type="PackedScene" path="res://scenes/props/birch_tree_gold.tscn" id="5_mtmcw"]
+[ext_resource type="PackedScene" path="res://scenes/props/birch_tree_orange.tscn" id="6_34eb8"]
+[ext_resource type="PackedScene" path="res://scenes/props/rock_medium_1.tscn" id="7_trb5x"]
+[ext_resource type="PackedScene" path="res://scenes/props/rock_medium_2.tscn" id="8_wp8tx"]
+[ext_resource type="Shader" path="res://shaders/stylized_moving_grass.gdshader" id="9_upr8p"]
+[ext_resource type="Texture2D" path="res://assests/Stylized Nature MegaKit[Standard]/glTF/Grass.png" id="10_pn862"]
+[ext_resource type="MultiMesh" path="res://models/meadow_grass_com.res" id="11_k4wbk"]
+[ext_resource type="MultiMesh" path="res://models/meadow_grass_wsp.res" id="12_cvc5j"]
+[ext_resource type="Shader" path="res://shaders/stylized_moving_flower.gdshader" id="13_x3nin"]
+[ext_resource type="Texture2D" path="res://assests/Stylized Nature MegaKit[Standard]/glTF/Flowers.png" id="14_dh2rv"]
+[ext_resource type="MultiMesh" path="res://models/meadow_flw_blue.res" id="15_60wrx"]
+[ext_resource type="MultiMesh" path="res://models/meadow_flw_pink.res" id="16_u34qp"]
+[ext_resource type="MultiMesh" path="res://models/meadow_flw_white.res" id="17_khgum"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_4wj3k"]
+render_priority = 0
+shader = ExtResource("9_upr8p")
+shader_parameter/texture_albedo = ExtResource("10_pn862")
+shader_parameter/top_color = Color(0.48, 0.84, 0.36, 1)
+shader_parameter/bottom_color = Color(0.22, 0.54, 0.22, 1)
+shader_parameter/wind_speed = 2.0
+shader_parameter/wind_strength = 0.16
+shader_parameter/wind_scale = 0.15
+shader_parameter/wind_direction = Vector2(1, 0.35)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ecui1"]
+render_priority = 0
+shader = ExtResource("9_upr8p")
+shader_parameter/texture_albedo = ExtResource("10_pn862")
+shader_parameter/top_color = Color(0.5, 0.86, 0.38, 1)
+shader_parameter/bottom_color = Color(0.24, 0.56, 0.23, 1)
+shader_parameter/wind_speed = 2.2
+shader_parameter/wind_strength = 0.18
+shader_parameter/wind_scale = 0.15
+shader_parameter/wind_direction = Vector2(1, 0.35)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_6nd6w"]
+render_priority = 0
+shader = ExtResource("13_x3nin")
+shader_parameter/texture_albedo = ExtResource("14_dh2rv")
+shader_parameter/color_tint = Color(0.35, 0.75, 1, 1)
+shader_parameter/use_custom_color = true
+shader_parameter/wind_speed = 1.8
+shader_parameter/wind_strength = 0.14
+shader_parameter/wind_scale = 0.16
+shader_parameter/wind_direction = Vector2(1, 0.35)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_lancg"]
+render_priority = 0
+shader = ExtResource("13_x3nin")
+shader_parameter/texture_albedo = ExtResource("14_dh2rv")
+shader_parameter/color_tint = Color(1, 0.5, 0.78, 1)
+shader_parameter/use_custom_color = true
+shader_parameter/wind_speed = 1.8
+shader_parameter/wind_strength = 0.14
+shader_parameter/wind_scale = 0.16
+shader_parameter/wind_direction = Vector2(1, 0.35)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_edhgq"]
+render_priority = 0
+shader = ExtResource("13_x3nin")
+shader_parameter/texture_albedo = ExtResource("14_dh2rv")
+shader_parameter/color_tint = Color(0.98, 0.98, 0.94, 1)
+shader_parameter/use_custom_color = true
+shader_parameter/wind_speed = 1.8
+shader_parameter/wind_strength = 0.14
+shader_parameter/wind_scale = 0.16
+shader_parameter/wind_direction = Vector2(1, 0.35)
+
+[node name="ScenicMeadow" type="Node3D" unique_id=245859070]
+
+[node name="OffRoadPath" type="Node3D" parent="." unique_id=1865034709]
+
+[node name="PathStone_Wide_0" type="Node3D" parent="OffRoadPath" unique_id=827416931 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(0.834741, 0, -0.823165, 0, 1.0551107, 0, 0.823165, 0, 0.834741, 11.5, 2.2459536, -3.5)
+
+[node name="PathStone_Side_0_0" type="Node3D" parent="OffRoadPath" unique_id=1159677813 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.0734394, 0, -0.35441202, 0, 1.0173903, 0, 0.35441202, 0, 1.0734394, 11.788972, 2.208624, -3.8612149)
+
+[node name="PathStone_Side_0_1" type="Node3D" parent="OffRoadPath" unique_id=745673259 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.89148206, 0, -0.3148219, 0, 0.8508942, 0, 0.3148219, 0, 0.89148206, 11.258354, 2.273712, -3.1979432)
+
+[node name="PathStone_Wide_1" type="Node3D" parent="OffRoadPath" unique_id=1113390494 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(0.9183923, 0, -0.7600825, 0, 1.0729154, 0, 0.7600825, 0, 0.9183923, 12.241825, 2.466233, -2.9065397)
+
+[node name="PathStone_Side_1_0" type="Node3D" parent="OffRoadPath" unique_id=2103587879 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.82968, 0, -0.70963675, 0, 0.9825895, 0, 0.70963675, 0, 0.82968, 12.647715, 2.4176695, -3.4139013)
+
+[node name="PathStone_Side_1_1" type="Node3D" parent="OffRoadPath" unique_id=839943128 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.71170497, 0, -0.8589476, 0, 1.0039397, 0, 0.8589476, 0, 0.71170497, 11.858576, 2.5081196, -2.4274783)
+
+[node name="PathStone_Wide_2" type="Node3D" parent="OffRoadPath" unique_id=1579953986 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(0.9955524, 0, -0.9725464, 0, 1.252576, 0, 0.9725464, 0, 0.9955524, 12.98365, 2.6889265, -2.3130794)
+
+[node name="PathStone_Side_2_0" type="Node3D" parent="OffRoadPath" unique_id=1081850459 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.566566, 0, -0.782583, 0, 0.8695291, 0, 0.782583, 0, 0.566566, 13.422112, 2.6390345, -2.8611574)
+
+[node name="PathStone_Side_2_1" type="Node3D" parent="OffRoadPath" unique_id=1005082877 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.82632625, 0, -0.46016592, 0, 0.8512343, 0, 0.46016592, 0, 0.82632625, 12.760294, 2.7111056, -2.0338838)
+
+[node name="PathStone_Wide_3" type="Node3D" parent="OffRoadPath" unique_id=840774712 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(0.96261966, 0, -0.77876484, 0, 1.1143699, 0, 0.77876484, 0, 0.96261966, 13.725476, 2.912511, -1.7196192)
+
+[node name="PathStone_Side_3_0" type="Node3D" parent="OffRoadPath" unique_id=1421813613 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.5395352, 0, -0.9772165, 0, 1.0046396, 0, 0.9772165, 0, 0.5395352, 14.024387, 2.879256, -2.0932586)
+
+[node name="PathStone_Side_3_1" type="Node3D" parent="OffRoadPath" unique_id=159771014 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.6141396, 0, -0.8641972, 0, 0.9541716, 0, 0.8641972, 0, 0.6141396, 13.393008, 2.944832, -1.3040336)
+
+[node name="PathStone_Wide_4" type="Node3D" parent="OffRoadPath" unique_id=1125704905 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1785866, 0, -0.5788882, 0, 1.1817715, 0, 0.5788882, 0, 1.1785866, 14.507474, 3.1306753, -1.1828285)
+
+[node name="PathStone_Side_4_0" type="Node3D" parent="OffRoadPath" unique_id=126370225 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.8045837, 0, -0.88024545, 0, 1.0732994, 0, 0.88024545, 0, 0.8045837, 14.781656, 3.0820036, -1.6215205)
+
+[node name="PathStone_Side_4_1" type="Node3D" parent="OffRoadPath" unique_id=140661817 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0711472, 0, -0.22121018, 0, 0.9843754, 0, 0.22121018, 0, 1.0711472, 14.238974, 3.1737115, -0.7532284)
+
+[node name="PathStone_Wide_5" type="Node3D" parent="OffRoadPath" unique_id=1154056633 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1420836, 0, -0.5458528, 0, 1.1392416, 0, 0.5458528, 0, 1.1420836, 15.313072, 3.3683212, -0.6793296)
+
+[node name="PathStone_Side_5_0" type="Node3D" parent="OffRoadPath" unique_id=393131377 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.8626428, 0, -0.58433104, 0, 0.9377272, 0, 0.58433104, 0, 0.8626428, 15.678533, 3.3368905, -1.2640667)
+
+[node name="PathStone_Side_5_1" type="Node3D" parent="OffRoadPath" unique_id=2080258546 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.7202956, 0, -0.6008031, 0, 0.8441741, 0, 0.6008031, 0, 0.7202956, 15.040058, 3.3908114, -0.24250644)
+
+[node name="PathStone_Wide_6" type="Node3D" parent="OffRoadPath" unique_id=1912762831 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.0523704, 0, -0.7927731, 0, 1.1858069, 0, 0.7927731, 0, 1.0523704, 16.118671, 3.6338637, -0.17583048)
+
+[node name="PathStone_Side_6_0" type="Node3D" parent="OffRoadPath" unique_id=1912751240 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.66948384, 0, -0.89007336, 0, 1.0023751, 0, 0.89007336, 0, 0.66948384, 16.41633, 3.6108475, -0.65208423)
+
+[node name="PathStone_Side_6_1" type="Node3D" parent="OffRoadPath" unique_id=173041924 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.98083377, 0, -0.42374545, 0, 0.96160907, 0, 0.42374545, 0, 0.98083377, 15.750077, 3.6609998, 0.4139197)
+
+[node name="PathStone_Wide_7" type="Node3D" parent="OffRoadPath" unique_id=264307657 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.0201398, 0, -0.61903334, 0, 1.0739409, 0, 0.61903334, 0, 1.0201398, 16.924269, 3.88608, 0.32766843)
+
+[node name="PathStone_Side_7_0" type="Node3D" parent="OffRoadPath" unique_id=2014835107 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.0778729, 0, -0.34706628, 0, 1.0191343, 0, 0.34706628, 0, 1.0778729, 17.277687, 3.8624172, -0.23780197)
+
+[node name="PathStone_Side_7_1" type="Node3D" parent="OffRoadPath" unique_id=553081180 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.98429024, 0, -0.34839678, 0, 0.93971705, 0, 0.34839678, 0, 0.98429024, 16.541618, 3.9105413, 0.93990934)
+
+[node name="PathStone_Wide_8" type="Node3D" parent="OffRoadPath" unique_id=271658561 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1018, 0, -0.6870733, 0, 1.168626, 0, 0.6870733, 0, 1.1018, 17.729868, 4.123249, 0.83116746)
+
+[node name="PathStone_Side_8_0" type="Node3D" parent="OffRoadPath" unique_id=1837809020 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.9089411, 0, -0.47413728, 0, 0.9226559, 0, 0.47413728, 0, 0.9089411, 18.016787, 4.10541, 0.372099)
+
+[node name="PathStone_Side_8_1" type="Node3D" parent="OffRoadPath" unique_id=218104025 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.7084645, 0, -0.78917766, 0, 0.9544767, 0, 0.78917766, 0, 0.7084645, 17.46808, 4.1369433, 1.250027)
+
+[node name="PathStone_Wide_9" type="Node3D" parent="OffRoadPath" unique_id=43826981 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.2143873, 0, -0.49939975, 0, 1.1817575, 0, 0.49939975, 0, 1.2143873, 18.564783, 4.341543, 1.2823918)
+
+[node name="PathStone_Side_9_0" type="Node3D" parent="OffRoadPath" unique_id=248175676 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.77198535, 0, -0.72574437, 0, 0.9536035, 0, 0.72574437, 0, 0.77198535, 18.792122, 4.315244, 0.8277124)
+
+[node name="PathStone_Side_9_1" type="Node3D" parent="OffRoadPath" unique_id=397690858 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.1135237, 0, -0.2724499, 0, 1.0317329, 0, 0.2724499, 0, 1.1135237, 18.292349, 4.3697147, 1.8272617)
+
+[node name="PathStone_Wide_10" type="Node3D" parent="OffRoadPath" unique_id=1991674160 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(0.9668675, 0, -0.6390855, 0, 1.0430931, 0, 0.6390855, 0, 0.9668675, 19.41449, 4.5411654, 1.7072448)
+
+[node name="PathStone_Side_10_0" type="Node3D" parent="OffRoadPath" unique_id=771741405 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.0556749, 0, -0.17018645, 0, 0.96237445, 0, 0.17018645, 0, 1.0556749, 19.648212, 4.516018, 1.2398008)
+
+[node name="PathStone_Side_10_1" type="Node3D" parent="OffRoadPath" unique_id=717350021 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.1235766, 0, -0.22843526, 0, 1.0319068, 0, 0.22843526, 0, 1.1235766, 19.091482, 4.57212, 2.3532603)
+
+[node name="PathStone_Wide_11" type="Node3D" parent="OffRoadPath" unique_id=1559419559 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.0839262, 0, -0.41764826, 0, 1.0454445, 0, 0.41764826, 0, 1.0839262, 20.264194, 4.721951, 2.1320977)
+
+[node name="PathStone_Side_11_0" type="Node3D" parent="OffRoadPath" unique_id=574024495 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.994881, 0, -0.36604187, 0, 0.9540742, 0, 0.36604187, 0, 0.994881, 20.588552, 4.6896243, 1.4833825)
+
+[node name="PathStone_Side_11_1" type="Node3D" parent="OffRoadPath" unique_id=1639210258 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.88598746, 0, -0.43750945, 0, 0.8893113, 0, 0.43750945, 0, 0.88598746, 20.058582, 4.7394543, 2.5433214)
+
+[node name="PathStone_Wide_12" type="Node3D" parent="OffRoadPath" unique_id=213092861 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.0324221, 0, -0.7004573, 0, 1.1228508, 0, 0.7004573, 0, 1.0324221, 21.113901, 4.882677, 2.5569506)
+
+[node name="PathStone_Side_12_0" type="Node3D" parent="OffRoadPath" unique_id=499792994 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.8637662, 0, -0.34752446, 0, 0.8379504, 0, 0.34752446, 0, 0.8637662, 21.273506, 4.8662105, 2.2377393)
+
+[node name="PathStone_Side_12_1" type="Node3D" parent="OffRoadPath" unique_id=43682928 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.90453875, 0, -0.7788291, 0, 1.0742717, 0, 0.7788291, 0, 0.90453875, 20.861383, 4.9036193, 3.0619857)
+
+[node name="PathStone_Wide_13" type="Node3D" parent="OffRoadPath" unique_id=309497973 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.0771422, 0, -0.621118, 0, 1.1190525, 0, 0.621118, 0, 1.0771422, 21.963608, 5.022329, 2.9818037)
+
+[node name="PathStone_Side_13_0" type="Node3D" parent="OffRoadPath" unique_id=2024125001 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.7058222, 0, -0.7882899, 0, 0.9522944, 0, 0.7882899, 0, 0.7058222, 22.247206, 4.9947686, 2.4146078)
+
+[node name="PathStone_Side_13_1" type="Node3D" parent="OffRoadPath" unique_id=994492797 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.085961, 0, -0.35434654, 0, 1.0280793, 0, 0.35434654, 0, 1.085961, 21.766113, 5.037924, 3.3767924)
+
+[node name="PathStone_Wide_14" type="Node3D" parent="OffRoadPath" unique_id=1466179316 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.0163904, 0, -0.5813161, 0, 1.0537989, 0, 0.5813161, 0, 1.0163904, 22.813313, 5.1401, 3.4066565)
+
+[node name="PathStone_Side_14_0" type="Node3D" parent="OffRoadPath" unique_id=634352322 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.8444781, 0, -0.6841925, 0, 0.9781731, 0, 0.6841925, 0, 0.8444781, 23.14627, 5.1074443, 2.7407393)
+
+[node name="PathStone_Side_14_1" type="Node3D" parent="OffRoadPath" unique_id=1273403708 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.85816276, 0, -0.35468084, 0, 0.8357128, 0, 0.35468084, 0, 0.85816276, 22.589499, 5.158146, 3.8542862)
+
+[node name="PathStone_Wide_15" type="Node3D" parent="OffRoadPath" unique_id=983700224 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1999073, 0, -0.5997353, 0, 1.2072955, 0, 0.5997353, 0, 1.1999073, 23.66302, 5.2353864, 3.8315094)
+
+[node name="PathStone_Side_15_0" type="Node3D" parent="OffRoadPath" unique_id=1408411049 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.7264342, 0, -0.8268021, 0, 0.9905351, 0, 0.8268021, 0, 0.7264342, 23.985231, 5.2024775, 3.1870842)
+
+[node name="PathStone_Side_15_1" type="Node3D" parent="OffRoadPath" unique_id=1550682223 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.0863464, 0, -0.4538977, 0, 1.0596222, 0, 0.4538977, 0, 1.0863464, 23.491259, 5.2492847, 4.1750298)
+
+[node name="PathStone_Wide_16" type="Node3D" parent="OffRoadPath" unique_id=337591471 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1265755, 0, -0.559933, 0, 1.1322477, 0, 0.559933, 0, 1.1265755, 24.536745, 5.304914, 4.201279)
+
+[node name="PathStone_Side_16_0" type="Node3D" parent="OffRoadPath" unique_id=1161542921 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.88337404, 0, -0.34223786, 0, 0.85261714, 0, 0.34223786, 0, 0.88337404, 24.798582, 5.2640543, 3.5030484)
+
+[node name="PathStone_Side_16_1" type="Node3D" parent="OffRoadPath" unique_id=974720040 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.88739735, 0, -0.35594326, 0, 0.86051, 0, 0.35594326, 0, 0.88739735, 24.326864, 5.33278, 4.7609625)
+
+[node name="PathStone_Wide_17" type="Node3D" parent="OffRoadPath" unique_id=972013885 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.3000126, 0, -0.44205806, 0, 1.2358046, 0, 0.44205806, 0, 1.3000126, 25.426258, 5.304538, 4.5348463)
+
+[node name="PathStone_Side_17_0" type="Node3D" parent="OffRoadPath" unique_id=522134029 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.98786306, 0, -0.52529097, 0, 1.0069565, 0, 0.52529097, 0, 0.98786306, 25.643412, 5.2441754, 3.955772)
+
+[node name="PathStone_Side_17_1" type="Node3D" parent="OffRoadPath" unique_id=1830679323 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.74978894, 0, -0.68906564, 0, 0.9164966, 0, 0.68906564, 0, 0.74978894, 25.298624, 5.3352976, 4.875202)
+
+[node name="PathStone_Wide_18" type="Node3D" parent="OffRoadPath" unique_id=1993442279 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1232471, 0, -0.42356017, 0, 1.0804077, 0, 0.42356017, 0, 1.1232471, 26.31577, 5.247081, 4.868414)
+
+[node name="PathStone_Side_18_0" type="Node3D" parent="OffRoadPath" unique_id=1806934271 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.78143275, 0, -0.65491647, 0, 0.9176261, 0, 0.65491647, 0, 0.78143275, 26.51747, 5.188893, 4.3305473)
+
+[node name="PathStone_Side_18_1" type="Node3D" parent="OffRoadPath" unique_id=1882311343 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.87851405, 0, -0.64908266, 0, 0.98306006, 0, 0.64908266, 0, 0.87851405, 26.189524, 5.2788224, 5.2050705)
+
+[node name="PathStone_Wide_19" type="Node3D" parent="OffRoadPath" unique_id=518503378 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1930845, 0, -0.621188, 0, 1.2106005, 0, 0.621188, 0, 1.1930845, 27.205282, 5.1867113, 5.201981)
+
+[node name="PathStone_Side_19_0" type="Node3D" parent="OffRoadPath" unique_id=1650106068 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.99271035, 0, -0.19693281, 0, 0.91085, 0, 0.19693281, 0, 0.99271035, 27.391737, 5.1309714, 4.7047687)
+
+[node name="PathStone_Side_19_1" type="Node3D" parent="OffRoadPath" unique_id=114027658 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.9817787, 0, -0.655929, 0, 1.0626605, 0, 0.655929, 0, 0.9817787, 27.045609, 5.2288623, 5.6277757)
+
+[node name="PathStone_Wide_20" type="Node3D" parent="OffRoadPath" unique_id=1422705466 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.0814976, 0, -0.5966627, 0, 1.1116524, 0, 0.5966627, 0, 1.0814976, 28.094795, 5.1239533, 5.535548)
+
+[node name="PathStone_Side_20_0" type="Node3D" parent="OffRoadPath" unique_id=2008334185 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.1837146, 0, -0.17376672, 0, 1.0767608, 0, 0.17376672, 0, 1.1837146, 28.283772, 5.0656013, 5.031614)
+
+[node name="PathStone_Side_20_1" type="Node3D" parent="OffRoadPath" unique_id=1528136677 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.0709336, 0, -0.37189814, 0, 1.0203028, 0, 0.37189814, 0, 1.0709336, 27.951742, 5.1630373, 5.9170227)
+
+[node name="PathStone_Wide_21" type="Node3D" parent="OffRoadPath" unique_id=78489682 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1597118, 0, -0.28549752, 0, 1.0749031, 0, 0.28549752, 0, 1.1597118, 28.984308, 5.0593023, 5.869116)
+
+[node name="PathStone_Side_21_0" type="Node3D" parent="OffRoadPath" unique_id=900633637 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.8962935, 0, -0.40532088, 0, 0.8853123, 0, 0.40532088, 0, 0.8962935, 29.107296, 5.0197177, 5.54115)
+
+[node name="PathStone_Side_21_1" type="Node3D" parent="OffRoadPath" unique_id=1171189519 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0266702, 0, -0.09731102, 0, 0.9281444, 0, 0.09731102, 0, 1.0266702, 28.770452, 5.1203136, 6.439397)
+
+[node name="PathStone_Wide_22" type="Node3D" parent="OffRoadPath" unique_id=354685489 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1996721, 0, -0.28126067, 0, 1.1089814, 0, 0.28126067, 0, 1.1996721, 29.873821, 4.993225, 6.202683)
+
+[node name="PathStone_Side_22_0" type="Node3D" parent="OffRoadPath" unique_id=935343542 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.1133206, 0, -0.38607934, 0, 1.060527, 0, 0.38607934, 0, 1.1133206, 30.06016, 4.932211, 5.705779)
+
+[node name="PathStone_Side_22_1" type="Node3D" parent="OffRoadPath" unique_id=1220172132 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.1624475, 0, -0.24620725, 0, 1.0694114, 0, 0.24620725, 0, 1.1624475, 29.651327, 5.058805, 6.7960005)
+
+[node name="PathStone_Wide_23" type="Node3D" parent="OffRoadPath" unique_id=962915590 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.2433335, 0, -0.6431163, 0, 1.2598318, 0, 0.6431163, 0, 1.2433335, 30.763334, 4.926154, 6.53625)
+
+[node name="PathStone_Side_23_0" type="Node3D" parent="OffRoadPath" unique_id=1691981903 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.9624999, 0, -0.50067604, 0, 0.9764409, 0, 0.50067604, 0, 0.9624999, 30.896587, 4.8810325, 6.180907)
+
+[node name="PathStone_Side_23_1" type="Node3D" parent="OffRoadPath" unique_id=1871718302 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.89162123, 0, -0.33619016, 0, 0.8576071, 0, 0.33619016, 0, 0.89162123, 30.622108, 4.9686575, 6.91285)
+
+[node name="PathStone_Wide_24" type="Node3D" parent="OffRoadPath" unique_id=1360604266 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.3075176, 0, -0.35712296, 0, 1.21987, 0, 0.35712296, 0, 1.3075176, 31.652847, 4.8584847, 6.8698177)
+
+[node name="PathStone_Side_24_0" type="Node3D" parent="OffRoadPath" unique_id=1980932160 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.9914451, 0, -0.41111544, 0, 0.96597266, 0, 0.41111544, 0, 0.9914451, 31.796436, 4.8088355, 6.486916)
+
+[node name="PathStone_Side_24_1" type="Node3D" parent="OffRoadPath" unique_id=1436532268 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.91420746, 0, -0.77460396, 0, 1.0784189, 0, 0.77460396, 0, 0.91420746, 31.459465, 4.9186945, 7.385503)
+
+[node name="PathStone_Wide_25" type="Node3D" parent="OffRoadPath" unique_id=1124727059 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.2604831, 0, -0.20190525, 0, 1.1488962, 0, 0.20190525, 0, 1.2604831, 32.55481, 4.786084, 7.1664433)
+
+[node name="PathStone_Side_25_0" type="Node3D" parent="OffRoadPath" unique_id=1976876561 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.1330963, 0, -0.113913685, 0, 1.0249273, 0, 0.113913685, 0, 1.1330963, 32.740215, 4.7099075, 6.5484247)
+
+[node name="PathStone_Side_25_1" type="Node3D" parent="OffRoadPath" unique_id=1891249484 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.1499372, 0, 0.07052918, 0, 1.0368882, 0, -0.07052918, 0, 1.1499372, 32.385643, 4.849289, 7.730333)
+
+[node name="PathStone_Wide_26" type="Node3D" parent="OffRoadPath" unique_id=125328491 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.2773235, 0, -0.25684586, 0, 1.1726019, 0, 0.25684586, 0, 1.2773235, 33.464745, 4.7106285, 7.439424)
+
+[node name="PathStone_Side_26_0" type="Node3D" parent="OffRoadPath" unique_id=2082061901 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.86635566, 0, -0.35687593, 0, 0.84328246, 0, 0.35687593, 0, 0.86635566, 33.60404, 4.6518617, 6.9751143)
+
+[node name="PathStone_Side_26_1" type="Node3D" parent="OffRoadPath" unique_id=624630075 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.9314143, 0, -0.16820449, 0, 0.85183245, 0, 0.16820449, 0, 0.9314143, 33.363804, 4.7487936, 7.7758913)
+
+[node name="PathStone_Wide_27" type="Node3D" parent="OffRoadPath" unique_id=649035476 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1990597, 0, -0.5143503, 0, 1.1742501, 0, 0.5143503, 0, 1.1990597, 34.37468, 4.635262, 7.7124043)
+
+[node name="PathStone_Side_27_0" type="Node3D" parent="OffRoadPath" unique_id=44530199 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.9680194, 0, -0.026808023, 0, 0.8715515, 0, 0.026808023, 0, 0.9680194, 34.54751, 4.561183, 7.1363096)
+
+[node name="PathStone_Side_27_1" type="Node3D" parent="OffRoadPath" unique_id=1593917144 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.0150735, 0, -0.15012966, 0, 0.923504, 0, 0.15012966, 0, 1.0150735, 34.272636, 4.6747327, 8.05255)
+
+[node name="PathStone_Wide_28" type="Node3D" parent="OffRoadPath" unique_id=430347863 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1666749, 0, -0.23998041, 0, 1.0719906, 0, 0.23998041, 0, 1.1666749, 35.284615, 4.560291, 7.985385)
+
+[node name="PathStone_Side_28_0" type="Node3D" parent="OffRoadPath" unique_id=1490456766 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0324043, 0, -0.06872564, 0, 0.93122035, 0, 0.06872564, 0, 1.0324043, 35.478096, 4.4760957, 7.3404512)
+
+[node name="PathStone_Side_28_1" type="Node3D" parent="OffRoadPath" unique_id=1737225953 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.8422611, 0, -0.4127517, 0, 0.84416336, 0, 0.4127517, 0, 0.8422611, 35.152172, 4.612934, 8.426866)
+
+[node name="PathStone_Wide_29" type="Node3D" parent="OffRoadPath" unique_id=483179903 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.2691865, 0, -0.29280406, 0, 1.1722716, 0, 0.29280406, 0, 1.2691865, 36.19455, 4.485986, 8.258366)
+
+[node name="PathStone_Side_29_0" type="Node3D" parent="OffRoadPath" unique_id=1161089567 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0245788, 0, -0.0707975, 0, 0.9243197, 0, 0.0707975, 0, 1.0245788, 36.30338, 4.437462, 7.8955994)
+
+[node name="PathStone_Side_29_1" type="Node3D" parent="OffRoadPath" unique_id=2055424952 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.0184087, 0, -0.6164332, 0, 1.0713955, 0, 0.6164332, 0, 1.0184087, 36.084656, 4.530088, 8.624683)
+
+[node name="PathStone_Wide_30" type="Node3D" parent="OffRoadPath" unique_id=475542168 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.2794445, 0, -0.36489794, 0, 1.1974156, 0, 0.36489794, 0, 1.2794445, 37.104485, 4.412586, 8.531345)
+
+[node name="PathStone_Side_30_0" type="Node3D" parent="OffRoadPath" unique_id=1206603864 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.943021, 0, -0.18231763, 0, 0.864435, 0, 0.18231763, 0, 0.943021, 37.301254, 4.3250003, 7.875452)
+
+[node name="PathStone_Side_30_1" type="Node3D" parent="OffRoadPath" unique_id=653457787 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.1441988, 0, -0.052384913, 0, 1.0308576, 0, 0.052384913, 0, 1.1441988, 36.93704, 4.481272, 9.089493)
+
+[node name="PathStone_Wide_31" type="Node3D" parent="OffRoadPath" unique_id=677846194 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.2755618, 0, -0.19426392, 0, 1.1612428, 0, 0.19426392, 0, 1.2755618, 38.01442, 4.3402967, 8.804326)
+
+[node name="PathStone_Side_31_0" type="Node3D" parent="OffRoadPath" unique_id=180241478 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.98937136, 0, -0.5064921, 0, 1.0003328, 0, 0.5064921, 0, 0.98937136, 38.215603, 4.2501836, 8.1337185)
+
+[node name="PathStone_Side_31_1" type="Node3D" parent="OffRoadPath" unique_id=1497756710 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.8413429, 0, -0.5269503, 0, 0.89346683, 0, 0.5269503, 0, 0.8413429, 37.819733, 4.4209466, 9.453282)
+
+[node name="PathStone_Wide_32" type="Node3D" parent="OffRoadPath" unique_id=254780820 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1571888, 0, -0.21447757, 0, 1.0592073, 0, 0.21447757, 0, 1.1571888, 38.924355, 4.2692924, 9.077307)
+
+[node name="PathStone_Side_32_0" type="Node3D" parent="OffRoadPath" unique_id=1089727816 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.9362424, 0, -0.22663835, 0, 0.86695504, 0, 0.22663835, 0, 0.9362424, 39.070484, 4.2033486, 8.590213)
+
+[node name="PathStone_Side_32_1" type="Node3D" parent="OffRoadPath" unique_id=535200249 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.7612224, 0, -0.60953015, 0, 0.87766683, 0, 0.60953015, 0, 0.7612224, 38.738377, 4.346646, 9.697239)
+
+[node name="PathStone_Wide_33" type="Node3D" parent="OffRoadPath" unique_id=228236583 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1935996, 0, -0.22362596, 0, 1.0929308, 0, 0.22362596, 0, 1.1935996, 39.83429, 4.1997166, 9.350287)
+
+[node name="PathStone_Side_33_0" type="Node3D" parent="OffRoadPath" unique_id=1961005716 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0058548, 0, -0.084400386, 0, 0.90845066, 0, 0.084400386, 0, 1.0058548, 39.962753, 4.14159, 8.922071)
+
+[node name="PathStone_Side_33_1" type="Node3D" parent="OffRoadPath" unique_id=354346922 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.0671245, 0, -0.21631426, 0, 0.9799453, 0, 0.21631426, 0, 1.0671245, 39.73058, 4.2422724, 9.695992)
+
+[node name="PathStone_Wide_34" type="Node3D" parent="OffRoadPath" unique_id=991963395 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.3069475, 0, -0.4469337, 0, 1.2431283, 0, 0.4469337, 0, 1.3069475, 40.744225, 4.131684, 9.623268)
+
+[node name="PathStone_Side_34_0" type="Node3D" parent="OffRoadPath" unique_id=710285528 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.1797631, 0, 0.037893485, 0, 1.0623344, 0, -0.037893485, 0, 1.1797631, 40.922207, 4.051974, 9.029988)
+
+[node name="PathStone_Side_34_1" type="Node3D" parent="OffRoadPath" unique_id=685602419 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.1929647, 0, 0.08115701, 0, 1.07615, 0, -0.08115701, 0, 1.1929647, 40.533115, 4.2193723, 10.32696)
+
+[node name="PathStone_Wide_35" type="Node3D" parent="OffRoadPath" unique_id=237964682 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.3056442, 0, -0.44537994, 0, 1.2415662, 0, 0.44537994, 0, 1.3056442, 41.65416, 4.0652833, 9.896248)
+
+[node name="PathStone_Side_35_0" type="Node3D" parent="OffRoadPath" unique_id=427646460 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0076679, 0, -0.55344844, 0, 1.0346868, 0, 0.55344844, 0, 1.0076679, 41.759373, 4.0179224, 9.545533)
+
+[node name="PathStone_Side_35_1" type="Node3D" parent="OffRoadPath" unique_id=530707220 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.0939217, 0, -0.10780047, 0, 0.98929834, 0, 0.10780047, 0, 1.0939217, 41.502686, 4.1274614, 10.401165)
+
+[node name="PathStone_Wide_36" type="Node3D" parent="OffRoadPath" unique_id=164929782 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.3516998, 0, -0.30713394, 0, 1.2475388, 0, 0.30713394, 0, 1.3516998, 42.558712, 4.002765, 10.186237)
+
+[node name="PathStone_Side_36_0" type="Node3D" parent="OffRoadPath" unique_id=738971891 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.9653011, 0, -0.69061, 0, 1.0682163, 0, 0.69061, 0, 0.9653011, 42.676567, 3.954427, 9.832672)
+
+[node name="PathStone_Side_36_1" type="Node3D" parent="OffRoadPath" unique_id=1576261684 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.0307124, 0, -0.077647395, 0, 0.9302697, 0, 0.077647395, 0, 1.0307124, 42.42582, 4.0522747, 10.584912)
+
+[node name="PathStone_Wide_37" type="Node3D" parent="OffRoadPath" unique_id=1499454769 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.0662037, 0, -0.48102444, 0, 1.052721, 0, 0.48102444, 0, 1.0662037, 43.45996, 3.9432347, 10.486653)
+
+[node name="PathStone_Side_37_0" type="Node3D" parent="OffRoadPath" unique_id=1999279851 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.1387718, 0, -0.064091064, 0, 1.0265164, 0, 0.064091064, 0, 1.1387718, 43.61325, 3.8818727, 10.026781)
+
+[node name="PathStone_Side_37_1" type="Node3D" parent="OffRoadPath" unique_id=1231335318 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.9320357, 0, -0.7357382, 0, 1.0686913, 0, 0.7357382, 0, 0.9320357, 43.238567, 4.025213, 11.150835)
+
+[node name="PathStone_Wide_38" type="Node3D" parent="OffRoadPath" unique_id=771226988 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.2271641, 0, -0.512484, 0, 1.1968889, 0, 0.512484, 0, 1.2271641, 44.36121, 3.8853161, 10.78707)
+
+[node name="PathStone_Side_38_0" type="Node3D" parent="OffRoadPath" unique_id=1464151743 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.1889322, 0, 0.06092631, 0, 1.071443, 0, -0.06092631, 0, 1.1889322, 44.558426, 3.8083928, 10.195427)
+
+[node name="PathStone_Side_38_1" type="Node3D" parent="OffRoadPath" unique_id=667023941 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.8670185, 0, -0.53468615, 0, 0.91676855, 0, 0.53468615, 0, 0.8670185, 44.185585, 3.9487429, 11.31394)
+
+[node name="PathStone_Wide_39" type="Node3D" parent="OffRoadPath" unique_id=1004764897 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.0549723, 0, -0.49282244, 0, 1.047965, 0, 0.49282244, 0, 1.0549723, 45.26246, 3.8289764, 11.087486)
+
+[node name="PathStone_Side_39_0" type="Node3D" parent="OffRoadPath" unique_id=639489238 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.99313074, 0, -0.5799006, 0, 1.0350366, 0, 0.5799006, 0, 0.99313074, 45.402294, 3.775351, 10.667983)
+
+[node name="PathStone_Side_39_1" type="Node3D" parent="OffRoadPath" unique_id=1912896636 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.8588465, 0, -0.5488243, 0, 0.91730505, 0, 0.5488243, 0, 0.8588465, 45.087715, 3.8904617, 11.6117115)
+
+[node name="PathStone_Wide_40" type="Node3D" parent="OffRoadPath" unique_id=2035727553 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1711944, 0, -0.41144016, 0, 1.1172256, 0, 0.41144016, 0, 1.1711944, 46.163708, 3.7741694, 11.387902)
+
+[node name="PathStone_Side_40_0" type="Node3D" parent="OffRoadPath" unique_id=1408256543 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.0945394, 0, -0.24262409, 0, 1.0089972, 0, 0.24262409, 0, 1.0945394, 46.300304, 3.7232597, 10.978115)
+
+[node name="PathStone_Side_40_1" type="Node3D" parent="OffRoadPath" unique_id=483665398 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.88564414, 0, -0.5399125, 0, 0.9335179, 0, 0.5399125, 0, 0.88564414, 45.96673, 3.8415492, 11.978842)
+
+[node name="PathStone_Wide_41" type="Node3D" parent="OffRoadPath" unique_id=1802630204 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.261258, 0, -0.34515095, 0, 1.1768686, 0, 0.34515095, 0, 1.261258, 47.064957, 3.7208416, 11.688319)
+
+[node name="PathStone_Side_41_0" type="Node3D" parent="OffRoadPath" unique_id=589629810 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.9252378, 0, -0.30857897, 0, 0.877805, 0, 0.30857897, 0, 0.9252378, 47.246532, 3.6559653, 11.143595)
+
+[node name="PathStone_Side_41_1" type="Node3D" parent="OffRoadPath" unique_id=2094473666 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.7494902, 0, -0.58579326, 0, 0.856131, 0, 0.58579326, 0, 0.7494902, 46.864456, 3.7870314, 12.289824)
+
+[node name="PathStone_Wide_42" type="Node3D" parent="OffRoadPath" unique_id=2118902029 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1077111, 0, -0.3487347, 0, 1.0451785, 0, 0.3487347, 0, 1.1077111, 47.966206, 3.6689334, 11.988735)
+
+[node name="PathStone_Side_42_0" type="Node3D" parent="OffRoadPath" unique_id=503302966 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.1228374, 0, -0.1504752, 0, 1.0195878, 0, 0.1504752, 0, 1.1228374, 48.173992, 3.597789, 11.365372)
+
+[node name="PathStone_Side_42_1" type="Node3D" parent="OffRoadPath" unique_id=1805488937 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.7138711, 0, -0.59511256, 0, 0.8364535, 0, 0.59511256, 0, 0.7138711, 47.806496, 3.7192109, 12.467866)
+
+[node name="PathStone_Wide_43" type="Node3D" parent="OffRoadPath" unique_id=792137699 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.0674307, 0, -0.5251937, 0, 1.0706735, 0, 0.5251937, 0, 1.0674307, 48.867455, 3.6183844, 12.289152)
+
+[node name="PathStone_Side_43_0" type="Node3D" parent="OffRoadPath" unique_id=176924706 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.94585764, 0, -0.14629701, 0, 0.8613943, 0, 0.14629701, 0, 0.94585764, 49.075024, 3.5504727, 11.666449)
+
+[node name="PathStone_Side_43_1" type="Node3D" parent="OffRoadPath" unique_id=1872083627 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.063622, 0, -0.27437866, 0, 0.988598, 0, 0.27437866, 0, 1.063622, 48.7348, 3.6578999, 12.68712)
+
+[node name="PathStone_Wide_44" type="Node3D" parent="OffRoadPath" unique_id=1177680333 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.2390863, 0, -0.422874, 0, 1.1783324, 0, 0.422874, 0, 1.2390863, 49.768703, 3.5691361, 12.589568)
+
+[node name="PathStone_Side_44_0" type="Node3D" parent="OffRoadPath" unique_id=854904594 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.9388944, 0, -0.13437314, 0, 0.85361516, 0, 0.13437314, 0, 0.9388944, 49.910667, 3.5245001, 12.1636715)
+
+[node name="PathStone_Side_44_1" type="Node3D" parent="OffRoadPath" unique_id=462389491 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.77116716, 0, -0.6070132, 0, 0.8832682, 0, 0.6070132, 0, 0.77116716, 49.614414, 3.6129067, 13.052438)
+
+[node name="PathStone_Wide_45" type="Node3D" parent="OffRoadPath" unique_id=517883337 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1179177, 0, -0.40413782, 0, 1.0698526, 0, 0.40413782, 0, 1.1179177, 50.669952, 3.5211353, 12.889984)
+
+[node name="PathStone_Side_45_0" type="Node3D" parent="OffRoadPath" unique_id=1681212370 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.9860568, 0, -0.023403866, 0, 0.88770103, 0, 0.023403866, 0, 0.9860568, 50.827713, 3.4744945, 12.416703)
+
+[node name="PathStone_Side_45_1" type="Node3D" parent="OffRoadPath" unique_id=786705047 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0716293, 0, -0.061265282, 0, 0.96604127, 0, 0.061265282, 0, 1.0716293, 50.468456, 3.5753422, 13.494468)
+
+[node name="PathStone_Wide_46" type="Node3D" parent="OffRoadPath" unique_id=1013870791 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1369113, 0, -0.4398513, 0, 1.0971278, 0, 0.4398513, 0, 1.1369113, 51.5712, 3.4743378, 13.190401)
+
+[node name="PathStone_Side_46_0" type="Node3D" parent="OffRoadPath" unique_id=1930259153 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.0583158, 0, -0.18452618, 0, 0.966854, 0, 0.18452618, 0, 1.0583158, 51.797863, 3.4122782, 12.510415)
+
+[node name="PathStone_Side_46_1" type="Node3D" parent="OffRoadPath" unique_id=546911379 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.9807396, 0, -0.48948118, 0, 0.98649275, 0, 0.48948118, 0, 0.9807396, 51.425365, 3.5104563, 13.627908)
+
+[node name="PathStone_Wide_47" type="Node3D" parent="OffRoadPath" unique_id=2142828726 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1002579, 0, -0.5041499, 0, 1.089236, 0, 0.5041499, 0, 1.1002579, 52.47245, 3.4287097, 13.490817)
+
+[node name="PathStone_Side_47_0" type="Node3D" parent="OffRoadPath" unique_id=692965639 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.1903634, 0, -0.0011915694, 0, 1.0713276, 0, 0.0011915694, 0, 1.1903634, 52.681515, 3.3754559, 12.863626)
+
+[node name="PathStone_Side_47_1" type="Node3D" parent="OffRoadPath" unique_id=1079570601 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.1915587, 0, -0.09876485, 0, 1.0760803, 0, 0.09876485, 0, 1.1915587, 52.30644, 3.4668841, 13.988855)
+
+[node name="PathStone_Wide_48" type="Node3D" parent="OffRoadPath" unique_id=246733199 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.2566494, 0, -0.22719859, 0, 1.1493204, 0, 0.22719859, 0, 1.2566494, 53.373703, 3.384232, 13.791233)
+
+[node name="PathStone_Side_48_0" type="Node3D" parent="OffRoadPath" unique_id=1991361754 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.9548025, 0, 0.021663163, 0, 0.85954344, 0, -0.021663163, 0, 0.9548025, 53.55224, 3.3421645, 13.25563)
+
+[node name="PathStone_Side_48_1" type="Node3D" parent="OffRoadPath" unique_id=1945713259 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.90776414, 0, -0.48063383, 0, 0.92443824, 0, 0.48063383, 0, 0.90776414, 53.175583, 3.4261549, 14.385597)
+
+[node name="PathStone_Wide_49" type="Node3D" parent="OffRoadPath" unique_id=373585975 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.0538436, 0, -0.53472733, 0, 1.0635699, 0, 0.53472733, 0, 1.0538436, 54.27137, 3.341597, 14.101764)
+
+[node name="PathStone_Side_49_0" type="Node3D" parent="OffRoadPath" unique_id=2038870125 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.0043894, 0, -0.13588214, 0, 0.9121854, 0, 0.13588214, 0, 1.0043894, 54.504383, 3.2959747, 13.4804)
+
+[node name="PathStone_Side_49_1" type="Node3D" parent="OffRoadPath" unique_id=1360069836 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.8819457, 0, -0.79542404, 0, 1.0688908, 0, 0.79542404, 0, 0.8819457, 54.07819, 3.3755481, 14.616909)
+
+[node name="PathStone_Wide_50" type="Node3D" parent="OffRoadPath" unique_id=39575096 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1228971, 0, -0.57867265, 0, 1.1369107, 0, 0.57867265, 0, 1.1228971, 55.16088, 3.3013906, 14.43533)
+
+[node name="PathStone_Side_50_0" type="Node3D" parent="OffRoadPath" unique_id=558801060 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0006914, 0, -0.26035252, 0, 0.93060464, 0, 0.26035252, 0, 1.0006914, 55.341206, 3.269238, 13.954463)
+
+[node name="PathStone_Side_50_1" type="Node3D" parent="OffRoadPath" unique_id=1465168344 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.9517272, 0, 0.01463394, 0, 0.8566557, 0, -0.01463394, 0, 0.9517272, 55.001472, 3.325962, 14.860421)
+
+[node name="PathStone_Wide_51" type="Node3D" parent="OffRoadPath" unique_id=159743644 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.2891449, 0, -0.27623618, 0, 1.1865677, 0, 0.27623618, 0, 1.2891449, 56.050396, 3.2618845, 14.768898)
+
+[node name="PathStone_Side_51_0" type="Node3D" parent="OffRoadPath" unique_id=1958825318 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.885743, 0, -0.5007275, 0, 0.9157334, 0, 0.5007275, 0, 0.885743, 56.181152, 3.2406783, 14.420215)
+
+[node name="PathStone_Side_51_1" type="Node3D" parent="OffRoadPath" unique_id=66088702 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.1173779, 0, -0.0039627473, 0, 1.0056465, 0, 0.0039627473, 0, 1.1173779, 55.895794, 3.2825701, 15.181165)
+
+[node name="PathStone_Wide_52" type="Node3D" parent="OffRoadPath" unique_id=1732782863 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.0988108, 0, -0.39231783, 0, 1.0500723, 0, 0.39231783, 0, 1.0988108, 56.939907, 3.2231224, 15.102466)
+
+[node name="PathStone_Side_52_0" type="Node3D" parent="OffRoadPath" unique_id=2085606873 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.8391247, 0, -0.49992552, 0, 0.87908196, 0, 0.49992552, 0, 0.8391247, 57.125557, 3.1976862, 14.607403)
+
+[node name="PathStone_Side_52_1" type="Node3D" parent="OffRoadPath" unique_id=1198020475 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.070379, 0, -0.39415893, 0, 1.026581, 0, 0.39415893, 0, 1.070379, 56.781208, 3.2411897, 15.525665)
+
+[node name="PathStone_Wide_53" type="Node3D" parent="OffRoadPath" unique_id=3719411 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1762221, 0, -0.28259644, 0, 1.0887244, 0, 0.28259644, 0, 1.1762221, 57.829422, 3.185175, 15.436032)
+
+[node name="PathStone_Side_53_0" type="Node3D" parent="OffRoadPath" unique_id=1072112054 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.9688153, 0, -0.47143614, 0, 0.9696869, 0, 0.47143614, 0, 0.9688153, 58.034393, 3.1615856, 14.88944)
+
+[node name="PathStone_Side_53_1" type="Node3D" parent="OffRoadPath" unique_id=1056597142 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.1565666, 0, -0.09688677, 0, 1.0445559, 0, 0.09688677, 0, 1.1565666, 57.65993, 3.2011335, 15.888008)
+
+[node name="PathStone_Wide_54" type="Node3D" parent="OffRoadPath" unique_id=362232065 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.2785937, 0, -0.27423468, 0, 1.1769049, 0, 0.27423468, 0, 1.2785937, 58.718933, 3.1481411, 15.7696)
+
+[node name="PathStone_Side_54_0" type="Node3D" parent="OffRoadPath" unique_id=2072190391 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0289603, 0, -0.45429644, 0, 1.0123079, 0, 0.45429644, 0, 1.0289603, 58.92479, 3.1287823, 15.2206545)
+
+[node name="PathStone_Side_54_1" type="Node3D" parent="OffRoadPath" unique_id=1516256363 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.90525085, 0, -0.37415296, 0, 0.8815726, 0, 0.37415296, 0, 0.90525085, 58.56043, 3.159665, 16.19228)
+
+[node name="PathStone_Wide_55" type="Node3D" parent="OffRoadPath" unique_id=1494742239 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.121805, 0, -0.5568576, 0, 1.127171, 0, 0.5568576, 0, 1.121805, 59.608444, 3.1121469, 16.103167)
+
+[node name="PathStone_Side_55_0" type="Node3D" parent="OffRoadPath" unique_id=750707072 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0973215, 0, -0.05508028, 0, 0.9888327, 0, 0.05508028, 0, 1.0973215, 59.86694, 3.0938323, 15.413847)
+
+[node name="PathStone_Side_55_1" type="Node3D" parent="OffRoadPath" unique_id=737271793 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0882646, 0, -0.009377703, 0, 0.9794745, 0, 0.009377703, 0, 1.0882646, 59.413322, 3.1227965, 16.623491)
+
+[node name="PathStone_Wide_56" type="Node3D" parent="OffRoadPath" unique_id=1992484302 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.0878656, 0, -0.4651339, 0, 1.0648187, 0, 0.4651339, 0, 1.0878656, 60.49796, 3.0773454, 16.436733)
+
+[node name="PathStone_Side_56_0" type="Node3D" parent="OffRoadPath" unique_id=2098067150 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.046184, 0, 0.019795066, 0, 0.9417341, 0, -0.019795066, 0, 1.046184, 60.696766, 3.0669007, 15.90658)
+
+[node name="PathStone_Side_56_1" type="Node3D" parent="OffRoadPath" unique_id=1193601108 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0984745, 0, -0.33373442, 0, 1.0332475, 0, 0.33373442, 0, 1.0984745, 60.25299, 3.086266, 17.08998)
+
+[node name="PathStone_Wide_57" type="Node3D" parent="OffRoadPath" unique_id=1515054215 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.3125744, 0, -0.41281512, 0, 1.2383647, 0, 0.41281512, 0, 1.3125744, 61.38747, 3.0439162, 16.770302)
+
+[node name="PathStone_Side_57_0" type="Node3D" parent="OffRoadPath" unique_id=1337024473 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.944202, 0, 0.03041438, 0, 0.8502225, 0, -0.03041438, 0, 0.944202, 61.602074, 3.0372536, 16.198025)
+
+[node name="PathStone_Side_57_1" type="Node3D" parent="OffRoadPath" unique_id=642327484 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.91549635, 0, -0.14039998, 0, 0.83357966, 0, 0.14039998, 0, 0.91549635, 61.1861, 3.0467753, 17.307291)
+
+[node name="PathStone_Wide_58" type="Node3D" parent="OffRoadPath" unique_id=1730926215 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.0937271, 0, -0.4402497, 0, 1.0611068, 0, 0.4402497, 0, 1.0937271, 62.276985, 3.0120628, 17.103868)
+
+[node name="PathStone_Side_58_0" type="Node3D" parent="OffRoadPath" unique_id=1350185407 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.983137, 0, -0.3753114, 0, 0.94710493, 0, 0.3753114, 0, 0.983137, 62.46094, 3.0097694, 16.613321)
+
+[node name="PathStone_Side_58_1" type="Node3D" parent="OffRoadPath" unique_id=920739466 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.79737407, 0, -0.53478205, 0, 0.86409247, 0, 0.53478205, 0, 0.79737407, 62.09042, 3.0108275, 17.601372)
+
+[node name="PathStone_Wide_59" type="Node3D" parent="OffRoadPath" unique_id=1894613985 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.2093742, 0, -0.38367015, 0, 1.1418971, 0, 0.38367015, 0, 1.2093742, 63.166496, 2.9820116, 17.437435)
+
+[node name="PathStone_Side_59_0" type="Node3D" parent="OffRoadPath" unique_id=1296968971 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.0459889, 0, -0.24529336, 0, 0.96692914, 0, 0.24529336, 0, 1.0459889, 63.39826, 2.9843366, 16.819408)
+
+[node name="PathStone_Side_59_1" type="Node3D" parent="OffRoadPath" unique_id=1115317322 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.9864269, 0, -0.15843758, 0, 0.8991628, 0, 0.15843758, 0, 0.9864269, 62.96787, 2.9769652, 17.96711)
+
+[node name="PathStone_Wide_60" type="Node3D" parent="OffRoadPath" unique_id=439759706 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.3526505, 0, -0.30604696, 0, 1.2481569, 0, 0.30604696, 0, 1.3526505, 64.05601, 2.954008, 17.771004)
+
+[node name="PathStone_Side_60_0" type="Node3D" parent="OffRoadPath" unique_id=1899592967 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.9549468, 0, -0.58015615, 0, 1.0056285, 0, 0.58015615, 0, 0.9549468, 64.191864, 2.957065, 17.408724)
+
+[node name="PathStone_Side_60_1" type="Node3D" parent="OffRoadPath" unique_id=476759825 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0900141, 0, -0.12775059, 0, 0.98772734, 0, 0.12775059, 0, 1.0900141, 63.923183, 2.947373, 18.125204)
+
+[node name="PathStone_Wide_61" type="Node3D" parent="OffRoadPath" unique_id=1158242601 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.2506559, 0, -0.41739193, 0, 1.1866205, 0, 0.41739193, 0, 1.2506559, 64.945526, 2.9283159, 18.10457)
+
+[node name="PathStone_Side_61_0" type="Node3D" parent="OffRoadPath" unique_id=2009981357 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.72907645, 0, -0.66453606, 0, 0.88784015, 0, 0.66453606, 0, 0.72907645, 65.09152, 2.9344923, 17.71524)
+
+[node name="PathStone_Side_61_1" type="Node3D" parent="OffRoadPath" unique_id=1181926760 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.1597807, 0, -0.06915616, 0, 1.0456567, 0, 0.06915616, 0, 1.1597807, 64.73579, 2.9152827, 18.66388)
+
+[node name="PathStone_Wide_62" type="Node3D" parent="OffRoadPath" unique_id=1602465078 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.2387017, 0, -0.4920672, 0, 1.1995727, 0, 0.4920672, 0, 1.2387017, 65.83504, 2.9052117, 18.438137)
+
+[node name="PathStone_Side_62_0" type="Node3D" parent="OffRoadPath" unique_id=1715726065 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.95409906, 0, -0.33440033, 0, 0.90990335, 0, 0.33440033, 0, 0.95409906, 66.07219, 2.9209802, 17.805733)
+
+[node name="PathStone_Side_62_1" type="Node3D" parent="OffRoadPath" unique_id=144564105 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.8744389, 0, -0.50887895, 0, 0.9105586, 0, 0.50887895, 0, 0.8744389, 65.6015, 2.886859, 19.060905)
+
+[node name="PathStone_Wide_63" type="Node3D" parent="OffRoadPath" unique_id=718724954 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1448078, 0, -0.36999714, 0, 1.0828024, 0, 0.36999714, 0, 1.1448078, 66.72455, 2.8849826, 18.771706)
+
+[node name="PathStone_Side_63_0" type="Node3D" parent="OffRoadPath" unique_id=214571493 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.1704063, 0, -0.21273416, 0, 1.0706244, 0, 0.21273416, 0, 1.1704063, 66.89143, 2.8982348, 18.326674)
+
+[node name="PathStone_Side_63_1" type="Node3D" parent="OffRoadPath" unique_id=1695958042 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.9523525, 0, -0.51981425, 0, 0.9764822, 0, 0.51981425, 0, 0.9523525, 66.51947, 2.865098, 19.318584)
+
+[node name="PathStone_Wide_64" type="Node3D" parent="OffRoadPath" unique_id=1092188093 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.3053585, 0, -0.3149704, 0, 1.2085385, 0, 0.3149704, 0, 1.3053585, 67.61406, 2.8679216, 19.105272)
+
+[node name="PathStone_Side_64_0" type="Node3D" parent="OffRoadPath" unique_id=1933540390 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.95465076, 0, -0.0075579244, 0, 0.85921264, 0, 0.0075579244, 0, 0.95465076, 67.86138, 2.8927965, 18.445753)
+
+[node name="PathStone_Side_64_1" type="Node3D" parent="OffRoadPath" unique_id=230799990 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.86705226, 0, -0.8151846, 0, 1.0710777, 0, 0.8151846, 0, 0.86705226, 67.35179, 2.8390284, 19.80466)
+
+[node name="PathStone_Wide_65" type="Node3D" parent="OffRoadPath" unique_id=1012764684 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1028692, 0, -0.4192856, 0, 1.0618935, 0, 0.4192856, 0, 1.1028692, 68.50357, 2.854324, 19.438839)
+
+[node name="PathStone_Side_65_0" type="Node3D" parent="OffRoadPath" unique_id=1617426007 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.9573907, 0, -0.14403544, 0, 0.8713484, 0, 0.14403544, 0, 0.9573907, 68.72388, 2.879588, 18.851364)
+
+[node name="PathStone_Side_65_1" type="Node3D" parent="OffRoadPath" unique_id=575620669 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.1247568, 0, -0.037905, 0, 1.0128558, 0, 0.037905, 0, 1.1247568, 68.291824, 2.827285, 20.003494)
+
+[node name="PathStone_Wide_66" type="Node3D" parent="OffRoadPath" unique_id=1636385838 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.2578905, 0, -0.5433185, 0, 1.2331916, 0, 0.5433185, 0, 1.2578905, 69.39308, 2.8444831, 19.772408)
+
+[node name="PathStone_Side_66_0" type="Node3D" parent="OffRoadPath" unique_id=1203899235 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.7740534, 0, -0.5594123, 0, 0.8595357, 0, 0.5594123, 0, 0.7740534, 69.54205, 2.8629236, 19.37516)
+
+[node name="PathStone_Side_66_1" type="Node3D" parent="OffRoadPath" unique_id=1789784506 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0180478, 0, -0.23658219, 0, 0.9406582, 0, 0.23658219, 0, 1.0180478, 69.1502, 2.8104389, 20.420097)
+
+[node name="PathStone_Wide_67" type="Node3D" parent="OffRoadPath" unique_id=720780863 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.3206071, 0, -0.31046128, 0, 1.2209485, 0, 0.31046128, 0, 1.3206071, 70.2826, 2.8386853, 20.105974)
+
+[node name="PathStone_Side_67_0" type="Node3D" parent="OffRoadPath" unique_id=154018821 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.90297234, 0, -0.5469701, 0, 0.950144, 0, 0.5469701, 0, 0.90297234, 70.53413, 2.8748968, 19.435234)
+
+[node name="PathStone_Side_67_1" type="Node3D" parent="OffRoadPath" unique_id=2128523546 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0373459, 0, -0.1385674, 0, 0.9419038, 0, 0.1385674, 0, 1.0373459, 70.158775, 2.818522, 20.436182)
+
+[node name="PathStone_Wide_68" type="Node3D" parent="OffRoadPath" unique_id=1261345901 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1838306, 0, -0.39342633, 0, 1.1227438, 0, 0.39342633, 0, 1.1838306, 71.17211, 2.8372054, 20.43954)
+
+[node name="PathStone_Side_68_0" type="Node3D" parent="OffRoadPath" unique_id=462530093 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0265118, 0, -0.07635582, 0, 0.9264129, 0, 0.07635582, 0, 1.0265118, 71.433, 2.8780668, 19.743843)
+
+[node name="PathStone_Side_68_1" type="Node3D" parent="OffRoadPath" unique_id=1302955471 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.97829694, 0, 0.022491459, 0, 0.8806999, 0, -0.022491459, 0, 0.97829694, 71.01468, 2.8102965, 20.85936)
+
+[node name="PathStone_Wide_69" type="Node3D" parent="OffRoadPath" unique_id=1334660304 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1608319, 0, -0.30288836, 0, 1.0797269, 0, 0.30288836, 0, 1.1608319, 72.06162, 2.8403027, 20.77311)
+
+[node name="PathStone_Side_69_0" type="Node3D" parent="OffRoadPath" unique_id=1579674244 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.9032862, 0, -0.71492046, 0, 1.0367739, 0, 0.71492046, 0, 0.9032862, 72.24749, 2.8706975, 20.277456)
+
+[node name="PathStone_Side_69_1" type="Node3D" parent="OffRoadPath" unique_id=1714666051 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.03371, 0, -0.13833272, 0, 0.93863237, 0, 0.13833272, 0, 1.03371, 71.9109, 2.8127975, 21.175045)
+
+[node name="PathStone_Wide_70" type="Node3D" parent="OffRoadPath" unique_id=329530531 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1927098, 0, -0.64492786, 0, 1.2203178, 0, 0.64492786, 0, 1.1927098, 72.95113, 2.848216, 21.106676)
+
+[node name="PathStone_Side_70_0" type="Node3D" parent="OffRoadPath" unique_id=621687914 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0961845, 0, -0.3131766, 0, 1.0260395, 0, 0.3131766, 0, 1.0961845, 73.09463, 2.8725514, 20.724035)
+
+[node name="PathStone_Side_70_1" type="Node3D" parent="OffRoadPath" unique_id=839504832 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.0267246, 0, -0.39315978, 0, 0.98948354, 0, 0.39315978, 0, 1.0267246, 72.77657, 2.8150434, 21.572163)
+
+[node name="PathStone_Wide_71" type="Node3D" parent="OffRoadPath" unique_id=1092946781 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1188874, 0, -0.5891583, 0, 1.1380701, 0, 0.5891583, 0, 1.1188874, 73.84065, 2.86116, 21.440243)
+
+[node name="PathStone_Side_71_0" type="Node3D" parent="OffRoadPath" unique_id=1202075499 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.0183147, 0, -0.33470672, 0, 0.96472, 0, 0.33470672, 0, 1.0183147, 74.03514, 2.8966966, 20.921616)
+
+[node name="PathStone_Side_71_1" type="Node3D" parent="OffRoadPath" unique_id=1701560754 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.8231255, 0, -0.46809772, 0, 0.85222495, 0, 0.46809772, 0, 0.8231255, 73.70133, 2.8330064, 21.811773)
+
+[node name="PathStone_Wide_72" type="Node3D" parent="OffRoadPath" unique_id=1392053436 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1157926, 0, -0.34897566, 0, 1.0521832, 0, 0.34897566, 0, 1.1157926, 74.73016, 2.8793187, 21.773811)
+
+[node name="PathStone_Side_72_0" type="Node3D" parent="OffRoadPath" unique_id=1943500552 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0397601, 0, -0.092500746, 0, 0.93947995, 0, 0.092500746, 0, 1.0397601, 74.91005, 2.9133437, 21.29412)
+
+[node name="PathStone_Side_72_1" type="Node3D" parent="OffRoadPath" unique_id=957884616 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.92988926, 0, -0.6444245, 0, 1.0182246, 0, 0.6444245, 0, 0.92988926, 74.492836, 2.8313997, 22.406689)
+
+[node name="PathStone_Wide_73" type="Node3D" parent="OffRoadPath" unique_id=1715171738 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.2538056, 0, -0.43226555, 0, 1.1936057, 0, 0.43226555, 0, 1.2538056, 75.619675, 2.9099267, 22.107378)
+
+[node name="PathStone_Side_73_0" type="Node3D" parent="OffRoadPath" unique_id=172127414 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.8183654, 0, -0.72378373, 0, 0.98326176, 0, 0.72378373, 0, 0.8183654, 75.74658, 2.9364915, 21.768963)
+
+[node name="PathStone_Side_73_1" type="Node3D" parent="OffRoadPath" unique_id=799615856 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.95256895, 0, -0.52056026, 0, 0.976975, 0, 0.52056026, 0, 0.95256895, 75.46322, 2.8738363, 22.524586)
+
+[node name="PathStone_Wide_74" type="Node3D" parent="OffRoadPath" unique_id=903754787 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.2835717, 0, -0.5274309, 0, 1.2489392, 0, 0.5274309, 0, 1.2835717, 76.509186, 2.9612756, 22.440945)
+
+[node name="PathStone_Side_74_0" type="Node3D" parent="OffRoadPath" unique_id=1552002939 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.1654196, 0, -0.23328207, 0, 1.0696845, 0, 0.23328207, 0, 1.1654196, 76.72935, 3.013173, 21.853848)
+
+[node name="PathStone_Side_74_1" type="Node3D" parent="OffRoadPath" unique_id=608295961 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0585026, 0, -0.44410986, 0, 1.0331049, 0, 0.44410986, 0, 1.0585026, 76.27073, 2.903391, 23.076822)
+
+[node name="PathStone_Wide_75" type="Node3D" parent="OffRoadPath" unique_id=1001874272 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.2344793, 0, -0.29549026, 0, 1.1424165, 0, 0.29549026, 0, 1.2344793, 77.3987, 3.0281703, 22.774513)
+
+[node name="PathStone_Side_75_0" type="Node3D" parent="OffRoadPath" unique_id=336211304 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.0851926, 0, -0.46438435, 0, 1.0623416, 0, 0.46438435, 0, 1.0851926, 77.55684, 3.066842, 22.352797)
+
+[node name="PathStone_Side_75_1" type="Node3D" parent="OffRoadPath" unique_id=237127548 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.9495047, 0, -0.33913285, 0, 0.90742594, 0, 0.33913285, 0, 0.9495047, 77.2425, 2.987067, 23.191036)
+
+[node name="PathStone_Wide_76" type="Node3D" parent="OffRoadPath" unique_id=1984264054 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.2355293, 0, -0.5118212, 0, 1.2036111, 0, 0.5118212, 0, 1.2355293, 78.292015, 3.109902, 23.097338)
+
+[node name="PathStone_Side_76_0" type="Node3D" parent="OffRoadPath" unique_id=532749770 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.97639483, 0, -0.2194973, 0, 0.90068644, 0, 0.2194973, 0, 0.97639483, 78.43346, 3.1485019, 22.673006)
+
+[node name="PathStone_Side_76_1" type="Node3D" parent="OffRoadPath" unique_id=643967543 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.0714545, 0, -0.40840572, 0, 1.0319865, 0, 0.40840572, 0, 1.0714545, 78.0721, 3.0467525, 23.75709)
+
+[node name="PathStone_Wide_77" type="Node3D" parent="OffRoadPath" unique_id=1950152451 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.3266443, 0, -0.25509647, 0, 1.2158529, 0, 0.25509647, 0, 1.3266443, 79.19327, 3.2067358, 23.397755)
+
+[node name="PathStone_Side_77_0" type="Node3D" parent="OffRoadPath" unique_id=538327525 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.1660228, 0, -0.16900511, 0, 1.0603863, 0, 0.16900511, 0, 1.1660228, 79.3646, 3.2556257, 22.883747)
+
+[node name="PathStone_Side_77_1" type="Node3D" parent="OffRoadPath" unique_id=69448151 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0332247, 0, -0.036030743, 0, 0.93046755, 0, 0.036030743, 0, 1.0332247, 79.075806, 3.170663, 23.750143)
+
+[node name="PathStone_Wide_78" type="Node3D" parent="OffRoadPath" unique_id=556473517 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.12968, 0, -0.315227, 0, 1.0555527, 0, 0.315227, 0, 1.12968, 80.09451, 3.3157935, 23.698172)
+
+[node name="PathStone_Side_78_0" type="Node3D" parent="OffRoadPath" unique_id=2077468165 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.86034817, 0, -0.72883356, 0, 1.0148063, 0, 0.72883356, 0, 0.86034817, 80.2274, 3.3541324, 23.299513)
+
+[node name="PathStone_Side_78_1" type="Node3D" parent="OffRoadPath" unique_id=988751070 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.760879, 0, -0.6156468, 0, 0.8808779, 0, 0.6156468, 0, 0.760879, 79.942856, 3.2687821, 24.153149)
+
+[node name="PathStone_Wide_79" type="Node3D" parent="OffRoadPath" unique_id=1935169634 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.2014652, 0, -0.5434352, 0, 1.1867859, 0, 0.5434352, 0, 1.2014652, 80.995766, 3.4364192, 23.998587)
+
+[node name="PathStone_Side_79_0" type="Node3D" parent="OffRoadPath" unique_id=891131152 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.0289949, 0, -0.0478318, 0, 0.92709535, 0, 0.0478318, 0, 1.0289949, 81.171265, 3.4888759, 23.472094)
+
+[node name="PathStone_Side_79_1" type="Node3D" parent="OffRoadPath" unique_id=900095085 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.9137417, 0, -0.10727935, 0, 0.828016, 0, 0.10727935, 0, 0.9137417, 80.812454, 3.3790646, 24.548527)
+
+[node name="PathStone_Wide_80" type="Node3D" parent="OffRoadPath" unique_id=1602025261 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.283505, 0, -0.5341427, 0, 1.2511921, 0, 0.5341427, 0, 1.283505, 81.89701, 3.5680175, 24.299004)
+
+[node name="PathStone_Side_80_0" type="Node3D" parent="OffRoadPath" unique_id=124919467 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.076875, 0, -0.523563, 0, 1.0776641, 0, 0.523563, 0, 1.076875, 82.03727, 3.6100304, 23.878231)
+
+[node name="PathStone_Side_80_1" type="Node3D" parent="OffRoadPath" unique_id=66929125 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.1172746, 0, -0.17125772, 0, 1.0172914, 0, 0.17125772, 0, 1.1172746, 81.682594, 3.5004692, 24.942247)
+
+[node name="PathStone_Wide_81" type="Node3D" parent="OffRoadPath" unique_id=1878340522 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.0771778, 0, -0.4235196, 0, 1.0417012, 0, 0.4235196, 0, 1.0771778, 82.79826, 3.7100248, 24.59942)
+
+[node name="PathStone_Side_81_0" type="Node3D" parent="OffRoadPath" unique_id=1941080994 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.1006845, 0, -0.009146409, 0, 0.9906503, 0, 0.009146409, 0, 1.1006845, 82.92408, 3.7478347, 24.221966)
+
+[node name="PathStone_Side_81_1" type="Node3D" parent="OffRoadPath" unique_id=1222377663 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.96669227, 0, -0.682095, 0, 1.0647984, 0, 0.682095, 0, 0.96669227, 82.66317, 3.6660545, 25.004698)
+
+[node name="PathStone_Wide_82" type="Node3D" parent="OffRoadPath" unique_id=1304116832 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.3126818, 0, -0.47376722, 0, 1.2560043, 0, 0.47376722, 0, 1.3126818, 83.69951, 3.8618782, 24.899837)
+
+[node name="PathStone_Side_82_0" type="Node3D" parent="OffRoadPath" unique_id=1543916643 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.93452686, 0, -0.44887066, 0, 0.93306404, 0, 0.44887066, 0, 0.93452686, 83.91954, 3.9302833, 24.239742)
+
+[node name="PathStone_Side_82_1" type="Node3D" parent="OffRoadPath" unique_id=686753109 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.92205167, 0, -0.2675023, 0, 0.86406416, 0, 0.2675023, 0, 0.92205167, 83.46589, 3.7873747, 25.600698)
+
+[node name="PathStone_Wide_83" type="Node3D" parent="OffRoadPath" unique_id=203732710 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.3375459, 0, -0.28963113, 0, 1.2316904, 0, 0.28963113, 0, 1.3375459, 84.60076, 4.0230117, 25.200253)
+
+[node name="PathStone_Side_83_0" type="Node3D" parent="OffRoadPath" unique_id=2133719032 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0782222, 0, -0.12089963, 0, 0.97648114, 0, 0.12089963, 0, 1.0782222, 84.821465, 4.0917315, 24.538143)
+
+[node name="PathStone_Side_83_1" type="Node3D" parent="OffRoadPath" unique_id=1300937216 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.8667609, 0, -0.5902564, 0, 0.9437894, 0, 0.5902564, 0, 0.8667609, 84.38202, 3.952876, 25.856474)
+
+[node name="PathStone_Wide_84" type="Node3D" parent="OffRoadPath" unique_id=151524817 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.2018315, 0, -0.29915032, 0, 1.1146528, 0, 0.29915032, 0, 1.2018315, 85.50201, 4.1928377, 25.50067)
+
+[node name="PathStone_Side_84_0" type="Node3D" parent="OffRoadPath" unique_id=1503528030 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.932562, 0, -0.06711047, 0, 0.8414763, 0, 0.06711047, 0, 0.932562, 85.6908, 4.251108, 24.934267)
+
+[node name="PathStone_Side_84_1" type="Node3D" parent="OffRoadPath" unique_id=771087401 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.0150254, 0, -0.022922242, 0, 0.9137558, 0, 0.022922242, 0, 1.0150254, 85.3157, 4.1327186, 26.059607)
+
+[node name="PathStone_Wide_85" type="Node3D" parent="OffRoadPath" unique_id=1670684392 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1564976, 0, -0.41267997, 0, 1.1051295, 0, 0.41267997, 0, 1.1564976, 86.40326, 4.3707547, 25.801086)
+
+[node name="PathStone_Side_85_0" type="Node3D" parent="OffRoadPath" unique_id=781827217 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.9534384, 0, -0.093606256, 0, 0.86222017, 0, 0.093606256, 0, 0.9534384, 86.54548, 4.4138217, 25.37442)
+
+[node name="PathStone_Side_85_1" type="Node3D" parent="OffRoadPath" unique_id=1882246890 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.1445371, 0, -0.25088713, 0, 1.054541, 0, 0.25088713, 0, 1.1445371, 86.23839, 4.3174467, 26.295708)
+
+[node name="PathStone_Wide_86" type="Node3D" parent="OffRoadPath" unique_id=1357807588 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.2346284, 0, -0.5212441, 0, 1.2061353, 0, 0.5212441, 0, 1.2346284, 87.304504, 4.556133, 26.101501)
+
+[node name="PathStone_Side_86_0" type="Node3D" parent="OffRoadPath" unique_id=398224091 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.1937397, 0, -0.056247734, 0, 1.0755577, 0, 0.056247734, 0, 1.1937397, 87.49615, 4.614564, 25.526573)
+
+[node name="PathStone_Side_86_1" type="Node3D" parent="OffRoadPath" unique_id=932430407 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.8724519, 0, -0.37628198, 0, 0.8551234, 0, 0.37628198, 0, 0.8724519, 87.12579, 4.4989247, 26.637625)
+
+[node name="PathStone_Wide_87" type="Node3D" parent="OffRoadPath" unique_id=944209847 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1268343, 0, -0.47974712, 0, 1.1022383, 0, 0.47974712, 0, 1.1268343, 88.20576, 4.7483244, 26.401918)
+
+[node name="PathStone_Side_87_0" type="Node3D" parent="OffRoadPath" unique_id=1820900078 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.9033331, 0, -0.6712381, 0, 1.0128785, 0, 0.6712381, 0, 0.9033331, 88.32543, 4.783551, 26.042896)
+
+[node name="PathStone_Side_87_1" type="Node3D" parent="OffRoadPath" unique_id=144451004 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.9596289, 0, -0.70960695, 0, 1.0741452, 0, 0.70960695, 0, 0.9596289, 87.977135, 4.6765246, 27.087782)
+
+[node name="PathStone_Wide_88" type="Node3D" parent="OffRoadPath" unique_id=328475207 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.3088576, 0, -0.4193733, 0, 1.2369622, 0, 0.4193733, 0, 1.3088576, 89.107, 4.946653, 26.702335)
+
+[node name="PathStone_Side_88_0" type="Node3D" parent="OffRoadPath" unique_id=1317806800 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.9341026, 0, -0.083145, 0, 0.84401613, 0, 0.083145, 0, 0.9341026, 89.34263, 5.0174375, 25.995464)
+
+[node name="PathStone_Side_88_1" type="Node3D" parent="OffRoadPath" unique_id=583696955 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.7590704, 0, -0.6199407, 0, 0.88205254, 0, 0.6199407, 0, 0.7590704, 88.925415, 4.889679, 27.247095)
+
+[node name="PathStone_Wide_89" type="Node3D" parent="OffRoadPath" unique_id=390207716 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.2666266, 0, -0.2706221, 0, 1.1656926, 0, 0.2706221, 0, 1.2666266, 90.00857, 5.15053, 27.00153)
+
+[node name="PathStone_Side_89_0" type="Node3D" parent="OffRoadPath" unique_id=2058134596 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.0409336, 0, 0.102800645, 0, 0.9413977, 0, -0.102800645, 0, 1.0409336, 90.08125, 5.1748166, 26.594473)
+
+[node name="PathStone_Side_89_1" type="Node3D" parent="OffRoadPath" unique_id=2130108707 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0020984, 0, -0.5165489, 0, 1.0146574, 0, 0.5165489, 0, 1.0020984, 89.925316, 5.119097, 27.467733)
+
+[node name="PathStone_Wide_90" type="Node3D" parent="OffRoadPath" unique_id=696105713 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.291312, 0, -0.18535808, 0, 1.1740928, 0, 0.18535808, 0, 1.291312, 90.94377, 5.369734, 27.168531)
+
+[node name="PathStone_Side_90_0" type="Node3D" parent="OffRoadPath" unique_id=713229262 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0174967, 0, 0.025343353, 0, 0.916031, 0, -0.025343353, 0, 1.0174967, 91.06444, 5.410382, 26.492815)
+
+[node name="PathStone_Side_90_1" type="Node3D" parent="OffRoadPath" unique_id=870856241 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.1156043, 0, -0.37733948, 0, 1.0599227, 0, 0.37733948, 0, 1.1156043, 90.83236, 5.3295617, 27.792423)
+
+[node name="PathStone_Wide_91" type="Node3D" parent="OffRoadPath" unique_id=1995983924 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.2621324, 0, -0.10590087, 0, 1.1399107, 0, 0.10590087, 0, 1.2621324, 91.878975, 5.5924683, 27.335531)
+
+[node name="PathStone_Side_91_0" type="Node3D" parent="OffRoadPath" unique_id=1447170821 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0042655, 0, 0.2194525, 0, 0.9251671, 0, -0.2194525, 0, 1.0042655, 91.981316, 5.6254272, 26.762405)
+
+[node name="PathStone_Side_91_1" type="Node3D" parent="OffRoadPath" unique_id=15951078 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.0299771, 0, 0.06843399, 0, 0.9290232, 0, -0.06843399, 0, 1.0299771, 91.79532, 5.5625305, 27.804022)
+
+[node name="PathStone_Wide_92" type="Node3D" parent="OffRoadPath" unique_id=449144235 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.2403305, 0, -0.38698354, 0, 1.1693685, 0, 0.38698354, 0, 1.2403305, 92.814186, 5.8179603, 27.502533)
+
+[node name="PathStone_Side_92_0" type="Node3D" parent="OffRoadPath" unique_id=2034352293 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.9532576, 0, -0.4813489, 0, 0.9611043, 0, 0.4813489, 0, 0.9532576, 92.91817, 5.8502855, 26.92025)
+
+[node name="PathStone_Side_92_1" type="Node3D" parent="OffRoadPath" unique_id=1696109967 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.1002517, 0, -0.19322146, 0, 1.0053804, 0, 0.19322146, 0, 1.1002517, 92.686775, 5.7749643, 28.216022)
+
+[node name="PathStone_Wide_93" type="Node3D" parent="OffRoadPath" unique_id=68166345 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1444433, 0, -0.21212749, 0, 1.0475429, 0, 0.21212749, 0, 1.1444433, 93.74939, 6.045439, 27.669535)
+
+[node name="PathStone_Side_93_0" type="Node3D" parent="OffRoadPath" unique_id=375301167 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.9214898, 0, -0.4608014, 0, 0.9272539, 0, 0.4608014, 0, 0.9214898, 93.81742, 6.06502, 27.28855)
+
+[node name="PathStone_Side_93_1" type="Node3D" parent="OffRoadPath" unique_id=1519397077 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.0235742, 0, 0.15105939, 0, 0.93119484, 0, -0.15105939, 0, 1.0235742, 93.62538, 6.0048327, 28.363972)
+
+[node name="PathStone_Wide_94" type="Node3D" parent="OffRoadPath" unique_id=1161253486 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.2967143, 0, -0.41080353, 0, 1.2242076, 0, 0.41080353, 0, 1.2967143, 94.68459, 6.2741475, 27.836535)
+
+[node name="PathStone_Side_94_0" type="Node3D" parent="OffRoadPath" unique_id=2031151839 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.1055149, 0, -0.059321348, 0, 0.9963948, 0, 0.059321348, 0, 1.1055149, 94.798935, 6.307162, 27.196226)
+
+[node name="PathStone_Side_94_1" type="Node3D" parent="OffRoadPath" unique_id=1214511783 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.1133778, 0, -0.33664063, 0, 1.0468423, 0, 0.33664063, 0, 1.1133778, 94.583626, 6.241741, 28.401974)
+
+[node name="PathStone_Wide_95" type="Node3D" parent="OffRoadPath" unique_id=1607894565 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.3222136, 0, -0.43186337, 0, 1.2518593, 0, 0.43186337, 0, 1.3222136, 95.619804, 6.503343, 28.003536)
+
+[node name="PathStone_Side_95_0" type="Node3D" parent="OffRoadPath" unique_id=585484764 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.136139, 0, -0.09760223, 0, 1.0262913, 0, 0.09760223, 0, 1.136139, 95.68454, 6.5203156, 27.641037)
+
+[node name="PathStone_Side_95_1" type="Node3D" parent="OffRoadPath" unique_id=638519193 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.8893338, 0, -0.35756066, 0, 0.86266965, 0, 0.35756066, 0, 0.8893338, 95.50861, 6.469115, 28.6262)
+
+[node name="PathStone_Wide_96" type="Node3D" parent="OffRoadPath" unique_id=51751277 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.209059, 0, -0.084242925, 0, 1.0907912, 0, 0.084242925, 0, 1.209059, 96.55501, 6.732297, 28.170538)
+
+[node name="PathStone_Side_96_0" type="Node3D" parent="OffRoadPath" unique_id=320680881 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.077536, 0, 0.23486285, 0, 0.9925512, 0, -0.23486285, 0, 1.077536, 96.68249, 6.7661743, 27.456646)
+
+[node name="PathStone_Side_96_1" type="Node3D" parent="OffRoadPath" unique_id=1656499288 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0428541, 0, -0.18053702, 0, 0.95252925, 0, 0.18053702, 0, 1.0428541, 96.48114, 6.7096653, 28.584202)
+
+[node name="PathStone_Wide_97" type="Node3D" parent="OffRoadPath" unique_id=826330865 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.143027, 0, -0.18350081, 0, 1.0418965, 0, 0.18350081, 0, 1.143027, 97.49021, 6.960307, 28.337538)
+
+[node name="PathStone_Side_97_0" type="Node3D" parent="OffRoadPath" unique_id=120130671 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.9989506, 0, -0.010615204, 0, 0.89910626, 0, 0.010615204, 0, 0.9989506, 97.568634, 6.979386, 27.898376)
+
+[node name="PathStone_Side_97_1" type="Node3D" parent="OffRoadPath" unique_id=1839152369 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0046767, 0, -0.41504732, 0, 0.9783292, 0, 0.41504732, 0, 1.0046767, 97.40204, 6.9346857, 28.831285)
+
+[node name="PathStone_Wide_98" type="Node3D" parent="OffRoadPath" unique_id=977241858 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1593099, 0, -0.07335555, 0, 1.0454655, 0, 0.07335555, 0, 1.1593099, 98.42542, 7.1867003, 28.50454)
+
+[node name="PathStone_Side_98_0" type="Node3D" parent="OffRoadPath" unique_id=699889937 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.0081457, 0, -0.12577035, 0, 0.9143645, 0, 0.12577035, 0, 1.0081457, 98.51014, 7.206439, 28.03013)
+
+[node name="PathStone_Side_98_1" type="Node3D" parent="OffRoadPath" unique_id=964548679 instance=ExtResource("2_28oso")]
+transform = Transform3D(1.1095644, 0, -0.12849283, 0, 1.0052817, 0, 0.12849283, 0, 1.1095644, 98.33252, 7.1608453, 29.024792)
+
+[node name="PathStone_Wide_99" type="Node3D" parent="OffRoadPath" unique_id=427752460 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.270167, 0, -0.14020404, 0, 1.1500933, 0, 0.14020404, 0, 1.270167, 99.36063, 7.410829, 28.671541)
+
+[node name="PathStone_Side_99_0" type="Node3D" parent="OffRoadPath" unique_id=1483148097 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0201783, 0, 0.0192702, 0, 0.91832423, 0, -0.0192702, 0, 1.0201783, 99.42505, 7.424597, 28.310793)
+
+[node name="PathStone_Side_99_1" type="Node3D" parent="OffRoadPath" unique_id=1853237147 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.96211493, 0, -0.05431393, 0, 0.8672821, 0, 0.05431393, 0, 0.96211493, 99.25149, 7.381991, 29.282738)
+
+[node name="PathStone_Wide_100" type="Node3D" parent="OffRoadPath" unique_id=1234486021 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.1710202, 0, -0.21425106, 0, 1.0714128, 0, 0.21425106, 0, 1.1710202, 100.29584, 7.6320887, 28.838541)
+
+[node name="PathStone_Side_100_0" type="Node3D" parent="OffRoadPath" unique_id=1438727911 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.85723597, 0, -0.5485278, 0, 0.91594017, 0, 0.5485278, 0, 0.85723597, 100.37113, 7.647624, 28.416874)
+
+[node name="PathStone_Side_100_1" type="Node3D" parent="OffRoadPath" unique_id=1552083286 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.8588207, 0, -0.4399981, 0, 0.86847496, 0, 0.4399981, 0, 0.8588207, 100.21698, 7.6115613, 29.280155)
+
+[node name="PathStone_Wide_101" type="Node3D" parent="OffRoadPath" unique_id=1156149663 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.3248601, 0, -0.22930515, 0, 1.2101018, 0, 0.22930515, 0, 1.3248601, 101.23104, 7.849909, 29.005543)
+
+[node name="PathStone_Side_101_0" type="Node3D" parent="OffRoadPath" unique_id=15832689 instance=ExtResource("2_28oso")]
+transform = Transform3D(0.9454759, 0, 0.16606204, 0, 0.8639537, 0, -0.16606204, 0, 0.9454759, 101.35256, 7.8746886, 28.325024)
+
+[node name="PathStone_Side_101_1" type="Node3D" parent="OffRoadPath" unique_id=1518584946 instance=ExtResource("3_dhh38")]
+transform = Transform3D(0.9279284, 0, -0.4637164, 0, 0.9336102, 0, 0.4637164, 0, 0.9279284, 101.12765, 7.8246675, 29.584534)
+
+[node name="PathStone_Wide_102" type="Node3D" parent="OffRoadPath" unique_id=240440694 instance=ExtResource("1_g6tb1")]
+transform = Transform3D(1.2978876, 0, -0.19591306, 0, 1.1813315, 0, 0.19591306, 0, 1.2978876, 102.166245, 8.063768, 29.172544)
+
+[node name="PathStone_Side_102_0" type="Node3D" parent="OffRoadPath" unique_id=1771902622 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0471923, 0, -0.0077709984, 0, 0.94249904, 0, 0.0077709984, 0, 1.0471923, 102.28506, 8.086601, 28.507208)
+
+[node name="PathStone_Side_102_1" type="Node3D" parent="OffRoadPath" unique_id=1268914553 instance=ExtResource("3_dhh38")]
+transform = Transform3D(1.0501796, 0, -0.31517458, 0, 0.98680896, 0, 0.31517458, 0, 1.0501796, 102.08797, 8.0450115, 29.610918)
+
+[node name="BirchTrees" type="Node3D" parent="." unique_id=802400878]
+
+[node name="Birch_green_0" type="Node3D" parent="BirchTrees" unique_id=1986603247 instance=ExtResource("4_lwsaf")]
+transform = Transform3D(-1.1949701, 0, 0.5640865, 0, 1.3214186, 0, -0.5640865, 0, -1.1949701, 17.2, 4.5239153, 4.2)
+
+[node name="Birch_green_1" type="Node3D" parent="BirchTrees" unique_id=2014406341 instance=ExtResource("4_lwsaf")]
+transform = Transform3D(-1.179764, 0, 0.18127525, 0, 1.1936096, 0, -0.18127525, 0, -1.179764, 18.5, 3.3585758, -4.8)
+
+[node name="Birch_gold_2" type="Node3D" parent="BirchTrees" unique_id=326078981 instance=ExtResource("5_mtmcw")]
+transform = Transform3D(-1.1194971, 0, 0.48681018, 0, 1.2207612, 0, -0.48681018, 0, -1.1194971, 21.5, 5.487877, 9.2)
+
+[node name="Birch_gold_3" type="Node3D" parent="BirchTrees" unique_id=1959900168 instance=ExtResource("5_mtmcw")]
+transform = Transform3D(-1.0684409, 0, 0.9205333, 0, 1.4103005, 0, -0.9205333, 0, -1.0684409, 24.5, 4.628464, -3.2)
+
+[node name="Birch_orange_4" type="Node3D" parent="BirchTrees" unique_id=1481125238 instance=ExtResource("6_34eb8")]
+transform = Transform3D(0.2875868, 0, 1.2981566, 0, 1.3296304, 0, -1.2981566, 0, 0.2875868, 23.5, 5.7703505, 14.8)
+
+[node name="Birch_green_5" type="Node3D" parent="BirchTrees" unique_id=1062114447 instance=ExtResource("4_lwsaf")]
+transform = Transform3D(-1.0165732, 0, 0.4254495, 0, 1.102011, 0, -0.4254495, 0, -1.0165732, 26.5, 3.9803855, -7.5)
+
+[node name="Birch_green_6" type="Node3D" parent="BirchTrees" unique_id=1113314215 instance=ExtResource("4_lwsaf")]
+transform = Transform3D(0.500241, 0, 1.0107027, 0, 1.1277238, 0, -1.0107027, 0, 0.500241, 29, 5.4037356, 11.8)
+
+[node name="Birch_green_7" type="Node3D" parent="BirchTrees" unique_id=556716159 instance=ExtResource("4_lwsaf")]
+transform = Transform3D(1.3278759, 0, 0.27269164, 0, 1.3555866, 0, -0.27269164, 0, 1.3278759, 31.5, 5.48138, 18.5)
+
+[node name="Birch_orange_8" type="Node3D" parent="BirchTrees" unique_id=1209588393 instance=ExtResource("6_34eb8")]
+transform = Transform3D(0.1758677, 0, -1.2503239, 0, 1.2626319, 0, 1.2503239, 0, 0.1758677, 33, 3.4505336, -4.5)
+
+[node name="Birch_green_9" type="Node3D" parent="BirchTrees" unique_id=218533515 instance=ExtResource("4_lwsaf")]
+transform = Transform3D(0.9093603, 0, -0.71875906, 0, 1.1591164, 0, 0.71875906, 0, 0.9093603, 38, 3.4306092, 0.8)
+
+[node name="Birch_gold_10" type="Node3D" parent="BirchTrees" unique_id=1429402605 instance=ExtResource("5_mtmcw")]
+transform = Transform3D(0.9363268, 0, 0.8659615, 0, 1.2753812, 0, -0.8659615, 0, 0.9363268, 39.5, 4.754806, 16)
+
+[node name="Birch_orange_11" type="Node3D" parent="BirchTrees" unique_id=1180469076 instance=ExtResource("6_34eb8")]
+transform = Transform3D(-1.136607, 0, 0.4448861, 0, 1.2205733, 0, -0.4448861, 0, -1.136607, 42.5, 4.7478857, 23)
+
+[node name="Birch_gold_12" type="Node3D" parent="BirchTrees" unique_id=802818657 instance=ExtResource("5_mtmcw")]
+transform = Transform3D(-0.87333864, 0, 0.8828922, 0, 1.2418611, 0, -0.8828922, 0, -0.87333864, 36.5, 3.081841, -3.5)
+
+[node name="Birch_green_13" type="Node3D" parent="BirchTrees" unique_id=380547200 instance=ExtResource("4_lwsaf")]
+transform = Transform3D(-1.3114666, 0, 0.20866793, 0, 1.3279635, 0, -0.20866793, 0, -1.3114666, 49, 4.000626, 19.5)
+
+[node name="Birch_orange_14" type="Node3D" parent="BirchTrees" unique_id=774797302 instance=ExtResource("6_34eb8")]
+transform = Transform3D(0.9166455, 0, -0.69050556, 0, 1.1476223, 0, 0.69050556, 0, 0.9166455, 52.5, 2.7492812, 5)
+
+[node name="Birch_green_15" type="Node3D" parent="BirchTrees" unique_id=2037103554 instance=ExtResource("4_lwsaf")]
+transform = Transform3D(1.0926696, 0, 0.41750827, 0, 1.1697179, 0, -0.41750827, 0, 1.0926696, 54, 3.5104966, 27.5)
+
+[node name="Birch_green_16" type="Node3D" parent="BirchTrees" unique_id=1584359041 instance=ExtResource("4_lwsaf")]
+transform = Transform3D(-0.26472914, 0, 1.2684724, 0, 1.2958024, 0, -1.2684724, 0, -0.26472914, 58.5, 2.4459484, 1.2)
+
+[node name="Birch_gold_17" type="Node3D" parent="BirchTrees" unique_id=1546034538 instance=ExtResource("5_mtmcw")]
+transform = Transform3D(0.55863714, 0, 1.1391356, 0, 1.2687416, 0, -1.1391356, 0, 0.55863714, 62.5, 2.8534157, 24)
+
+[node name="Birch_gold_18" type="Node3D" parent="BirchTrees" unique_id=1901665321 instance=ExtResource("5_mtmcw")]
+transform = Transform3D(0.7741178, 0, -0.93332523, 0, 1.2125818, 0, 0.93332523, 0, 0.7741178, 66.5, 3.1082652, 8)
+
+[node name="Birch_orange_19" type="Node3D" parent="BirchTrees" unique_id=962662532 instance=ExtResource("6_34eb8")]
+transform = Transform3D(-1.049978, 0, 0.7170997, 0, 1.2714896, 0, -0.7170997, 0, -1.049978, 68, 2.3196073, 31.5)
+
+[node name="Birch_green_20" type="Node3D" parent="BirchTrees" unique_id=349516810 instance=ExtResource("4_lwsaf")]
+transform = Transform3D(-0.4436179, 0, 1.0892287, 0, 1.176102, 0, -1.0892287, 0, -0.4436179, 74.5, 3.4501085, 12)
+
+[node name="Birch_green_21" type="Node3D" parent="BirchTrees" unique_id=327280876 instance=ExtResource("4_lwsaf")]
+transform = Transform3D(1.4304665, 0, -0.010569076, 0, 1.4305056, 0, 0.010569076, 0, 1.4304665, 76, 2.6028447, 30)
+
+[node name="Birch_gold_22" type="Node3D" parent="BirchTrees" unique_id=1640797008 instance=ExtResource("5_mtmcw")]
+transform = Transform3D(-0.1580007, 0, 1.1857232, 0, 1.196204, 0, -1.1857232, 0, -0.1580007, 81.5, 2.8998387, 38.5)
+
+[node name="Birch_orange_23" type="Node3D" parent="BirchTrees" unique_id=636921373 instance=ExtResource("6_34eb8")]
+transform = Transform3D(0.31672713, 0, 1.2076393, 0, 1.2484826, 0, -1.2076393, 0, 0.31672713, 84.5, 4.491772, 16)
+
+[node name="Birch_orange_24" type="Node3D" parent="BirchTrees" unique_id=75371244 instance=ExtResource("6_34eb8")]
+transform = Transform3D(-0.71536154, 0, 0.99582696, 0, 1.2261376, 0, -0.99582696, 0, -0.71536154, 89.5, 4.6593976, 35.5)
+
+[node name="Birch_green_25" type="Node3D" parent="BirchTrees" unique_id=99564578 instance=ExtResource("4_lwsaf")]
+transform = Transform3D(-1.1685003, 0, 0.3736779, 0, 1.2267959, 0, -0.3736779, 0, -1.1685003, 95.5, 6.534901, 22)
+
+[node name="Birch_green_26" type="Node3D" parent="BirchTrees" unique_id=10910665 instance=ExtResource("4_lwsaf")]
+transform = Transform3D(-0.13314119, 0, -1.3351176, 0, 1.3417398, 0, 1.3351176, 0, -0.13314119, 97.5, 6.3950777, 40.5)
+
+[node name="Birch_gold_27" type="Node3D" parent="BirchTrees" unique_id=692249205 instance=ExtResource("5_mtmcw")]
+transform = Transform3D(-1.1237148, 0, 0.17750768, 0, 1.1376485, 0, -0.17750768, 0, -1.1237148, 102, 7.619713, 36.5)
+
+[node name="Birch_green_28" type="Node3D" parent="BirchTrees" unique_id=910047947 instance=ExtResource("4_lwsaf")]
+transform = Transform3D(-0.6939984, 0, 1.1394881, 0, 1.3341914, 0, -1.1394881, 0, -0.6939984, 60, 1.2179374, -12.5)
+
+[node name="Birch_gold_29" type="Node3D" parent="BirchTrees" unique_id=669548888 instance=ExtResource("5_mtmcw")]
+transform = Transform3D(0.01885806, 0, -1.3021213, 0, 1.3022578, 0, 1.3021213, 0, 0.01885806, 72, 3.05858, -8.5)
+
+[node name="Birch_orange_30" type="Node3D" parent="BirchTrees" unique_id=235441273 instance=ExtResource("6_34eb8")]
+transform = Transform3D(-0.9642799, 0, 0.68374616, 0, 1.1820933, 0, -0.68374616, 0, -0.9642799, 85, 4.99058, -5.5)
+
+[node name="Birch_green_31" type="Node3D" parent="BirchTrees" unique_id=392509858 instance=ExtResource("4_lwsaf")]
+transform = Transform3D(-0.9272174, 0, 0.69046324, 0, 1.1560587, 0, -0.69046324, 0, -0.9272174, 98, 6.7117634, 1.5)
+
+[node name="Birch_green_32" type="Node3D" parent="BirchTrees" unique_id=932024021 instance=ExtResource("4_lwsaf")]
+transform = Transform3D(-0.21318138, 0, 1.2269859, 0, 1.2453678, 0, -1.2269859, 0, -0.21318138, 70, 1.7773887, 46.5)
+
+[node name="Birch_gold_33" type="Node3D" parent="BirchTrees" unique_id=1415023447 instance=ExtResource("5_mtmcw")]
+transform = Transform3D(-1.2057103, 0, 0.075351454, 0, 1.2080625, 0, -0.075351454, 0, -1.2057103, 85, 3.935014, 48.5)
+
+[node name="Birch_orange_34" type="Node3D" parent="BirchTrees" unique_id=2063977075 instance=ExtResource("6_34eb8")]
+transform = Transform3D(-0.49856886, 0, -1.0890914, 0, 1.1977859, 0, 1.0890914, 0, -0.49856886, 92, 5.513278, 50)
+
+[node name="Birch_green_35" type="Node3D" parent="BirchTrees" unique_id=184085526 instance=ExtResource("4_lwsaf")]
+transform = Transform3D(-1.2062013, 0, -0.5608694, 0, 1.330224, 0, 0.5608694, 0, -1.2062013, 100, 6.7920437, 45)
+
+[node name="Birch_green_36" type="Node3D" parent="BirchTrees" unique_id=185848947 instance=ExtResource("4_lwsaf")]
+transform = Transform3D(0.20058446, 0, -1.1987154, 0, 1.2153817, 0, 1.1987154, 0, 0.20058446, 65, 1.4565454, -15)
+
+[node name="Birch_gold_37" type="Node3D" parent="BirchTrees" unique_id=1324205876 instance=ExtResource("5_mtmcw")]
+transform = Transform3D(0.025625864, 0, -1.2932124, 0, 1.2934663, 0, 1.2932124, 0, 0.025625864, 78, 3.5904398, -11)
+
+[node name="MeadowRocks" type="Node3D" parent="." unique_id=2130468274]
+
+[node name="MeadowRock_0" type="StaticBody3D" parent="MeadowRocks" unique_id=76562525 instance=ExtResource("7_trb5x")]
+transform = Transform3D(0.8708834, 0, 0.89669514, 0, 1.25, 0, -0.89669514, 0, 0.8708834, 35, 2.7835002, -5.5)
+
+[node name="MeadowRock_1" type="StaticBody3D" parent="MeadowRocks" unique_id=736469068 instance=ExtResource("8_wp8tx")]
+transform = Transform3D(1.2286155, 0, -0.67119575, 0, 1.4, 0, 0.67119575, 0, 1.2286155, 44, 4.185016, 18)
+
+[node name="MeadowRock_2" type="StaticBody3D" parent="MeadowRocks" unique_id=1810890930 instance=ExtResource("7_trb5x")]
+transform = Transform3D(0.19546223, 0, 1.1332672, 0, 1.15, 0, -1.1332672, 0, 0.19546223, 62, 2.6537921, 7)
+
+[node name="MeadowRock_3" type="StaticBody3D" parent="MeadowRocks" unique_id=1924554413 instance=ExtResource("8_wp8tx")]
+transform = Transform3D(1.4330047, 0, 0.44328034, 0, 1.5, 0, -0.44328034, 0, 1.4330047, 78, 2.5492876, 30)
+
+[node name="MeadowRock_4" type="StaticBody3D" parent="MeadowRocks" unique_id=2077603075 instance=ExtResource("7_trb5x")]
+transform = Transform3D(0.5896749, 0, -1.1585696, 0, 1.3, 0, 1.1585696, 0, 0.5896749, 88, 4.984591, 14)
+
+[node name="MeadowGrassCommon" type="MultiMeshInstance3D" parent="." unique_id=1108504388]
+material_override = SubResource("ShaderMaterial_4wj3k")
+multimesh = ExtResource("11_k4wbk")
+
+[node name="MeadowGrassWispy" type="MultiMeshInstance3D" parent="." unique_id=724748512]
+material_override = SubResource("ShaderMaterial_ecui1")
+multimesh = ExtResource("12_cvc5j")
+
+[node name="MeadowFlowersBlue" type="MultiMeshInstance3D" parent="." unique_id=510625885]
+material_override = SubResource("ShaderMaterial_6nd6w")
+multimesh = ExtResource("15_60wrx")
+
+[node name="MeadowFlowersPink" type="MultiMeshInstance3D" parent="." unique_id=1041152457]
+material_override = SubResource("ShaderMaterial_lancg")
+multimesh = ExtResource("16_u34qp")
+
+[node name="MeadowFlowersWhite" type="MultiMeshInstance3D" parent="." unique_id=1798362822]
+material_override = SubResource("ShaderMaterial_edhgq")
+multimesh = ExtResource("17_khgum")

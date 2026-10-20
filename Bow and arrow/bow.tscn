@@ -1,0 +1,45 @@
+[gd_scene format=3 uid="uid://bow_scene_uid_01"]
+
+[ext_resource type="Script" path="res://Bow and arrow/bow.gd" id="1_bow_script"]
+[ext_resource type="PackedScene" uid="uid://bm53vn8pobgog" path="res://Bow and arrow/bow.glb" id="2_bow_glb"]
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_rest"]
+animation = &"rest"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_draw"]
+animation = &"draw"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_release"]
+animation = &"release"
+
+[sub_resource type="AnimationNodeTransition" id="AnimationNodeTransition_bow"]
+xfade_time = 0.1
+input_count = 3
+input_0/name = "idle"
+input_0/auto_advance = false
+input_1/name = "draw"
+input_1/auto_advance = false
+input_2/name = "release"
+input_2/auto_advance = false
+
+[sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_bow"]
+graph_offset = Vector2(-280, 20)
+nodes/rest/node = SubResource("AnimationNodeAnimation_rest")
+nodes/rest/position = Vector2(-180, 40)
+nodes/draw/node = SubResource("AnimationNodeAnimation_draw")
+nodes/draw/position = Vector2(-180, 160)
+nodes/release/node = SubResource("AnimationNodeAnimation_release")
+nodes/release/position = Vector2(-180, 280)
+nodes/transition/node = SubResource("AnimationNodeTransition_bow")
+nodes/transition/position = Vector2(60, 120)
+nodes/output/position = Vector2(280, 120)
+node_connections = [&"transition", 0, &"rest", &"transition", 1, &"draw", &"transition", 2, &"release", &"output", 0, &"transition"]
+
+[node name="bow" type="Node3D"]
+script = ExtResource("1_bow_script")
+
+[node name="bow" parent="." instance=ExtResource("2_bow_glb")]
+
+[node name="AnimationTree" type="AnimationTree" parent="."]
+tree_root = SubResource("AnimationNodeBlendTree_bow")
+anim_player = NodePath("../bow/AnimationPlayer")

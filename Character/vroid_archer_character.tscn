@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://rfu06obksqlm"]
+
+[ext_resource type="PackedScene" path="res://scenes/archer.tscn" id="1_tv6tl"]
+
+[node name="Archer" unique_id=1141975208 instance=ExtResource("1_tv6tl")]

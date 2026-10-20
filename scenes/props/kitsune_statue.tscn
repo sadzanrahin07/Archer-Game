@@ -1,0 +1,159 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gpj4i"]
+diffuse_mode = 3
+specular_mode = 1
+albedo_color = Color(0.38, 0.40, 0.39, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="BoxMesh_6tiwy"]
+material = SubResource("StandardMaterial3D_gpj4i")
+size = Vector3(1.1, 0.25, 1.3)
+
+[sub_resource type="BoxMesh" id="BoxMesh_en81s"]
+material = SubResource("StandardMaterial3D_gpj4i")
+size = Vector3(0.9, 0.45, 1.1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_db4ib"]
+material = SubResource("StandardMaterial3D_gpj4i")
+radius = 0.28
+height = 1.05
+
+[sub_resource type="SphereMesh" id="SphereMesh_avbgo"]
+material = SubResource("StandardMaterial3D_gpj4i")
+radius = 0.26
+height = 0.52
+
+[sub_resource type="SphereMesh" id="SphereMesh_wcejh"]
+material = SubResource("StandardMaterial3D_gpj4i")
+radius = 0.24
+height = 0.55
+
+[sub_resource type="SphereMesh" id="SphereMesh_ckfkq"]
+material = SubResource("StandardMaterial3D_gpj4i")
+radius = 0.24
+height = 0.55
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_vn33i"]
+material = SubResource("StandardMaterial3D_gpj4i")
+top_radius = 0.09
+bottom_radius = 0.11
+height = 0.72
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_7hhkd"]
+material = SubResource("StandardMaterial3D_gpj4i")
+top_radius = 0.09
+bottom_radius = 0.11
+height = 0.72
+
+[sub_resource type="SphereMesh" id="SphereMesh_8ahqg"]
+material = SubResource("StandardMaterial3D_gpj4i")
+radius = 0.22
+height = 0.44
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_dvpih"]
+material = SubResource("StandardMaterial3D_gpj4i")
+top_radius = 0.04
+bottom_radius = 0.14
+height = 0.32
+
+[sub_resource type="PrismMesh" id="PrismMesh_eyuvf"]
+material = SubResource("StandardMaterial3D_gpj4i")
+size = Vector3(0.12, 0.35, 0.08)
+
+[sub_resource type="PrismMesh" id="PrismMesh_drnt8"]
+material = SubResource("StandardMaterial3D_gpj4i")
+size = Vector3(0.12, 0.35, 0.08)
+
+[sub_resource type="SphereMesh" id="SphereMesh_luowu"]
+material = SubResource("StandardMaterial3D_gpj4i")
+radius = 0.14
+height = 0.28
+
+[sub_resource type="SphereMesh" id="SphereMesh_dn8im"]
+material = SubResource("StandardMaterial3D_gpj4i")
+radius = 0.22
+height = 0.44
+
+[sub_resource type="SphereMesh" id="SphereMesh_lbryc"]
+material = SubResource("StandardMaterial3D_gpj4i")
+radius = 0.24
+height = 0.48
+
+[sub_resource type="SphereMesh" id="SphereMesh_qkdcr"]
+material = SubResource("StandardMaterial3D_gpj4i")
+radius = 0.12
+height = 0.24
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wbcao"]
+size = Vector3(1.1, 2.4, 1.3)
+
+[node name="KitsuneStatue" type="StaticBody3D" unique_id=953474093]
+
+[node name="PlinthBase" type="MeshInstance3D" parent="." unique_id=726342258]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.125, 0)
+mesh = SubResource("BoxMesh_6tiwy")
+
+[node name="PlinthTop" type="MeshInstance3D" parent="." unique_id=579528869]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.475, 0)
+mesh = SubResource("BoxMesh_en81s")
+
+[node name="Torso" type="MeshInstance3D" parent="." unique_id=2119814526]
+transform = Transform3D(1, 0, 0, 0, 0.9702957, -0.2419219, 0, 0.2419219, 0.9702957, 0, 1.32, -0.05)
+mesh = SubResource("CapsuleMesh_db4ib")
+
+[node name="Chest" type="MeshInstance3D" parent="." unique_id=339291384]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.45, 0.14)
+mesh = SubResource("SphereMesh_avbgo")
+
+[node name="Haunch_L" type="MeshInstance3D" parent="." unique_id=990214644]
+transform = Transform3D(0.95105654, -0.309017, 0, 0.309017, 0.95105654, 0, 0, 0, 1, -0.26, 0.94, -0.15)
+mesh = SubResource("SphereMesh_wcejh")
+
+[node name="Haunch_R" type="MeshInstance3D" parent="." unique_id=1265600525]
+transform = Transform3D(0.95105654, 0.309017, 0, -0.309017, 0.95105654, 0, 0, 0, 1, 0.26, 0.94, -0.15)
+mesh = SubResource("SphereMesh_ckfkq")
+
+[node name="FrontLeg_L" type="MeshInstance3D" parent="." unique_id=2034762811]
+transform = Transform3D(1, 0, 0, 0, 0.99026805, 0.1391731, 0, -0.1391731, 0.99026805, -0.16, 1.05, 0.25)
+mesh = SubResource("CylinderMesh_vn33i")
+
+[node name="FrontLeg_R" type="MeshInstance3D" parent="." unique_id=1586599821]
+transform = Transform3D(1, 0, 0, 0, 0.99026805, 0.1391731, 0, -0.1391731, 0.99026805, 0.16, 1.05, 0.25)
+mesh = SubResource("CylinderMesh_7hhkd")
+
+[node name="Head" type="MeshInstance3D" parent="." unique_id=652997562]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.95, 0.12)
+mesh = SubResource("SphereMesh_8ahqg")
+
+[node name="Snout" type="MeshInstance3D" parent="." unique_id=846394387]
+transform = Transform3D(1, 0, 0, 0, 0.087155804, -0.9961947, 0, 0.9961947, 0.087155804, 0, 1.9, 0.35)
+mesh = SubResource("CylinderMesh_dvpih")
+
+[node name="Ear_L" type="MeshInstance3D" parent="." unique_id=325724032]
+transform = Transform3D(0.90767336, -0.24321035, -0.34202012, 0.25881904, 0.9659258, 0, 0.33036608, -0.088521324, 0.9396926, -0.15, 2.2, 0.1)
+mesh = SubResource("PrismMesh_eyuvf")
+
+[node name="Ear_R" type="MeshInstance3D" parent="." unique_id=950372717]
+transform = Transform3D(0.90767336, 0.24321035, 0.34202012, -0.25881904, 0.9659258, 0, -0.33036608, -0.088521324, 0.9396926, 0.15, 2.2, 0.1)
+mesh = SubResource("PrismMesh_drnt8")
+
+[node name="Tail_0" type="MeshInstance3D" parent="." unique_id=270668088]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, -0.35)
+mesh = SubResource("SphereMesh_luowu")
+
+[node name="Tail_1" type="MeshInstance3D" parent="." unique_id=1472826992]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 1.15, -0.48)
+mesh = SubResource("SphereMesh_dn8im")
+
+[node name="Tail_2" type="MeshInstance3D" parent="." unique_id=2143766665]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.55, -0.42)
+mesh = SubResource("SphereMesh_lbryc")
+
+[node name="Tail_3" type="MeshInstance3D" parent="." unique_id=999242883]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06, 1.85, -0.28)
+mesh = SubResource("SphereMesh_qkdcr")
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=2094722356]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+shape = SubResource("BoxShape3D_wbcao")

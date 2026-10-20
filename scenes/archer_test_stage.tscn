@@ -1,0 +1,97 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/props/archery_target.tscn" id="1_v0vc1"]
+[ext_resource type="Script" path="res://scripts/archery_target.gd" id="2_kqjah"]
+[ext_resource type="PackedScene" path="res://scenes/props/birch_tree.tscn" id="3_8qmtt"]
+[ext_resource type="PackedScene" path="res://scenes/props/rock_medium_1.tscn" id="4_3i3xh"]
+[ext_resource type="PackedScene" path="res://Character/erika.tscn" id="5_sp8pa"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_q43vl"]
+sky_top_color = Color(0.38, 0.65, 0.98, 1)
+sky_horizon_color = Color(0.72, 0.85, 0.95, 1)
+ground_bottom_color = Color(0.2, 0.28, 0.2, 1)
+ground_horizon_color = Color(0.55, 0.7, 0.6, 1)
+
+[sub_resource type="Sky" id="Sky_hy6m8"]
+sky_material = SubResource("ProceduralSkyMaterial_q43vl")
+
+[sub_resource type="Environment" id="Environment_pil7m"]
+background_mode = 2
+sky = SubResource("Sky_hy6m8")
+ambient_light_source = 3
+ambient_light_energy = 0.8
+tonemap_mode = 3
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
+size = Vector3(140, 2, 140)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_grass"]
+albedo_color = Color(0.26, 0.44, 0.22, 1)
+roughness = 0.9
+
+[sub_resource type="BoxMesh" id="BoxMesh_ground"]
+material = SubResource("StandardMaterial3D_grass")
+size = Vector3(140, 2, 140)
+
+
+[node name="ArcherTestStage" type="Node3D" unique_id=781099703]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=765640774]
+environment = SubResource("Environment_pil7m")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=111711042]
+transform = Transform3D(-0.70710677, -0.4731468, 0.5254827, 0, 0.7431448, 0.6691306, -0.70710677, 0.4731468, -0.5254827, 0, 0, 0)
+light_color = Color(1, 0.96, 0.9, 1)
+light_energy = 1.2
+shadow_enabled = true
+
+[node name="Ground" type="StaticBody3D" parent="." unique_id=1013987917]
+
+[node name="GroundCol" type="CollisionShape3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+shape = SubResource("BoxShape3D_ground")
+
+[node name="GroundMesh" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+mesh = SubResource("BoxMesh_ground")
+
+
+[node name="ArcheryTarget_10m" type="StaticBody3D" parent="." unique_id=301056862 instance=ExtResource("1_v0vc1")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -3, 0, -10)
+script = ExtResource("2_kqjah")
+
+[node name="ArcheryTarget_18m" type="StaticBody3D" parent="." unique_id=1008794714 instance=ExtResource("1_v0vc1")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -18)
+script = ExtResource("2_kqjah")
+
+[node name="ArcheryTarget_26m" type="StaticBody3D" parent="." unique_id=357528845 instance=ExtResource("1_v0vc1")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 3, 0, -26)
+script = ExtResource("2_kqjah")
+
+[node name="ArcheryTarget_35m" type="StaticBody3D" parent="." unique_id=1456974243 instance=ExtResource("1_v0vc1")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -1.5, 0, -35)
+script = ExtResource("2_kqjah")
+
+[node name="ArcheryTarget_50m" type="StaticBody3D" parent="." unique_id=1253816843 instance=ExtResource("1_v0vc1")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 1.5, 0, -50)
+script = ExtResource("2_kqjah")
+
+[node name="TreeObstacle_0" type="Node3D" parent="." unique_id=2097997763 instance=ExtResource("3_8qmtt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -15)
+
+[node name="TreeObstacle_1" type="Node3D" parent="." unique_id=475479893 instance=ExtResource("3_8qmtt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -22)
+
+[node name="TreeObstacle_2" type="Node3D" parent="." unique_id=472748430 instance=ExtResource("3_8qmtt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, -32)
+
+[node name="RockObstacle_0" type="StaticBody3D" parent="." unique_id=76562525 instance=ExtResource("4_3i3xh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 0, -12)
+
+[node name="RockObstacle_1" type="StaticBody3D" parent="." unique_id=142236189 instance=ExtResource("4_3i3xh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.5, 0, -20)
+
+[node name="ElevatedPlatform" type="StaticBody3D" parent="." unique_id=1741898630]
+
+[node name="Archer" parent="." unique_id=1141975208 instance=ExtResource("5_sp8pa")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
