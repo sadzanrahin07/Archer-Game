@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://32l4cpe3weif"
-path="res://.godot/imported/3675109917025159411__10.png-954631f7728bff4e013ef7c7fc9a940c.ctex"
+path.s3tc="res://.godot/imported/3675109917025159411__10.png-954631f7728bff4e013ef7c7fc9a940c.s3tc.ctex"
+path.etc2="res://.godot/imported/3675109917025159411__10.png-954631f7728bff4e013ef7c7fc9a940c.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "3518de6f7fca81b9a7122846f7d42b75"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://campaign/characters/3675109917025159411__10.png"
-dest_files=["res://.godot/imported/3675109917025159411__10.png-954631f7728bff4e013ef7c7fc9a940c.ctex"]
+dest_files=["res://.godot/imported/3675109917025159411__10.png-954631f7728bff4e013ef7c7fc9a940c.s3tc.ctex", "res://.godot/imported/3675109917025159411__10.png-954631f7728bff4e013ef7c7fc9a940c.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0
