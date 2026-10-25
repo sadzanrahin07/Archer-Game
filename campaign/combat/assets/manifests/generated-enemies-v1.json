@@ -1,0 +1,92 @@
+[
+  {
+    "family": "moss_slime",
+    "source": "/Users/sadzanrahin/.codex/generated_images/01a13628-a0df-7762-96e2-f76cd7d1ce59/exec-7fbf25b2-8776-4ef0-9523-2d13f51411d2.png",
+    "target": "res://campaign/combat/assets/enemies/moss_slime-directions-v1.png",
+    "prompt": "Use case: stylized-concept. Production directional game sprite atlas for Arrowglade, a stylized 3D low-poly magical forest archery game. Subject: a mint teardrop jelly moss slime with dark oval eyes, an opaque leafy center and a tiny fern tuft. Create ONE clean sprite sheet containing EIGHT matching views of this SAME creature, no other characters. Exactly FOUR COLUMNS and TWO ROWS, equal square cells, on a genuinely transparent background. Cell order left-to-right top row: facing camera front, front-left three-quarter, left profile, back-left three-quarter. Bottom row: back, back-right three-quarter, right profile, front-right three-quarter. Camera elevated 12 degrees looking slightly down, orthographic. Identical proportions, identity, markings, scale and baseline across all eight views. Each creature centered in its cell, full body, generous transparent padding, feet at same baseline, no cell overlap, clear gaps. Style: original charming but dangerous fantasy enemy, crisp cel shaded low-poly facets, soft forest bounce light, readable phone-game silhouette, controlled mint/plum/cedar/teal palette appropriate to subject. Neutral idle pose; coherent actual rear and side views, no duplicated front poses, no text, no labels, no borders, no gridlines, no background, no ground plane, no baked shadows, no gore, no watermark. Canvas ideally 2048x1024, 4x2 square cells. This must be a runtime sprite atlas, not a presentation sheet.",
+    "tool": "built-in image_gen",
+    "columns": 4,
+    "rows": 2,
+    "qa": "Eight directional idle views inspected; procedural movement/windup/death animation, not frame-by-frame action atlases.",
+    "dimensions": [
+      1774,
+      887
+    ],
+    "actual_alpha": true
+  },
+  {
+    "family": "briar_slime",
+    "source": "/Users/sadzanrahin/.codex/generated_images/01a13628-a0df-7762-96e2-f76cd7d1ce59/exec-64c986b5-e02d-46a3-823a-3be34216d1c2.png",
+    "target": "res://campaign/combat/assets/enemies/briar_slime-directions-v1.png",
+    "prompt": "Use case: stylized-concept. Production directional game sprite atlas for Arrowglade, a stylized 3D low-poly magical forest archery game. Subject: a plum jelly briar slime with three large wooden thorn buds, rose belly patch, dark oval eyes. Create ONE clean sprite sheet containing EIGHT matching views of this SAME creature, no other characters. Exactly FOUR COLUMNS and TWO ROWS, equal square cells, on a genuinely transparent background. Cell order left-to-right top row: facing camera front, front-left three-quarter, left profile, back-left three-quarter. Bottom row: back, back-right three-quarter, right profile, front-right three-quarter. Camera elevated 12 degrees looking slightly down, orthographic. Identical proportions, identity, markings, scale and baseline across all eight views. Each creature centered in its cell, full body, generous transparent padding, feet at same baseline, no cell overlap, clear gaps. Style: original charming but dangerous fantasy enemy, crisp cel shaded low-poly facets, soft forest bounce light, readable phone-game silhouette, controlled mint/plum/cedar/teal palette appropriate to subject. Neutral idle pose; coherent actual rear and side views, no duplicated front poses, no text, no labels, no borders, no gridlines, no background, no ground plane, no baked shadows, no gore, no watermark. Canvas ideally 2048x1024, 4x2 square cells. This must be a runtime sprite atlas, not a presentation sheet.",
+    "tool": "built-in image_gen",
+    "columns": 4,
+    "rows": 2,
+    "qa": "Eight directional idle views inspected; procedural movement/windup/death animation, not frame-by-frame action atlases.",
+    "dimensions": [
+      1774,
+      887
+    ],
+    "actual_alpha": true
+  },
+  {
+    "family": "seed_spitter",
+    "source": "/Users/sadzanrahin/.codex/generated_images/01a13628-a0df-7762-96e2-f76cd7d1ce59/exec-5886cd75-f146-4dab-bddd-9685d237e95b.png",
+    "target": "res://campaign/combat/assets/enemies/seed_spitter-directions-v1.png",
+    "prompt": "Use case: stylized-concept. Production directional game sprite atlas for Arrowglade, a stylized 3D low-poly magical forest archery game. Subject: a squat rooted green plant seed spitter with two broad leaves and a cream seed-pod muzzle, strong triangular silhouette. Create ONE clean sprite sheet containing EIGHT matching views of this SAME creature, no other characters. Exactly FOUR COLUMNS and TWO ROWS, equal square cells, on a genuinely transparent background. Cell order left-to-right top row: facing camera front, front-left three-quarter, left profile, back-left three-quarter. Bottom row: back, back-right three-quarter, right profile, front-right three-quarter. Camera elevated 12 degrees looking slightly down, orthographic. Identical proportions, identity, markings, scale and baseline across all eight views. Each creature centered in its cell, full body, generous transparent padding, feet at same baseline, no cell overlap, clear gaps. Style: original charming but dangerous fantasy enemy, crisp cel shaded low-poly facets, soft forest bounce light, readable phone-game silhouette, controlled mint/plum/cedar/teal palette appropriate to subject. Neutral idle pose; coherent actual rear and side views, no duplicated front poses, no text, no labels, no borders, no gridlines, no background, no ground plane, no baked shadows, no gore, no watermark. Canvas ideally 2048x1024, 4x2 square cells. This must be a runtime sprite atlas, not a presentation sheet.",
+    "tool": "built-in image_gen",
+    "columns": 4,
+    "rows": 2,
+    "qa": "Eight directional idle views inspected; procedural movement/windup/death animation, not frame-by-frame action atlases.",
+    "dimensions": [
+      1774,
+      887
+    ],
+    "actual_alpha": true
+  },
+  {
+    "family": "bark_stalker",
+    "source": "/Users/sadzanrahin/.codex/generated_images/01a13628-a0df-7762-96e2-f76cd7d1ce59/exec-abb00ad6-d974-4bf3-8255-b902b168090c.png",
+    "target": "res://campaign/combat/assets/enemies/bark_stalker-directions-v1.png",
+    "prompt": "Use case: stylized-concept. Production directional game sprite atlas for Arrowglade, a stylized 3D low-poly magical forest archery game. Subject: a compact four-legged foxlike cedar-bark spirit, pale leaf-shaped face marking, amber eyes, one broad leafy tail. Create ONE clean sprite sheet containing EIGHT matching views of this SAME creature, no other characters. Exactly FOUR COLUMNS and TWO ROWS, equal square cells, on a genuinely transparent background. Cell order left-to-right top row: facing camera front, front-left three-quarter, left profile, back-left three-quarter. Bottom row: back, back-right three-quarter, right profile, front-right three-quarter. Camera elevated 12 degrees looking slightly down, orthographic. Identical proportions, identity, markings, scale and baseline across all eight views. Each creature centered in its cell, full body, generous transparent padding, feet at same baseline, no cell overlap, clear gaps. Style: original charming but dangerous fantasy enemy, crisp cel shaded low-poly facets, soft forest bounce light, readable phone-game silhouette, controlled mint/plum/cedar/teal palette appropriate to subject. Neutral idle pose; coherent actual rear and side views, no duplicated front poses, no text, no labels, no borders, no gridlines, no background, no ground plane, no baked shadows, no gore, no watermark. Canvas ideally 2048x1024, 4x2 square cells. This must be a runtime sprite atlas, not a presentation sheet.",
+    "tool": "built-in image_gen",
+    "columns": 4,
+    "rows": 2,
+    "qa": "Eight directional idle views inspected; procedural movement/windup/death animation, not frame-by-frame action atlases.",
+    "dimensions": [
+      1774,
+      887
+    ],
+    "actual_alpha": true
+  },
+  {
+    "family": "mirror_wisp",
+    "source": "/Users/sadzanrahin/.codex/generated_images/01a13628-a0df-7762-96e2-f76cd7d1ce59/exec-d87f78a4-d91f-4cfe-b155-604583a082a1.png",
+    "target": "res://campaign/combat/assets/enemies/mirror_wisp-directions-v1.png",
+    "prompt": "Use case: stylized-concept. Production directional game sprite atlas for Arrowglade, a stylized 3D low-poly magical forest archery game. Subject: a floating asymmetrical teal-lilac prism wisp with a pearl core and two small orbiting crystal facets, dark readable outline. Create ONE clean sprite sheet containing EIGHT matching views of this SAME creature, no other characters. Exactly FOUR COLUMNS and TWO ROWS, equal square cells, on a genuinely transparent background. Cell order left-to-right top row: facing camera front, front-left three-quarter, left profile, back-left three-quarter. Bottom row: back, back-right three-quarter, right profile, front-right three-quarter. Camera elevated 12 degrees looking slightly down, orthographic. Identical proportions, identity, markings, scale and baseline across all eight views. Each creature centered in its cell, full body, generous transparent padding, feet at same baseline, no cell overlap, clear gaps. Style: original charming but dangerous fantasy enemy, crisp cel shaded low-poly facets, soft forest bounce light, readable phone-game silhouette, controlled mint/plum/cedar/teal palette appropriate to subject. Neutral idle pose; coherent actual rear and side views, no duplicated front poses, no text, no labels, no borders, no gridlines, no background, no ground plane, no baked shadows, no gore, no watermark. Canvas ideally 2048x1024, 4x2 square cells. This must be a runtime sprite atlas, not a presentation sheet.",
+    "tool": "built-in image_gen",
+    "columns": 4,
+    "rows": 2,
+    "qa": "Eight directional idle views inspected; procedural movement/windup/death animation, not frame-by-frame action atlases.",
+    "dimensions": [
+      1774,
+      887
+    ],
+    "actual_alpha": true
+  },
+  {
+    "family": "root_warden",
+    "source": "/Users/sadzanrahin/.codex/generated_images/01a13628-a0df-7762-96e2-f76cd7d1ce59/exec-4e9ca390-867a-4c8e-a07e-84042cd41768.png",
+    "target": "res://campaign/combat/assets/enemies/root_warden-directions-v1.png",
+    "prompt": "Use case: stylized-concept. Production directional game sprite atlas for Arrowglade, a stylized 3D low-poly magical forest archery game. Subject: a squat heavy stone-and-root guardian miniboss, thick root arms, moss shoulder shelf, stone feet, a pale gold chest knot. Create ONE clean sprite sheet containing EIGHT matching views of this SAME creature, no other characters. Exactly FOUR COLUMNS and TWO ROWS, equal square cells, on a genuinely transparent background. Cell order left-to-right top row: facing camera front, front-left three-quarter, left profile, back-left three-quarter. Bottom row: back, back-right three-quarter, right profile, front-right three-quarter. Camera elevated 12 degrees looking slightly down, orthographic. Identical proportions, identity, markings, scale and baseline across all eight views. Each creature centered in its cell, full body, generous transparent padding, feet at same baseline, no cell overlap, clear gaps. Style: original charming but dangerous fantasy enemy, crisp cel shaded low-poly facets, soft forest bounce light, readable phone-game silhouette, controlled mint/plum/cedar/teal palette appropriate to subject. Neutral idle pose; coherent actual rear and side views, no duplicated front poses, no text, no labels, no borders, no gridlines, no background, no ground plane, no baked shadows, no gore, no watermark. Canvas ideally 2048x1024, 4x2 square cells. This must be a runtime sprite atlas, not a presentation sheet.",
+    "tool": "built-in image_gen",
+    "columns": 4,
+    "rows": 2,
+    "qa": "Eight directional idle views inspected; procedural movement/windup/death animation, not frame-by-frame action atlases.",
+    "dimensions": [
+      1774,
+      887
+    ],
+    "actual_alpha": true
+  }
+]

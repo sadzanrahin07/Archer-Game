@@ -18,6 +18,7 @@ var ui: Control
 var layer: CanvasLayer
 var page := "home"
 var state := "menu"
+var current_chapter := 1
 var selected_chapter := 0
 var selected_stage := 0
 var time_left := 0.0
@@ -32,10 +33,17 @@ var airborne := 0
 var precision_sum := 0.0
 var minimum_arrows := 1
 var max_thread_chain:=0
-var focus_meter := 50.0
+var focus_meter := 100.0
+var power_timers:Dictionary={}
+var power_global_lock:=0.0
+var secondary_damage:=false
+var current_hit_actor_id:=0
+var focus_targets:Dictionary={}
+var pending_damage_count:=0
 var selected_power := "normal"
 var power_cooldown := 0.0
 var power_armed := false
+var power_charge_source := ""
 var ultimate_used := false
 var burst_used := false
 var super_used := false
@@ -66,6 +74,7 @@ var hud_draw: ProgressBar
 var last_tick := -1
 var focus_material: ShaderMaterial
 var hud_ready: Label
+var combat_hud: Control
 var music: AudioStreamPlayer
 var ambience: AudioStreamPlayer
 var inventory_tab := "bow"
@@ -85,9 +94,11 @@ const MUTED := Color("ccd8d1")
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	print("Arrowglade ",ProjectSettings.get_setting("application/config/version","development")," · Combat revision 4")
 	process_physics_priority = 100
 	test_mode = test_mode or "--campaign-test" in OS.get_cmdline_user_args()
 	if not test_mode: profile.load_profile()
+	else:profile.save_path="/tmp/arrowglade-runtime-qa.json"
 	definitions = JSON.parse_string(FileAccess.get_file_as_string("res://campaign/stages.json"))
 	selected_stage = int(profile.data.selected)
 	selected_chapter = selected_stage / 5
@@ -239,6 +250,7 @@ func _clear_ui() -> void:
 		child.queue_free()
 	hud_timer = null
 	hud_ready = null
+	combat_hud = null
 	hud_draw = null
 	focus_material = null
 	dragging = false
@@ -280,7 +292,7 @@ func show_home() -> void:
 		preview_character=-1;preview_costume=-1;_spawn_hero()
 	if is_instance_valid(final_director):final_director.cancel()
 	pending_result.clear()
-	power_armed=false
+	power_armed=false;power_charge_source=""
 	if not test_mode:selected_stage=profile.run_selected_stage();selected_chapter=selected_stage/5
 	_set_backdrop_playing(false)
 	get_node("ShowcasePodium").visible = true
@@ -325,6 +337,7 @@ func show_levels() -> void:
 	menu_builder=MenuUI.new(self);menu_builder.levels()
 
 func _objective_text(def: Dictionary) -> String:
+	if def.has("objective_text"):return str(def.objective_text)
 	if def.has("encounter_hint"):return str(def.encounter_hint)
 	if def.mode == "precision": return "Hit the target from %d meters in 10 seconds." % def.distance
 	if bool(def.get("roaming",false)):return "Roam the trail · Clear targets in order · Reach and break the final rune stone"
@@ -406,11 +419,9 @@ func start_stage(id: int, is_practice: bool = false) -> void:
 	if preview_character>=0 or preview_costume>=0:
 		preview_character=-1;preview_costume=-1;_spawn_hero()
 	if not is_practice and not test_mode:
-		var required:int=int(definitions[clampi(id,0,definitions.size()-1)].get("minimum_power_level",1))
-		if profile.power_level()<required:
-			show_levels()
-			feedback("Chapter mastery: upgrade BOTH equipped bow and arrow to Lv. %d. Open UPGRADES."%required)
-			return
+		var reason:String=profile.get_stage_lock_reason(id)
+		if not reason.is_empty():show_levels();feedback(reason);return
+		if id==99 and profile.data.power!="ultimate":profile.equip_power("ultimate")
 	get_node("ShowcasePodium").visible = false
 	if not test_mode and id > int(profile.data.unlocked):
 		id = mini(id, int(profile.data.unlocked))
@@ -427,7 +438,7 @@ func start_stage(id: int, is_practice: bool = false) -> void:
 		elif profile.power()<float(requirement.get("required_power",0)):
 			feedback("Notice: Recommended power %.1f"%float(requirement.required_power))
 		run_transaction=profile.current_run_transaction()+":stage:"+str(id)
-		if id%5==0 and profile.power_is_unlocked(str(definitions[id].get("chapter_power","normal"))):profile.equip_power(str(definitions[id].get("chapter_power","normal")))
+		if id%5==0 and not bool(profile.data.get("power_chosen",false)) and profile.data.get("power","normal")=="normal" and profile.power_is_unlocked(str(definitions[id].get("chapter_power","normal"))):profile.equip_power(str(definitions[id].get("chapter_power","normal")))
 
 	selected_stage = id
 	if not is_practice:
@@ -443,16 +454,20 @@ func start_stage(id: int, is_practice: bool = false) -> void:
 	_set_backdrop_playing(true)
 	hero.position = stage.spawn
 	hero.spawn_point = stage.spawn
-	hero.stationary = current_definition.mode == "precision"
+	var chapter: int = (id / 5) + 1
+	current_chapter = chapter
+	hero.stationary = bool(current_definition.get("stationary", false)) or (chapter >= 18 and bool(current_definition.get("sniper", false)))
 	hero.set_showcase(false)
+	hero.max_hp=profile.max_hp();hero.current_hp=hero.max_hp;hero.is_dodging=false;hero.is_invulnerable=false;hero.dodge_cooldown=0
 	_set_environment(id)
 	time_left = float(current_definition.get("seconds", 30))
 	arrows = 999 if practice else int(current_definition.arrows)
 	shots = 0; hits = 0; centers = 0; best_zone = 0; completed = 0; airborne = 0;max_thread_chain=0
 	precision_sum=0;credited_shots.clear();focus_volley.clear();focus_meter=100;power_cooldown=0;power_armed=false;ultimate_used=false;burst_used=false;super_used=false
 	selected_power=profile.selected_power();minimum_arrows=_minimum_arrow_count()
+	power_timers.clear();power_global_lock=0;focus_targets.clear();pending_damage_count=0;power_charge_source=""
 	draw_amount = 0
-	ready_left = 1.0
+	ready_left = 1.0 if is_practice else 4.0
 	last_tick = -1
 	state = "ready"
 	page = "hud"
@@ -491,39 +506,35 @@ func consume_arrow() -> bool:
 	return true
 
 func has_available_power() -> bool:
-	if practice:return true
-	if profile.power_is_unlocked("burst") and not burst_used:return true
-	var current_p:=selected_power
-	if current_p=="normal" or current_p=="burst":current_p=profile.selected_power()
-	if current_p!="normal" and current_p!="burst":
-		if profile.power_is_unlocked(current_p) and not super_used:return true
-	return false
+	return arrows>0 and profile.selected_power()!="normal"
 
 func _check_quiver_empty() -> void:
-	if not is_playing() or practice:return
-	if arrows <= 0 and airborne == 0 and not has_available_power() and not power_armed and completed < current_definition.materials.size():
-		finish(false, "Quiver empty")
+	if not is_playing():return
+	if arrows<=0 and is_instance_valid(hero):hero.clear_empty_aim()
+	if practice:return
+	if is_combat():return
+	if arrows<=0 and airborne==0 and pending_damage_count==0 and completed<current_definition.materials.size():finish(false,"Quiver empty")
 
 func arrow_resolved() -> void:
 	airborne = maxi(0, airborne - 1)
 	_check_quiver_empty()
 
-func target_scored(zone: int, damage: float, destructible: bool) -> void:
-	if not current_shot_id.is_empty() and credited_shots.has(current_shot_id):return
-	if not current_shot_id.is_empty():credited_shots[current_shot_id]=true
-	hits += 1
-	precision_sum+=[0.3,0.6,0.8,1.0][zone]
-	best_zone = maxi(best_zone, zone)
-	if zone == 3: centers += 1
-	var volley:String=current_shot_id.get_slice(":arrow:",0)
-	var gained:float=float(focus_volley.get(volley,0))
-	var addition:float=minf(10-gained,8 if zone==3 else 3)
-	focus_volley[volley]=gained+addition;focus_meter=minf(100,focus_meter+addition)
-	feedback(["WHITE","BLUE","RED","CENTER"][zone]+" · %.1f damage"%damage)
+func target_scored(zone:int,damage:float,_destructible:bool) -> void:
+	if secondary_damage:return
+	var release:String=current_shot_id.get_slice(":arrow:",0)
+	if credited_shots.has(release):return
+	credited_shots[release]=true;hits+=1;precision_sum+=[.3,.6,.8,1.0][zone]
+	if not focus_targets.has(current_hit_actor_id):
+		focus_targets[current_hit_actor_id]=true;focus_meter=minf(100,focus_meter+(8 if zone==3 else 4))
+	if zone==3:centers+=1
+	feedback("%s · %.1f damage"%[("Weak spot" if zone==3 else "Creature hit") if is_combat() else ["WHITE","BLUE","RED","CENTER"][zone],damage])
 
 func target_completed(index: int) -> void:
 	completed += 1
 	if str(current_definition.get("mode", "precision")) == "ordered" and index + 1 < stage.targets.size(): stage.targets[index + 1].set_active(true)
+	if is_instance_valid(stage) and is_instance_valid(stage.combat_manager):
+		stage.combat_manager.on_target_completed(index)
+		return
 	if completed >= current_definition.get("materials", []).size() and not current_definition.get("materials", []).is_empty(): finish(true, "Challenge complete")
 
 func feedback(text: String) -> void:
@@ -544,9 +555,27 @@ func play_sound(path: String, pitch: float = 1.0, volume: float = -7.0) -> void:
 func play_stream(path: String, pitch: float = 1.0, volume: float = -7.0) -> void:
 	play_sound(path, pitch, volume)
 
+func _power_audio() -> Node:
+	var node:Node=get_node_or_null("PowerAudio")
+	if not is_instance_valid(node):
+		node=preload("res://campaign/power_audio.gd").new();node.game=self;add_child(node)
+	return node
+
+func play_power_sound(key:String) -> void:
+	_power_audio().play_release(key)
+
+func play_power_impact_sound(key:String) -> void:
+	_power_audio().play_impact(key)
+
+func power_coin_cost(_power_key: String = "") -> int:
+	return 0
+
 func _physics_process(delta: float) -> void:
 	_update_music()
-	if state=="playing":power_cooldown=maxf(0,power_cooldown-delta)
+	if state=="playing":
+		power_global_lock=maxf(0,power_global_lock-delta)
+		for key in power_timers:power_timers[key]=maxf(0,float(power_timers[key])-delta)
+		power_cooldown=float(power_timers.get(selected_power,0))
 	if state == "ready":
 		ready_left -= delta
 		if ready_left <= 0: state = "playing"; feedback(_objective_text(current_definition))
@@ -556,18 +585,26 @@ func _physics_process(delta: float) -> void:
 			last_tick = tick
 			play_sound("res://campaign/countdown.wav")
 		time_left = maxf(0, time_left - delta)
-		if time_left <= 0: finish(false, "Time expired")
+		if time_left <= 0 and not is_combat(): finish(false, "Time expired")
 		_check_quiver_empty()
 	if page == "hud" and is_instance_valid(hud_timer):
 		hud_timer.text = "PRACTICE" if practice else "%02d:%02d" % [ceili(time_left) / 60, ceili(time_left) % 60]
 		hud_timer.add_theme_color_override("font_color", Color("e9a17b") if time_left < 5 else GOLD)
-		hud_ammo.text = "%s arrows\n%d / %d targets" % ["∞" if practice else str(arrows), completed, current_definition.materials.size()]
-		hud_cross.visible=state!="ready"
-		hud_ready.text = "%d\n%s" % [ceili(ready_left), _objective_text(current_definition)] if state == "ready" else ""
-		hud_draw.value = draw_amount
+		if is_instance_valid(hud_ammo): hud_ammo.text = "%s arrows · %d focus\n%d / %d targets" % ["∞" if practice else str(arrows),int(focus_meter), completed, current_definition.materials.size()]
+		if is_combat():hud_ammo.text = "%s arrows · %d focus\nHP %d/%d · %s"%["∞" if practice else str(arrows),int(focus_meter),ceili(hero.current_hp),ceili(hero.max_hp),stage.combat_manager.status_text()]
+		if is_instance_valid(hud_cross): hud_cross.visible = state != "ready"
+		if is_instance_valid(hud_ready):
+			if state == "ready":
+				var prompt: String = ("Tap screen or SHOOT to begin · %d" % ceili(ready_left)) if touch_enabled() else ("Press SHOOT or Space to begin · %d" % ceili(ready_left))
+				hud_ready.text = "%s\n%s\n%s" % [current_definition.name, current_definition.get("story", ""), prompt]
+			else:
+				hud_ready.text = ""
+			if hud_ready.get_parent() is PanelContainer:
+				hud_ready.get_parent().visible = not hud_ready.text.is_empty()
+		if is_instance_valid(hud_draw): hud_draw.value = draw_amount
 		if focus_material: focus_material.set_shader_parameter("strength",hero.aim_blend)
 		message_time -= delta
-		hud_message.text = message if message_time > 0 else ""
+		if is_instance_valid(hud_message): hud_message.text = message if message_time > 0 else ""
 
 func finish(success: bool, reason: String) -> void:
 	if state != "playing": return
@@ -582,6 +619,8 @@ func finish(success: bool, reason: String) -> void:
 		if hits==shots and shots>0:performance.badges.append("No missed arrows")
 		if max_thread_chain>=3:performance.badges.append("One-arrow chain")
 		if is_instance_valid(stage.encounter) and stage.encounter.found_perch:performance.badges.append("Hidden perch")
+	if is_combat():
+		performance.stars=(1+int(hero.current_hp>=hero.max_hp*.5)+int(time_left>0)) if success else 0
 	if not practice and not test_mode:
 		if success:reward=profile.reward(selected_stage,int(performance.stars),float(performance.accuracy),time_left,run_transaction,performance)
 		else:profile.fail_run()
@@ -591,7 +630,7 @@ func finish(success: bool, reason: String) -> void:
 		state="finishing"
 		var target_position:Vector3=last_hit_position
 		if target_position==Vector3.ZERO and not stage.targets.is_empty():target_position=stage.targets.back().global_position
-		if selected_stage % 5 == 4 and not test_mode:
+		if not test_mode:
 			_play_restoration_event(target_position)
 		final_director.final_impact(target_position)
 	else:
@@ -619,6 +658,7 @@ func show_pause() -> void:
 	hero.draw_elapsed = 0.0
 	draw_amount = 0.0
 	if is_instance_valid(touch_controller):touch_controller.reset()
+	hero.reset_jump_input();power_charge_source="";power_armed=false
 	menu_builder=MenuUI.new(self);menu_builder.pause()
 
 func resume_game() -> void:
@@ -630,8 +670,17 @@ func resume_game() -> void:
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode==KEY_B and is_playing():shoot_burst();get_viewport().set_input_as_handled()
-	if event is InputEventKey and event.pressed and not event.echo and (event.keycode==KEY_F or event.keycode==KEY_E) and is_playing():trigger_power();get_viewport().set_input_as_handled()
-	if event is InputEventJoypadButton and event.pressed and event.button_index==JOY_BUTTON_A and is_playing():trigger_power()
+	if event is InputEventKey and not event.echo and event.keycode in [KEY_F,KEY_E,KEY_R]:
+		var source:String="key:"+str(event.keycode)
+		if event.pressed and is_playing():begin_power_charge(profile.secondary_power() if event.keycode==KEY_R else profile.selected_power(),source)
+		elif not event.pressed:end_power_charge(source)
+		get_viewport().set_input_as_handled()
+	if event is InputEventJoypadButton and event.pressed and event.button_index==JOY_BUTTON_A and is_playing():hero.request_jump()
+	if event is InputEventJoypadButton and event.button_index in [JOY_BUTTON_X,JOY_BUTTON_Y]:
+		var source:String="pad:"+str(event.button_index)
+		if event.pressed and is_playing():begin_power_charge(profile.secondary_power() if event.button_index==JOY_BUTTON_Y else profile.selected_power(),source)
+		elif not event.pressed:end_power_charge(source)
+		get_viewport().set_input_as_handled()
 	if event is InputEventJoypadButton and event.pressed and event.button_index == JOY_BUTTON_START:
 		if state in ["playing", "ready", "finishing"]: show_pause()
 		elif state == "paused": resume_game()
@@ -802,49 +851,61 @@ func select_power(id:String) -> void:
 	else:feedback("Power unlocks at a higher bow and arrow level")
 
 func power_status_text() -> String:
-	var info:Dictionary=profile.ability_stats(selected_power)
-	if (selected_power=="burst" and burst_used and not practice) or (selected_power!="normal" and selected_power!="burst" and super_used and not practice):
-		return "%s · USED this stage"%info.name
-	return "%s · %s"%[info.name,"ARMED" if power_armed else ("WAIT (%.1fs)"%power_cooldown if practice and power_cooldown>0 else "Ready")]
+	return "%s · %s"%[profile.ability_stats(selected_power).name,"ARMED" if power_armed else power_block_reason(selected_power)]
 
 func trigger_power() -> void:
 	if not is_playing():return
-	if selected_power == "normal" or not profile.power_is_unlocked(selected_power):
-		selected_power = profile.selected_power()
-	if selected_power == "normal":
-		feedback("Powers unlock at Bow & Arrow Lv. 20 (Visit Store)");return
-	var is_used: bool = (burst_used if selected_power == "burst" else super_used)
-	if not practice and is_used:
-		feedback("%s already used this stage" % ("Burst ability" if selected_power == "burst" else "Super power"))
-		return
-	if practice and power_cooldown > 0:
-		feedback("Ability cooling down (%.1fs)" % power_cooldown); return
-	power_armed = not power_armed
-	if power_armed:
-		play_sound("res://campaign/audio/cue_rise.wav", 1.0, -2.0)
-	var info: Dictionary = profile.ability_stats(selected_power)
-	feedback("%s %s" % [info.name, "armed · Draw and release" if power_armed else "canceled"])
-	if not power_armed:
-		_check_quiver_empty()
+	if power_armed:power_armed=false;feedback("Power canceled");return
+	if selected_power=="normal" or not profile.power_is_unlocked(selected_power):selected_power=profile.selected_power()
+	var reason:String=power_block_reason(selected_power)
+	if reason!="Ready":feedback(reason);return
+	power_armed=true;play_sound("res://campaign/audio/cue_rise.wav",1,-12)
+	feedback("%s armed · Draw and release"%profile.ability_stats(selected_power).name)
+
+func clear_power_hold() -> void:
+	power_charge_source=""
+
+func begin_power_charge(key:String,source:String) -> bool:
+	if not is_playing() or not is_instance_valid(hero) or hero.current_hp<=0 or hero.is_dodging:return false
+	if not power_charge_source.is_empty() or hero.drawing:return false
+	if hero.shot_cooldown>0:return false
+	if key.is_empty() or key=="normal":feedback("Choose an unlocked power in your loadout");return false
+	var reason:String=power_block_reason(key)
+	if reason!="Ready":feedback(reason);return false
+	selected_power=key;power_armed=true
+	hero._start_draw()
+	if not hero.drawing:power_armed=false;return false
+	power_charge_source=source
+	feedback("%s · Hold to charge · Release to fire"%profile.ability_stats(key).name)
+	return true
+
+func end_power_charge(source:String,canceled:bool=false) -> void:
+	if source!=power_charge_source or source.is_empty():return
+	power_charge_source=""
+	if not is_instance_valid(hero):return
+	if canceled or not is_playing() or not hero.drawing:
+		hero.cancel_draw();power_armed=false;return
+	# A short tap retains the existing arm-next-shot option. Holding fires on release.
+	if hero.draw_elapsed<.12:
+		hero.cancel_draw();power_armed=true
+		feedback("%s armed · Hold POWER to charge, or aim and draw"%profile.ability_stats(selected_power).name)
+	else:hero._fire()
 
 func begin_volley() -> Dictionary:
-	var info:Dictionary=profile.ability_stats(selected_power if power_armed else "normal")
-	if not is_playing():return {}
-	if not power_armed and arrows<=0:return {}
-	if power_armed and not practice and ((burst_used if selected_power=="burst" else super_used)):return {}
-	if power_armed and practice and power_cooldown > 0:return {}
-	shot_serial+=1;info.volley_id="volley:"+str(shot_serial)
-	if power_armed:
-		focus_meter=100
-		power_cooldown=float(info.get("cooldown", 0.0))
-		if selected_power=="burst":burst_used=true
-		else:super_used=true
-		if selected_power=="ultimate":ultimate_used=true
+	if not is_playing() or arrows<=0:return {}
+	var key:String=selected_power if power_armed else "normal"
+	if key!="normal" and power_block_reason(key)!="Ready":return {}
+	var info:Dictionary=profile.ability_stats(key)
+	arrows-=1;shots+=1;shot_serial+=1;airborne+=int(info.ammo)
+	info.volley_id="volley:"+str(shot_serial)
+	if key!="normal":
+		focus_meter-=float(info.focus);power_timers[key]=float(info.cooldown);power_global_lock=2.0
+		if key=="ultimate":ultimate_used=true
 	power_armed=false
 	return info
 
 func maybe_follow_final(projectile:Node3D,target:Node3D,point:Vector3) -> void:
-	if not is_playing() or completed!=stage.targets.size()-1 or final_director.is_active():return
+	if is_combat() or not is_playing() or completed!=stage.targets.size()-1 or final_director.is_active():return
 	if target.would_be_destroyed(point,projectile.power):final_director.begin(projectile,target)
 
 func play_impact_sound() -> void:
@@ -865,29 +926,21 @@ func _set_backdrop_playing(playing:bool) -> void:
 	for particles in menu_course.find_children("*","GPUParticles3D",true,false):particles.emitting=not playing
 
 func loadout_requirement(definition:Dictionary) -> String:
-	var tier:int=int(definition.get("required_tier",0))
-	var gear:int=int(definition.get("required_gear_level",1))
-	var character:int=int(definition.get("required_character_level",1))
-	var bow:Dictionary=Catalog.BOWS[int(profile.data.equipped_bow)]
-	var arrow:Dictionary=Catalog.ARROWS[int(profile.data.equipped_arrow)]
-	# Higher tiers bypass lower-tier mastery requirements.
-	if int(bow.tier_index)<tier or int(arrow.tier_index)<tier:return "Requires %s bow and arrows · Visit Store"%str(definition.minimum_gear_tier)
-	if (int(bow.tier_index)==tier and int(profile.data.bow_level)<gear) or (int(arrow.tier_index)==tier and int(profile.data.arrow_level)<gear):return "Upgrade current-tier bow and arrows to Lv. %d"%gear
-	if profile.level()<character and mini(int(bow.tier_index),int(arrow.tier_index))<=tier:return "Train your archer to Lv. %d · Replay completed stages to earn XP and coins"%character
-	return ""
+	return profile.get_stage_lock_reason(int(definition.id))
 
 func shoot_burst() -> void:
-	if not is_playing() or hero.shot_cooldown>0:return
-	if burst_used and not practice:feedback("Burst already used this stage");return
-	if not practice and not profile.power_is_unlocked("burst"):feedback("Burst requires bow AND arrow level 20");return
-	var previous:String=selected_power
-	if previous=="normal":previous=profile.selected_power()
-	selected_power="burst";power_armed=true
-	hero.instant_shoot()
-	selected_power=previous;power_armed=false
+	if profile.equip_power("burst"):selected_power="burst";trigger_power()
+
+func shoot_power(power_key:String="") -> void:
+	if not power_key.is_empty() and profile.power_is_unlocked(power_key):
+		if power_key!=selected_power:power_armed=false
+		selected_power=power_key
+	trigger_power()
 
 func _play_restoration_event(target_pos: Vector3) -> void:
-	if is_instance_valid(stage) and is_instance_valid(stage.encounter):stage.encounter.restore_landmark()
+	if is_instance_valid(stage):
+		stage.restore_story_landmark()
+		if is_instance_valid(stage.encounter):stage.encounter.restore_landmark()
 	play_sound("res://campaign/audio/nature_restore.wav", 1.0, -4.0)
 	feedback("🌿 %s Restored!" % str(current_definition.get("chapter", "The Grove")))
 	if not is_instance_valid(stage): return
@@ -944,3 +997,15 @@ func preparation_hint(definition:Dictionary) -> String:
 				if int(entries[int(id)].tier_index)>int(entries[current].tier_index):return "Equip your owned %s in Collection. %d center shots needed / %d arrows."%[entries[int(id)].name,shots,definition.arrows]
 		return "Upgrade bow, arrows or archer in Collection: %d center shots needed / %d arrows."%[shots,definition.arrows]
 	return "%d center shots / %d arrows · %d spare. Powers optional."%[shots,definition.arrows,int(definition.arrows)-shots]
+
+func is_combat() -> bool:
+	return is_instance_valid(stage) and is_instance_valid(stage.combat_manager)
+
+func power_block_reason(key:String) -> String:
+	if key=="normal":return "Choose an unlocked power"
+	if not profile.power_is_unlocked(key):return profile.get_power_lock_reason(key)
+	if arrows<=0:return "No arrows"
+	if key=="ultimate" and ultimate_used:return "Aurora spent · Reach the rearm well" if selected_stage==99 else "Aurora used this attempt"
+	if power_global_lock>0 or float(power_timers.get(key,0))>0:return "Cooldown %.1fs"%maxf(power_global_lock,float(power_timers.get(key,0)))
+	if focus_meter<float(profile.ability_stats(key).focus):return "Need %d focus"%int(profile.ability_stats(key).focus)
+	return "Ready"

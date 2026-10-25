@@ -1,0 +1,371 @@
+[
+  {
+    "id": 55,
+    "chapter": 12,
+    "stage": 1,
+    "family": "moss_slime",
+    "total": 1,
+    "waves": [
+      1
+    ],
+    "title": "A Stir in the Ferns",
+    "lesson": "Read the squeeze, dodge the landing, shoot the recovering slime."
+  },
+  {
+    "id": 56,
+    "chapter": 12,
+    "stage": 2,
+    "family": "moss_slime",
+    "total": 2,
+    "waves": [
+      2
+    ],
+    "title": "Two Sets of Eyes",
+    "lesson": "Read the squeeze, dodge the landing, shoot the recovering slime."
+  },
+  {
+    "id": 57,
+    "chapter": 12,
+    "stage": 3,
+    "family": "moss_slime",
+    "total": 3,
+    "waves": [
+      3
+    ],
+    "title": "The Leafling Circle",
+    "lesson": "Read the squeeze, dodge the landing, shoot the recovering slime."
+  },
+  {
+    "id": 58,
+    "chapter": 12,
+    "stage": 4,
+    "family": "moss_slime",
+    "total": 4,
+    "waves": [
+      4
+    ],
+    "title": "Hops Across the Brook",
+    "lesson": "Read the squeeze, dodge the landing, shoot the recovering slime."
+  },
+  {
+    "id": 59,
+    "chapter": 12,
+    "stage": 5,
+    "family": "moss_slime",
+    "total": 5,
+    "waves": [
+      5
+    ],
+    "title": "Mosswake Swarm",
+    "lesson": "Read the squeeze, dodge the landing, shoot the recovering slime."
+  },
+  {
+    "id": 60,
+    "chapter": 13,
+    "stage": 1,
+    "family": "briar_slime",
+    "total": 1,
+    "waves": [
+      1
+    ],
+    "title": "Rosebud Warning",
+    "lesson": "Leave the high-leap landing mark. The raised rose buds identify Briar Slimes."
+  },
+  {
+    "id": 61,
+    "chapter": 13,
+    "stage": 2,
+    "family": "briar_slime",
+    "total": 2,
+    "waves": [
+      2
+    ],
+    "title": "Thorns in Pairs",
+    "lesson": "Leave the high-leap landing mark. The raised rose buds identify Briar Slimes."
+  },
+  {
+    "id": 62,
+    "chapter": 13,
+    "stage": 3,
+    "family": "briar_slime",
+    "total": 3,
+    "waves": [
+      3
+    ],
+    "title": "Three Landing Marks",
+    "lesson": "Leave the high-leap landing mark. The raised rose buds identify Briar Slimes."
+  },
+  {
+    "id": 63,
+    "chapter": 13,
+    "stage": 4,
+    "family": "briar_slime",
+    "total": 4,
+    "waves": [
+      4
+    ],
+    "title": "Briar Switchback",
+    "lesson": "Leave the high-leap landing mark. The raised rose buds identify Briar Slimes."
+  },
+  {
+    "id": 64,
+    "chapter": 13,
+    "stage": 5,
+    "family": "briar_slime",
+    "total": 5,
+    "waves": [
+      5
+    ],
+    "title": "The Roseguard",
+    "lesson": "Leave the high-leap landing mark. The raised rose buds identify Briar Slimes."
+  },
+  {
+    "id": 65,
+    "chapter": 14,
+    "stage": 1,
+    "family": "seed_spitter",
+    "total": 1,
+    "waves": [
+      1
+    ],
+    "title": "First Seed",
+    "lesson": "Strafe after the pod opens. Shoot the seed-pod mouth between its shots."
+  },
+  {
+    "id": 66,
+    "chapter": 14,
+    "stage": 2,
+    "family": "seed_spitter",
+    "total": 2,
+    "waves": [
+      2
+    ],
+    "title": "Crossing Lanes",
+    "lesson": "Strafe after the pod opens. Shoot the seed-pod mouth between its shots."
+  },
+  {
+    "id": 67,
+    "chapter": 14,
+    "stage": 3,
+    "family": "seed_spitter",
+    "total": 3,
+    "waves": [
+      3
+    ],
+    "title": "Three Gardeners",
+    "lesson": "Strafe after the pod opens. Shoot the seed-pod mouth between its shots."
+  },
+  {
+    "id": 68,
+    "chapter": 14,
+    "stage": 4,
+    "family": "seed_spitter",
+    "total": 4,
+    "waves": [
+      3,
+      1
+    ],
+    "title": "Cover to Cover",
+    "lesson": "Strafe after the pod opens. Shoot the seed-pod mouth between its shots."
+  },
+  {
+    "id": 69,
+    "chapter": 14,
+    "stage": 5,
+    "family": "seed_spitter",
+    "total": 5,
+    "waves": [
+      3,
+      2
+    ],
+    "title": "The Seedpod Barrage",
+    "lesson": "Strafe after the pod opens. Shoot the seed-pod mouth between its shots."
+  },
+  {
+    "id": 70,
+    "chapter": 15,
+    "stage": 1,
+    "family": "bark_stalker",
+    "total": 1,
+    "waves": [
+      1
+    ],
+    "title": "Cedar Footsteps",
+    "lesson": "Watch the crouch. Dodge across the pounce line and aim for the fox mask."
+  },
+  {
+    "id": 71,
+    "chapter": 15,
+    "stage": 2,
+    "family": "bark_stalker",
+    "total": 2,
+    "waves": [
+      2
+    ],
+    "title": "Twin Hunters",
+    "lesson": "Watch the crouch. Dodge across the pounce line and aim for the fox mask."
+  },
+  {
+    "id": 72,
+    "chapter": 15,
+    "stage": 3,
+    "family": "bark_stalker",
+    "total": 3,
+    "waves": [
+      3
+    ],
+    "title": "The Pincer Path",
+    "lesson": "Watch the crouch. Dodge across the pounce line and aim for the fox mask."
+  },
+  {
+    "id": 73,
+    "chapter": 15,
+    "stage": 4,
+    "family": "bark_stalker",
+    "total": 4,
+    "waves": [
+      4
+    ],
+    "title": "Under the Fallen Bough",
+    "lesson": "Watch the crouch. Dodge across the pounce line and aim for the fox mask."
+  },
+  {
+    "id": 74,
+    "chapter": 15,
+    "stage": 5,
+    "family": "bark_stalker",
+    "total": 5,
+    "waves": [
+      5
+    ],
+    "title": "Cedar Pack",
+    "lesson": "Watch the crouch. Dodge across the pounce line and aim for the fox mask."
+  },
+  {
+    "id": 75,
+    "chapter": 16,
+    "stage": 1,
+    "family": "mirror_wisp",
+    "total": 1,
+    "waves": [
+      1
+    ],
+    "title": "Pearl in the Mist",
+    "lesson": "Follow the visible dart and aim for the pearl. The orbiting facets are not additional enemies."
+  },
+  {
+    "id": 76,
+    "chapter": 16,
+    "stage": 2,
+    "family": "mirror_wisp",
+    "total": 2,
+    "waves": [
+      2
+    ],
+    "title": "Twin Orbits",
+    "lesson": "Follow the visible dart and aim for the pearl. The orbiting facets are not additional enemies."
+  },
+  {
+    "id": 77,
+    "chapter": 16,
+    "stage": 3,
+    "family": "mirror_wisp",
+    "total": 3,
+    "waves": [
+      3
+    ],
+    "title": "Three Reflections",
+    "lesson": "Follow the visible dart and aim for the pearl. The orbiting facets are not additional enemies."
+  },
+  {
+    "id": 78,
+    "chapter": 16,
+    "stage": 4,
+    "family": "mirror_wisp",
+    "total": 4,
+    "waves": [
+      3,
+      1
+    ],
+    "title": "Prism Relay",
+    "lesson": "Follow the visible dart and aim for the pearl. The orbiting facets are not additional enemies."
+  },
+  {
+    "id": 79,
+    "chapter": 16,
+    "stage": 5,
+    "family": "mirror_wisp",
+    "total": 5,
+    "waves": [
+      3,
+      2
+    ],
+    "title": "The Shattered Chorus",
+    "lesson": "Follow the visible dart and aim for the pearl. The orbiting facets are not additional enemies."
+  },
+  {
+    "id": 80,
+    "chapter": 17,
+    "stage": 1,
+    "family": "root_warden",
+    "total": 1,
+    "waves": [
+      1
+    ],
+    "title": "The First Sentinel",
+    "lesson": "Leave the raised-arm slam circle and counterattack at the gold chest knot."
+  },
+  {
+    "id": 81,
+    "chapter": 17,
+    "stage": 2,
+    "family": "root_warden",
+    "total": 2,
+    "waves": [
+      1,
+      1
+    ],
+    "title": "Stone and Root",
+    "lesson": "Leave the raised-arm slam circle and counterattack at the gold chest knot."
+  },
+  {
+    "id": 82,
+    "chapter": 17,
+    "stage": 3,
+    "family": "root_warden",
+    "total": 3,
+    "waves": [
+      1,
+      2
+    ],
+    "title": "Three Old Oaths",
+    "lesson": "Leave the raised-arm slam circle and counterattack at the gold chest knot."
+  },
+  {
+    "id": 83,
+    "chapter": 17,
+    "stage": 4,
+    "family": "root_warden",
+    "total": 4,
+    "waves": [
+      2,
+      2
+    ],
+    "title": "The Warden Relay",
+    "lesson": "Leave the raised-arm slam circle and counterattack at the gold chest knot."
+  },
+  {
+    "id": 84,
+    "chapter": 17,
+    "stage": 5,
+    "family": "root_warden",
+    "total": 5,
+    "waves": [
+      1,
+      2,
+      2
+    ],
+    "title": "Five Guardians",
+    "lesson": "Leave the raised-arm slam circle and counterattack at the gold chest knot."
+  }
+]

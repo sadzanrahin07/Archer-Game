@@ -626,7 +626,7 @@ func _power_selector(parent:Node,in_game:bool=false) -> void:
 		icon_button.custom_minimum_size=Vector2(64,maxf(56,48/g.ui_scale))
 		icon_button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 		icon_button.disabled=not unlocked
-		icon_button.tooltip_text="%s · %s"%[power.name,"Select power" if unlocked else "Unlock at Bow AND Arrow Lv. %d"%int(power.level)]
+		icon_button.tooltip_text="%s · %s"%[power.name,"Select power" if unlocked else g.profile.get_power_lock_reason(key)]
 		cell.add_child(icon_button)
 		style_button(icon_button,"primary" if unlocked and key==g.selected_power else "standard")
 		var icon:=TextureRect.new()
@@ -638,10 +638,10 @@ func _power_selector(parent:Node,in_game:bool=false) -> void:
 		icon.mouse_filter=Control.MOUSE_FILTER_IGNORE
 		icon.modulate=Color.WHITE if unlocked else Color(.32,.36,.34,.48)
 		icon_button.add_child(icon)
-		var title:=label(cell,("3× " if key=="burst" else "")+str(power.name),11,true)
+		var title:=label(cell,str(power.name),11,true)
 		title.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
 		title.modulate=Color.WHITE if unlocked else Color("82958b")
-		var state:=label(cell,"✓ Selected" if unlocked and key==g.selected_power else ("Available" if unlocked else "Locked · Lv. %d"%int(power.level)),10,true)
+		var state:=label(cell,"✓ Selected" if unlocked and key==g.selected_power else ("Available" if unlocked else g.profile.get_power_lock_reason(key)),10,true)
 		state.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
 		state.add_theme_color_override("font_color",Color("a8d5b8") if unlocked else Color("82958b"))
 		buttons[key]={"button":icon_button,"state":state}
@@ -659,11 +659,10 @@ static func get_stage_preview_texture(id: int) -> Texture2D:
 	if stage_preview_cache.has(id):
 		return stage_preview_cache[id]
 	var path := "res://campaign/stages/previews/stage_%02d.png" % id
-	if FileAccess.file_exists(path):
-		var img := Image.load_from_file(path)
-		if img and not img.is_empty():
-			var tex := ImageTexture.create_from_image(img)
-			stage_preview_cache[id] = tex
+	if ResourceLoader.exists(path):
+		var tex=load(path) as Texture2D
+		if tex!=null:
+			stage_preview_cache[id]=tex
 			return tex
 	if ResourceLoader.exists("res://campaign/stage-preview.png"):
 		var tex = load("res://campaign/stage-preview.png")
@@ -1176,23 +1175,16 @@ func _populate_inventory_stats(stats_box:VBoxContainer,kind:String,selected:int,
 	var costume:int=g.preview_costume if kind=="character" and selected==1 and g.preview_costume>=0 else int(g.profile.data.costume)
 	var progress:Dictionary=g.profile.upgrade_info(kind,selected,costume)
 	label(stats_box,"Level %d / %d"%[progress.level,progress.cap],16,false,true)
-	var factor:float=1.0+.015*(int(progress.level)-1)
-	if kind=="bow":
-		label(stats_box,"Damage multiplier ×%.2f"%(float(item.multiplier)*factor),14)
-		label(stats_box,"Flight speed %.1f m/s"%(35*float(item.speed)*(1+.10*float(int(progress.level)-1)/maxf(1,float(progress.cap)-1))),14)
-		label(stats_box,"Draw time ×%.2f"%float(item.draw),14)
-		if int(progress.level)<int(progress.cap):label(stats_box,"Next level: +1.5% base damage and faster flight.",13,true)
-	elif kind=="arrow":
-		label(stats_box,"Arrow damage %.1f"%(float(item.power)*factor),14)
-		label(stats_box,"Multiplied by your bow and archer strength.",13,true)
-		if int(progress.level)<int(progress.cap):label(stats_box,"Next level: +1.5% base arrow damage.",13,true)
-	else:
-		var skin:Dictionary=g.Catalog.COSTUMES[costume] if selected==1 else item
-		label(stats_box,"Strength ×%.2f"%(float(skin.base_power)*(1+.012*(int(progress.level)-1))),14)
-		label(stats_box,"Draw time %.2f s before bow modifier"%lerpf(.9,.65,float(int(progress.level)-1)/99),14,true)
-		label(stats_box,"Next level: more damage, steadier aim and faster draw.",13,true)
-	label(stats_box,("Tier complete. Banked XP transfers when you buy the next tier." if int(progress.level)>=int(progress.cap) and kind!="character" else "Training XP %d / %d · full bar gives 25%% upgrade discount"%[progress.xp,progress.requirement]),13,true)
-	label(stats_box,"Quiver size comes from the stage, not equipment.",12,true)
+	label(stats_box,"Equipped shot damage %.2f"%g.profile.power(),14)
+	label(stats_box,"Equipped flight speed %.2f m/s"%g.profile.flight_speed(),14)
+	label(stats_box,"Equipped draw time %.3f s"%g.profile.draw_time(),14)
+	label(stats_box,str(item.get("trait","Cosmetic appearance")),13,true)
+	if int(progress.level)<100:
+		var next_text:String={"bow":"Next: +0.22 base damage, +0.12 m/s, faster draw","arrow":"Next: +0.18 base damage, +0.08 m/s","character":"Next: +0.10 base damage, steadier aim, faster draw"}.get(kind,"")
+		label(stats_box,next_text,13,true)
+	else:label(stats_box,"Mastery complete · Level 100",13,true)
+	label(stats_box,"Shared training stays with you when changing items.",12,true)
+	label(stats_box,"Quiver supplies are provided by each stage.",12,true)
 	if kind in ["bow","arrow"]:_power_selector(stats_box)
 
 func _populate_inventory_cta(cta_box:VBoxContainer,kind:String,selected:int,entries:Array,tiles:Dictionary,stats_box:VBoxContainer,skins_anchor:VBoxContainer) -> void:
@@ -1586,8 +1578,10 @@ func settings() -> void:
 	else:setting_toggle(body,"Preview touch controller","touch_controls",true)
 	setting_toggle(body,"Aim trajectory assistance","assist")
 	if not OS.has_feature("mobile"):setting_toggle(body,"Fullscreen","fullscreen")
-	setting_toggle(body,"Reduced menu motion","reduced_motion")
-	label(body,"Touch: left stick moves · Drag either side to look · Tap SHOOT, release to shoot. POWER arms the next shot.",15,true)
+	setting_toggle(body,"Reduced motion","reduced_motion")
+	label(body,"Keyboard: Space jump · Q dodge · Hold F/R for power · Mouse: left shoot, right aim. Gamepad: A jump · B dodge · X/Y hold power · RT shoot · LT aim.",15,true).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	label(body,"Touch: left stick moves · Drag to look · Tap SHOOT for an instant arrow. Hold POWER, then release to fire. AIM + hold SHOOT also charges. JUMP vaults low attacks; DODGE cancels aim.",15,true).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	label(body,"Arrowglade · "+str(ProjectSettings.get_setting("application/config/version","development"))+" · Combat revision 4",14,true)
 	if g.Catalog.TEST_UNLOCK_CHARACTERS:label(body,"Character test access is enabled for this build.",15,true)
 
 func _style_toggle(toggle:Button) -> void:
@@ -1665,6 +1659,7 @@ func results() -> void:
 	var earned_badges:Array=result.get("performance",{}).get("badges",[])
 	if not earned_badges.is_empty():label(box,"Mastery: "+" · ".join(earned_badges),18,true)
 	if success and bool(reward.get("chapter_complete",false)):label(box,"Restoration journal entry unlocked",18,true)
+	if success and g.selected_stage==99:label(box,"The Hollow Crown is free. The guardian bows, and Luma carries its restored light home. Arrowglade lives again.",18,true)
 	var footer:=row(shell,14);button(footer,"Home",g.show_home);button(footer,"Retry practice" if g.practice else "Retry stage",_retry_level,true)
 	if success and g.selected_stage<g.definitions.size()-1 and not g.practice:button(footer,"Next level  ›" if g.selected_stage%5==4 else "Next stage  ›",func():g.start_stage(g.selected_stage+1),true)
 
@@ -1675,15 +1670,18 @@ func hud() -> void:
 	g.focus_material=ShaderMaterial.new();g.focus_material.shader=load("res://campaign/focus.gdshader");focus.material=g.focus_material
 	g.ui.add_child(focus);g.ui.move_child(focus,0)
 	var top:HBoxContainer=row(shell,8)
-	var objective:=card(top,10);g.hud_objective=label(objective,"%s · Stage %d / 5\n%s"%[g.current_definition.chapter,g.selected_stage%5+1,g.current_definition.name],18 if compact else 20)
-	var clock:=card(top,10);panel_of(clock).size_flags_horizontal=Control.SIZE_SHRINK_BEGIN;panel_of(clock).custom_minimum_size.x=116
-	g.hud_timer=label(clock,"00:00",20 if g.practice else 26);g.hud_timer.autowrap_mode=TextServer.AUTOWRAP_OFF;g.hud_timer.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
-	var coins:=card(top,10);panel_of(coins).size_flags_horizontal=Control.SIZE_SHRINK_END;var coin_text:=label(coins,"%d coins"%g.profile.data.coins,19);coin_text.autowrap_mode=TextServer.AUTOWRAP_OFF
-	var pause_button:=button(top,"Ⅱ",g.show_pause);pause_button.custom_minimum_size.x=56;pause_button.size_flags_horizontal=Control.SIZE_SHRINK_END
+	var objective:=card(top,8);g.hud_objective=label(objective,"%s · Stage %d / 5\n%s"%[g.current_definition.chapter,g.selected_stage%5+1,g.current_definition.name],13 if compact else 15)
+	var clock:=card(top,8);panel_of(clock).size_flags_horizontal=Control.SIZE_SHRINK_BEGIN;panel_of(clock).custom_minimum_size.x=92
+	g.hud_timer=label(clock,"00:00",16 if g.practice else 18);g.hud_timer.autowrap_mode=TextServer.AUTOWRAP_OFF;g.hud_timer.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
+	var coins:=card(top,8);panel_of(coins).size_flags_horizontal=Control.SIZE_SHRINK_END;var coin_text:=label(coins,"%d coins"%g.profile.data.coins,14);coin_text.autowrap_mode=TextServer.AUTOWRAP_OFF
+	var pause_button:=button(top,"Ⅱ",g.show_pause);pause_button.custom_minimum_size=Vector2(46,36);pause_button.size_flags_horizontal=Control.SIZE_SHRINK_END
 	var center:=Control.new();center.size_flags_vertical=Control.SIZE_EXPAND_FILL;center.mouse_filter=Control.MOUSE_FILTER_IGNORE;shell.add_child(center)
 	var footer:=row(shell,8)
-	var help:=card(footer,10);var instructions:=label(help,"Move · Drag either side to look · Tap SHOOT" if g.touch_enabled() else "Hold left mouse to draw · Release to shoot · Esc pause",17,true);instructions.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	var help:=card(footer,10);var instructions:=label(help,"Move · Tap SHOOT · AIM + hold for charge" if g.touch_enabled() else "Click: quick shot · Right mouse + hold left: charge · Q: dodge",17,true);instructions.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 	var ammo:=card(footer,10);panel_of(ammo).size_flags_horizontal=Control.SIZE_SHRINK_END;panel_of(ammo).custom_minimum_size.x=200;g.hud_ammo=label(ammo,"",19)
+	if g.is_combat():
+		panel_of(help).visible=false;panel_of(ammo).visible=false
+		var combat_hud=preload("res://campaign/combat_hud.gd").new();combat_hud.game=g;g.combat_hud=combat_hud;g.ui.add_child(combat_hud)
 	if not g.touch_enabled() and ((g.selected_power != "normal") or g.profile.power_level() >= 20 or g.practice):
 		var power:=card(footer,6);power.add_theme_constant_override("separation",2)
 		panel_of(power).size_flags_horizontal=Control.SIZE_SHRINK_END;panel_of(power).custom_minimum_size.x=220
@@ -1696,43 +1694,59 @@ func hud() -> void:
 		var meter:=ProgressBar.new();meter.show_percentage=false;meter.max_value=100;meter.custom_minimum_size.y=5
 		var m_fill:=FlatUiTokens.caixa(Color("83b99a"),2);meter.add_theme_stylebox_override("fill",m_fill)
 		var m_bg:=FlatUiTokens.caixa(Color("1b2a24"),2);meter.add_theme_stylebox_override("background",m_bg)
-		meter.value=100.0;power.add_child(meter)
-		var pwr_btn:=button(power,"POWER · F",g.trigger_power,true)
-		pwr_btn.custom_minimum_size.y=34;style_button(pwr_btn,"primary")
+		meter.value=g.focus_meter;power.add_child(meter)
+		var pwr_btn:=button(power,"HOLD POWER · F",func():pass,true)
+		pwr_btn.focus_mode=Control.FOCUS_NONE
+		pwr_btn.button_down.connect(func():g.begin_power_charge(g.profile.selected_power(),"ui:primary"))
+		pwr_btn.button_up.connect(func():g.end_power_charge("ui:primary"))
+		pwr_btn.custom_minimum_size.y=48;style_button(pwr_btn,"primary")
 		var timer:=Timer.new();timer.wait_time=0.05;timer.process_mode=Node.PROCESS_MODE_ALWAYS;g.ui.add_child(timer)
 		timer.timeout.connect(func():
 			if not is_instance_valid(g) or not is_instance_valid(power_title):return
 			var cur_info:Dictionary=g.profile.ability_stats(g.selected_power)
 			power_title.text="%s · %d"%[cur_info.name,int(cur_info.get("focus",0))]
-			var cd:float=float(cur_info.get("cooldown",0.0))
-			if g.power_cooldown>0:
-				sub_label.text="Focus · %.1f s"%g.power_cooldown
-				meter.value=(1.0-g.power_cooldown/maxf(0.1,cd))*100.0
-			elif cd>0:
-				sub_label.text="Focus · %.1f s"%cd
-				meter.value=100.0
-			else:
-				sub_label.text="Focus"
-				meter.value=100.0
-			if g.power_armed:
-				pwr_btn.text="ARMED · F"
-				style_button(pwr_btn,"equipped")
-			elif g.power_cooldown>0:
-				pwr_btn.text="WAIT · %.1fs"%g.power_cooldown
-				style_button(pwr_btn,"standard")
-			elif not g.practice and ((g.selected_power=="burst" and g.burst_used) or (g.selected_power!="normal" and g.selected_power!="burst" and g.super_used)):
-				pwr_btn.text="USED"
-				style_button(pwr_btn,"standard")
-			else:
-				pwr_btn.text="POWER · F"
-				style_button(pwr_btn,"primary")
+			meter.value=g.focus_meter
+			var reason:String=g.power_block_reason(g.selected_power)
+			sub_label.text=reason
+			pwr_btn.text=("READY · RELEASE" if g.draw_amount>=.95 else "CHARGING · %d%%"%roundi(g.draw_amount*100)) if g.hero.drawing and g.power_armed else ("ARMED · HOLD F" if g.power_armed else "HOLD POWER · F")
+			style_button(pwr_btn,"equipped" if g.power_armed else ("primary" if reason=="Ready" else "standard"))
 		)
 		timer.start()
-	g.hud_message=_overlay_label("",20,0.31 if not compact else 0.37,0.62,70)
-	g.hud_ready=_overlay_label("",28,0.5,0.82,180)
+		var secondary:String=g.profile.secondary_power()
+		if secondary!="normal":
+			var secondary_btn:=button(power,"Hold %s · R"%g.profile.ability_stats(secondary).name,func():pass)
+			secondary_btn.focus_mode=Control.FOCUS_NONE
+			secondary_btn.button_down.connect(func():g.begin_power_charge(secondary,"ui:secondary"))
+			secondary_btn.button_up.connect(func():g.end_power_charge("ui:secondary"))
+	var message_y:float=210.0/maxf(1,g.ui.size.y) if g.is_combat() else (0.31 if not compact else 0.37)
+	g.hud_message=_overlay_label("",16 if g.is_combat() else 20,message_y,0.62,50 if g.is_combat() else 70)
+	g.hud_ready=_ready_banner()
 	g.hud_cross=_overlay_label("+",29,0.5,0.07,42);g.hud_cross.vertical_alignment=VERTICAL_ALIGNMENT_CENTER
 	g.hud_draw=ProgressBar.new();g.hud_draw.show_percentage=false;g.hud_draw.max_value=1
 	g.hud_draw.set_anchors_and_offsets_preset(Control.PRESET_CENTER);g.hud_draw.offset_left=-44;g.hud_draw.offset_right=44;g.hud_draw.offset_top=35;g.hud_draw.offset_bottom=41;g.ui.add_child(g.hud_draw)
+	g.hud_draw.visible=not g.is_combat()
+
+func _ready_banner() -> Label:
+	var panel := PanelContainer.new()
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.set_anchor(SIDE_LEFT, 0.20); panel.set_anchor(SIDE_RIGHT, 0.80)
+	panel.set_anchor(SIDE_TOP, 0.15); panel.set_anchor(SIDE_BOTTOM, 0.15)
+	panel.offset_left = 0; panel.offset_right = 0
+	panel.offset_top = -42; panel.offset_bottom = 42
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.02, 0.05, 0.04, 0.85)
+	style.border_color = Color(0.35, 0.58, 0.44, 0.45)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(10)
+	style.content_margin_left = 18; style.content_margin_right = 18
+	style.content_margin_top = 8; style.content_margin_bottom = 8
+	panel.add_theme_stylebox_override("panel", style)
+	g.ui.add_child(panel)
+	var lbl := label(panel, "", 13 if compact else 14)
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	panel.visible = false
+	return lbl
 
 func _overlay_label(text:String,font_size:int,y_ratio:float,width_ratio:float,min_height:float) -> Label:
 	var node:=label(g.ui,text,font_size);node.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER

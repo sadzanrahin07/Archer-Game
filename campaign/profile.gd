@@ -5,11 +5,12 @@ const SAVE := "user://archer_campaign.json"
 var save_path := SAVE
 var character_testing_enabled := Catalog.TEST_UNLOCK_CHARACTERS
 var data: Dictionary = {
-	"economy_revision":2,"base_outfit_revision":1,"version":3,"character":1,"costume":2,"selected":0,"unlocked":0,"xp":0,"coins":120,
+	"economy_revision":2,"base_outfit_revision":1,"version":5,"character":1,"costume":2,"selected":0,"unlocked":0,"xp":0,"coins":500,
+	"character_level":1,"trial_proofs":{},"purchased_powers":[],
 	"owned_characters":[1],"purchased_characters":[],"owned_costumes":[2],"purchased_costumes":[],"character_xp":{},"skin_progress":{},
 	"equipped_bow":0,"bow_level":1,"bow_levels":[1,1,1,1],"bow_xp":[0,0,0,0],"owned_bows":[0],"purchased_bows":[],
 	"equipped_arrow":0,"arrow_level":1,"arrow_levels":[1,1,1,1],"arrow_xp":[0,0,0,0],"owned_arrows":[0],"purchased_arrows":[],
-	"stage_badges":{},"stars":{},"bests":{},"reward_tiers":{},"chapter_rewards":{},"transactions":{},"attempt_counter":0,"last_reward":{},"chapter_run":{},"power":"normal",
+	"stage_badges":{},"stars":{},"bests":{},"reward_tiers":{},"chapter_rewards":{},"transactions":{},"attempt_counter":0,"last_reward":{},"chapter_run":{},"power":"normal","power_secondary":"normal",
 	"settings":{"bg_sound":true,"game_sound":true,"bg_volume":0.5,"game_volume":0.7,"volume":0.7,"sensitivity":1.0,"assist":true,"fullscreen":false,"reduced_motion":false,"touch_controls":OS.has_feature("android") or OS.has_feature("ios")}
 }
 
@@ -20,17 +21,18 @@ func load_profile() -> void:
 	for path in [save_path,save_path+".bak"]:
 		if not FileAccess.file_exists(path):continue
 		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
-		if not parsed is Dictionary or int(parsed.get("version",0)) not in [1,2,3] or not parsed.get("stars") is Dictionary or not parsed.get("settings") is Dictionary:continue
+		if not parsed is Dictionary or int(parsed.get("version",0)) not in [1,2,3,4,5] or not parsed.get("stars") is Dictionary or not parsed.get("settings") is Dictionary:continue
 		var defaults: Dictionary = data.duplicate(true)
 		data.merge(parsed,true)
 		var settings: Dictionary = defaults.settings.duplicate(true)
 		settings.merge(data.settings,true);data.settings=settings
 		if int(parsed.get("version",0))==1:_migrate_legacy(parsed)
 		if int(parsed.get("version",0))<3:_migrate_to_v3(parsed)
+		if int(parsed.get("version",0))<5:_migrate_to_v4(parsed)
 		if not parsed.has("base_outfit_revision"):
 			data.character=1;data.costume=Catalog.STARTER_COSTUME;data.base_outfit_revision=1
 		_sanitize()
-		_apply_campaign_economy(parsed)
+		# Keep earned wallets intact; no speculative historical repricing.
 		return
 
 func _migrate_to_v3(old: Dictionary) -> void:
@@ -68,6 +70,24 @@ func _migrate_to_v3(old: Dictionary) -> void:
 		data.equipped_arrow = 0
 		data.arrow_level = int(data.arrow_levels[0]) if data.arrow_levels.size() > 0 else 1
 	data.version = 3
+
+func _migrate_to_v4(old: Dictionary) -> void:
+	for kind in ["bow", "arrow"]:
+		var highest:int=int(old.get(kind+"_level",1))
+		var levels:Array=old.get(kind+"_levels",[1])
+		for id in old.get("owned_"+kind+"s",[0]):
+			if int(id)>=0 and int(id)<levels.size():highest=maxi(highest,int(levels[int(id)]))
+		data[kind+"_level"]=clampi(highest,1,100)
+	var highest_c:int=int(old.get("character_level",1))
+	for progress in old.get("skin_progress",{}).values():
+		if progress is Dictionary:highest_c=maxi(highest_c,int(progress.get("level",1)))
+	data.character_level=clampi(highest_c,1,100)
+	data.trial_proofs=old.get("trial_proofs",{}).duplicate(true)
+	for trial in [55,65,75,85,95]:
+		if int(old.get("stars",{}).get(str(trial),0))>0:data.trial_proofs[str(trial)]=true
+	data.purchased_powers=old.get("purchased_powers",[]).duplicate()
+	data.version=5
+	data.economy_revision=3
 
 func _migrate_legacy(old: Dictionary) -> void:
 	# Version1 had a global QA unlock flag, so its character ownership alone is not evidence of purchase.
@@ -140,7 +160,7 @@ func _sanitize() -> void:
 	data.owned_costumes=_integer_ids(data.owned_costumes,Catalog.COSTUMES.size())
 	data.owned_bows=_integer_ids(data.owned_bows,Catalog.BOWS.size())
 	data.owned_arrows=_integer_ids(data.owned_arrows,Catalog.ARROWS.size())
-	for dictionary_key in ["stage_badges","skin_progress","chapter_run","character_xp","reward_tiers","chapter_rewards","transactions","last_reward","bests"]:
+	for dictionary_key in ["stage_badges","skin_progress","chapter_run","character_xp","reward_tiers","chapter_rewards","transactions","last_reward","bests","trial_proofs"]:
 		if not data[dictionary_key] is Dictionary:data[dictionary_key]={}
 	data.coins=maxi(0,int(data.coins));data.xp=maxi(0,int(data.xp))
 	data.character=clampi(int(data.character),0,Catalog.CHARACTERS.size()-1)
@@ -160,7 +180,10 @@ func _sanitize() -> void:
 		data[kind+"_levels"]=levels;data[kind+"_xp"]=xp_values
 		var equipped:=clampi(int(data["equipped_"+kind]),0,entries.size()-1)
 		if not data[owned_key].has(equipped):equipped=0
-		data["equipped_"+kind]=equipped;data[kind+"_level"]=levels[equipped]
+		data["equipped_"+kind]=equipped
+		var shared:int=clampi(int(data.get(kind+"_level",1)),1,100)
+		for index in range(levels.size()):levels[index]=shared
+		data[kind+"_level"]=shared
 	sync_unlocks()
 	if not data.owned_characters.has(int(data.character)):data.character=1
 	if not data.owned_costumes.has(int(data.costume)):data.costume=Catalog.STARTER_COSTUME
@@ -194,14 +217,45 @@ func _record(key: String) -> Dictionary:
 	if not data.skin_progress.has(key):data.skin_progress[key]={"level":1,"xp":0,"total_xp":0}
 	return data.skin_progress[key]
 
+func bow_mastery() -> int:
+	return clampi(int(data.get("bow_level", 1)), 1, 100)
+
+func arrow_mastery() -> int:
+	return clampi(int(data.get("arrow_level", 1)), 1, 100)
+
+func character_mastery() -> int:
+	return clampi(int(data.get("character_level", 1)), 1, 100)
+
+func power_mastery() -> int:
+	return mini(bow_mastery(), arrow_mastery())
+
+func base_damage() -> float:
+	return 12.0 + 0.22 * float(bow_mastery() - 1) + 0.18 * float(arrow_mastery() - 1) + 0.10 * float(character_mastery() - 1)
+
+func max_hp() -> float:
+	return minf(160.0,100.0+1.5*maxi(0,character_mastery()-60))
+
+func grant_trial_proof(stage_id: int) -> void:
+	if not data.has("trial_proofs") or not data.trial_proofs is Dictionary:
+		data["trial_proofs"] = {}
+	var before: Dictionary = data.duplicate(true)
+	data.trial_proofs[str(stage_id)] = true
+	_commit(before)
+
+func has_trial_proof(stage_id: int) -> bool:
+	return bool(data.get("trial_proofs", {}).get(str(stage_id), false))
+
+func can_enter_chapter_20() -> bool:
+	return bow_mastery() >= 100 and arrow_mastery() >= 100 and character_mastery() >= 100
+
 func level() -> int:
-	return level_for(int(data.character),int(data.costume))
+	return character_mastery()
 
-func level_for(character: int,costume: int=-1) -> int:
-	return clampi(int(_record(skin_key_for(character,costume)).get("level",1)),1,Catalog.CHARACTER_CAP)
+func level_for(_character: int, _costume: int = -1) -> int:
+	return character_mastery()
 
-func skin_level(costume: int) -> int:
-	return level_for(1,costume)
+func skin_level(_costume: int) -> int:
+	return character_mastery()
 
 func xp_in_level() -> int:
 	return maxi(0,int(_record(skin_key()).get("xp",0)))
@@ -222,9 +276,7 @@ func upgrade_character() -> bool:
 	return upgrade_item("character",int(data.character),int(data.costume))
 
 func mastery_level() -> int:
-	var highest:=1
-	for progress in data.skin_progress.values():highest=maxi(highest,int(progress.get("level",1)))
-	return highest
+	return character_mastery()
 
 func _skin_entry() -> Dictionary:
 	return Catalog.COSTUMES[int(data.costume)] if int(data.character)==1 else Catalog.CHARACTERS[int(data.character)]
@@ -233,20 +285,17 @@ func character_power() -> float:
 	return float(_skin_entry().base_power)*(1.0+0.012*(level()-1))
 
 func power() -> float:
-	var arrow: Dictionary=Catalog.ARROWS[int(data.equipped_arrow)]
-	var bow: Dictionary=Catalog.BOWS[int(data.equipped_bow)]
-	return float(arrow.power)*(1.0+0.015*(int(data.arrow_level)-1))*float(bow.multiplier)*(1.0+0.015*(int(data.bow_level)-1))*character_power()
+	return base_damage()*minf(1.10,float(Catalog.ARROWS[int(data.equipped_arrow)].get("damage_mult",1.0)))
 
 func draw_time() -> float:
-	return lerpf(0.90,0.65,float(level()-1)/99.0)*float(Catalog.BOWS[int(data.equipped_bow)].draw)
+	return (1.05-.0018*(bow_mastery()-1)-.001*(character_mastery()-1))*float(Catalog.BOWS[int(data.equipped_bow)].draw)*float(Catalog.CHARACTERS[int(data.character)].get("draw_mult",1.0))
 
 func flight_speed() -> float:
-	var bow: Dictionary=Catalog.BOWS[int(data.equipped_bow)]
-	var upgrade_factor:=1.0+0.10*float(int(data.bow_level)-1)/float(int(bow.max_level)-1)
-	return 35.0*float(bow.speed)*upgrade_factor
+	return (32.0+.12*(bow_mastery()-1)+.08*(arrow_mastery()-1))*(float(Catalog.BOWS[int(data.equipped_bow)].speed)+float(Catalog.ARROWS[int(data.equipped_arrow)].get("speed",1.0))-1.0)
 
 func stability() -> float:
-	return maxf(0.25,1.0-0.0075*(level()-1))*float(_skin_entry().base_sway)
+	var traits:float=maxf(.75,float(Catalog.CHARACTERS[int(data.character)].base_sway)+float(Catalog.BOWS[int(data.equipped_bow)].get("sway_mult",1.0))-1.0)
+	return (1.0-.004*(character_mastery()-1))*traits
 
 func accuracy() -> float:
 	# Displayed control rating, never a random chance to hit or a homing multiplier.
@@ -383,7 +432,7 @@ func _buy(kind: String,id: int) -> bool:
 		if not data.purchased_arrows.has(id):data.purchased_arrows.append(id)
 	if kind in ["bow","arrow"]:
 		var tier:int=int(_shop_entries(kind)[id].tier_index)
-		data[kind+"_levels"][id]=maxi(int(data[kind+"_levels"][id]),Catalog.tier_start(tier))
+		data[kind+"_levels"][id]=int(data[kind+"_level"])
 		var previous:int=int(data["equipped_"+kind])
 		if int(_shop_entries(kind)[previous].tier_index)<tier:
 			data[kind+"_xp"][id]+=int(data[kind+"_xp"][previous]);data[kind+"_xp"][previous]=0
@@ -419,7 +468,7 @@ func equip_arrow(index: int) -> bool:
 func _equip_item(kind: String,index: int) -> bool:
 	if not is_owned(kind,index):return false
 	var before: Dictionary=data.duplicate(true)
-	data["equipped_"+kind]=index;data[kind+"_level"]=int(data[kind+"_levels"][index])
+	data["equipped_"+kind]=index
 	return _commit(before)
 
 func bow_name() -> String:
@@ -429,43 +478,49 @@ func arrow_name() -> String:
 	return str(Catalog.ARROWS[int(data.equipped_arrow)].name)
 
 func power_level() -> int:
-	# Both equipped weapon components must support the power; archer mastery is separate.
-	return mini(int(data.bow_level),int(data.arrow_level))
+	return power_mastery()
 
 func power_is_unlocked(key: String) -> bool:
-	for definition in Catalog.POWERS:
-		if str(definition.key)==key:return power_level()>=int(definition.level)
+	var m: int = power_mastery()
+	if key in data.get("purchased_powers",[]):return true
+	match key:
+		"normal":
+			return true
+		"burst":
+			return m >= 20
+		"gale":
+			return m >= 50
+		"pressure":
+			return m >= 60 and has_trial_proof(55)
+		"fire", "ember":
+			return m >= 70 and has_trial_proof(65)
+		"lightning":
+			return m >= 80 and has_trial_proof(75)
+		"super", "super_lightning":
+			return m >= 90 and has_trial_proof(85)
+		"ultimate", "aurora":
+			return m >= 100 and character_mastery() >= 100 and has_trial_proof(95)
 	return false
 
 func _reset_unavailable_power() -> void:
 	if not power_is_unlocked(str(data.power)):data.power="normal"
 
 func power_unlocks() -> Array:
-	var result: Array=[]
+	var result:Array=[]
 	for definition in Catalog.POWERS:
-		var item: Dictionary=definition.duplicate(true)
-		item.unlocked=power_level()>=int(item.level);item.rank=power_rank(str(item.key));result.append(item)
+		var item:Dictionary=definition.duplicate(true)
+		item.unlocked=power_is_unlocked(str(item.key));item.matches_gear=item.unlocked;item.purchased=item.unlocked;item.rank=power_rank(str(item.key));item.lock_reason=get_power_lock_reason(str(item.key));result.append(item)
 	return result
 
-func power_rank(key: String) -> int:
-	for definition in Catalog.POWERS:
-		if str(definition.key)==key:
-			if power_level()<int(definition.level):return 0
-			if key in ["normal","ultimate"]:return 1
-			return mini(6,1+(power_level()-int(definition.level))/10)
-	return 0
+func power_rank(key:String) -> int:
+	return 1 if power_is_unlocked(key) else 0
 
-func ability_stats(key: String="") -> Dictionary:
+func ability_stats(key:String="") -> Dictionary:
 	if key.is_empty():key=selected_power()
 	for definition in Catalog.POWERS:
 		if str(definition.key)==key:
-			var result: Dictionary=definition.duplicate(true)
-			var rank:=power_rank(key)
-			result.rank=rank;result.unlocked=rank>0
-			if key not in ["normal","ultimate"]:
-				result.damage=float(result.damage)*(1.0+0.04*maxi(0,rank-1))
-				result.speed=float(result.speed)*(1.0+0.02*maxi(0,rank-1))
-				result.secondary=float(result.secondary)*(1.0+0.04*maxi(0,rank-1))
+			var result:Dictionary=definition.duplicate(true)
+			result.rank=power_rank(key);result.unlocked=power_is_unlocked(key);result.matches_gear=result.unlocked;result.purchased=result.unlocked
 			return result
 	return Catalog.POWERS[0].duplicate(true)
 
@@ -485,6 +540,7 @@ func selected_power() -> String:
 func equip_power(key: String) -> bool:
 	if not power_is_unlocked(key):return false
 	var before: Dictionary=data.duplicate(true)
+	if str(data.power)!=key and power_is_unlocked(str(data.power)):data.power_secondary=data.power
 	data.power=key;data.power_chosen=true;return _commit(before)
 
 static func calculate_performance(completed: bool,hits: int,shots: int,precision_sum: float,remaining: float,total_time: float,min_arrows: int) -> Dictionary:
@@ -500,8 +556,55 @@ static func calculate_performance(completed: bool,hits: int,shots: int,precision
 		if q>=85.0 and a>=0.80 and p>=0.75:stars=3
 	return {"stars":stars,"q":q,"accuracy":a,"precision":p,"time":t,"efficiency":e}
 
-func stage_ready(stage: int) -> bool:
-	return stage>=0 and stage<Catalog.CAMPAIGN_STAGES and stage/5<=completed_chapters()
+func get_stage_mastery_requirement(stage:int) -> int:
+	if stage>=95:return 100
+	if stage>=85:return 90
+	if stage>=75:return 80
+	if stage>=65:return 70
+	return 60 if stage>=55 else 1
+
+func get_stage_lock_reason(stage:int) -> String:
+	if stage<0 or stage>=100:return "Invalid stage"
+	if stage/5>completed_chapters():return "Complete Chapter %d first"%(stage/5)
+	if stage>=95 and not can_enter_chapter_20():return "Chapter 20 requires Bow, Arrow and Archer Lv. 100"
+	var required:int=get_stage_mastery_requirement(stage)
+	if power_mastery()<required:return "Upgrade both weapons to Lv. %d · Bow %d / Arrow %d"%[required,bow_mastery(),arrow_mastery()]
+	if stage==99 and not power_is_unlocked("ultimate"):return "Win the Aurora Trial · Chapter 20 Stage 1"
+	return ""
+
+func stage_ready(stage:int) -> bool:
+	return get_stage_lock_reason(stage).is_empty()
+
+func get_power_lock_reason(key: String) -> String:
+	var m: int = power_mastery()
+	match key:
+		"normal":
+			return ""
+		"burst":
+			return "Requires Mastery 20" if m < 20 else ""
+		"gale":
+			return "Requires Mastery 50" if m < 50 else ""
+		"pressure":
+			if m < 60: return "Requires Mastery 60"
+			if not has_trial_proof(55): return "Win Pressure Trial · Chapter 12 Stage 1"
+			return ""
+		"fire", "ember":
+			if m < 70: return "Requires Mastery 70"
+			if not has_trial_proof(65): return "Win Ember Trial · Chapter 14 Stage 1"
+			return ""
+		"lightning":
+			if m < 80: return "Requires Mastery 80"
+			if not has_trial_proof(75): return "Win Lightning Trial · Chapter 16 Stage 1"
+			return ""
+		"super", "super_lightning":
+			if m < 90: return "Requires Mastery 90"
+			if not has_trial_proof(85): return "Win Super Lightning Trial · Chapter 18 Stage 1"
+			return ""
+		"ultimate", "aurora":
+			if m < 100 or character_mastery() < 100: return "Requires Bow, Arrow, and Archer at Level 100"
+			if not has_trial_proof(95): return "Win Aurora Trial · Chapter 20 Stage 1"
+			return ""
+	return ""
 
 func _next_attempt() -> String:
 	data.attempt_counter=int(data.attempt_counter)+1
@@ -509,6 +612,8 @@ func _next_attempt() -> String:
 
 func start_run(stage: int) -> int:
 	stage=clampi(stage,0,Catalog.CAMPAIGN_STAGES-1)
+	if not stage_ready(stage):
+		return -1
 	if data.stars.has(str(stage)) and stage<run_selected_stage():
 		data.chapter_run.transaction=_next_attempt();save_profile();return stage
 	var chapter:=mini(stage/5,completed_chapters())
@@ -556,19 +661,20 @@ func reward(id: int,stars: int,accuracy_value: float,remaining: float,transactio
 	var first: bool = not data.stars.has(key)
 	var paid_tier:=int(data.reward_tiers.get(key,data.stars.get(key,0)))
 	var base:=Catalog.stage_coin_base(chapter)
-	var multipliers: Array=[0.0,1.0,1.5,2.0]
+	var multipliers: Array=[0.0,1.0,1.25,1.5]
 	var coins:=0;var xp:=0
 	if first:
-		coins=int(base*float(multipliers[stars]))+50;xp=100+15*(chapter-1)+25*(stars-1)
+		coins=Catalog.stage_clear_reward(chapter,stars);xp=100+15*(chapter-1)+25*(stars-1)
 	elif stars>paid_tier:
-		coins=int(base*(float(multipliers[stars])-float(multipliers[paid_tier])));xp=25*(stars-paid_tier)
+		coins=Catalog.stage_replay_reward(chapter,stars)+int(base*(float(multipliers[stars])-float(multipliers[paid_tier])));xp=25*(stars-paid_tier)
 	else:
-		coins=int(base*float(multipliers[stars])*0.35);xp=int((100+15*(chapter-1)+25*(stars-1))*0.5)
+		coins=Catalog.stage_replay_reward(chapter,stars);xp=int((100+15*(chapter-1)+25*(stars-1))*0.5)
 	data.stars[key]=maxi(stars,int(data.stars.get(key,0)))
+	if id in [55,65,75,85,95]:data.trial_proofs[key]=true
 	data.reward_tiers[key]=maxi(stars,paid_tier)
 	var chapter_bonus:=0;var chapter_xp:=0
 	if id%5==4 and _chapter_has_all_stars(chapter-1) and not data.chapter_rewards.has(str(chapter-1)):
-		chapter_bonus=400*chapter;chapter_xp=100*chapter;data.chapter_rewards[str(chapter-1)]=true
+		chapter_bonus=Catalog.chapter_clear_bonus(chapter);chapter_xp=100*chapter;data.chapter_rewards[str(chapter-1)]=true
 	coins+=chapter_bonus;xp+=chapter_xp
 	data.coins+=coins;data.xp+=xp
 	var progress: Dictionary=_record(skin_key())
@@ -594,7 +700,7 @@ func reward(id: int,stars: int,accuracy_value: float,remaining: float,transactio
 	data.last_reward={"stage":id,"transaction":transaction_id}
 	var result: Dictionary={"xp":xp,"coins":coins,"saved":true,"stars":stars,"chapter_bonus":chapter_bonus,"chapter_xp":chapter_xp,"chapter_complete":id%5==4,"transaction":transaction_id,"duplicate":false,"next_stage":run_selected_stage()}
 	data.transactions[transaction_id]=result.duplicate(true)
-	if data.transactions.size()>512:data.transactions.erase(data.transactions.keys()[0])
+	# Completion receipts remain durable; callbacks cannot earn again after log compaction.
 	if not _commit(before):return {"xp":0,"coins":0,"saved":false,"stars":stars}
 	return result
 
@@ -609,33 +715,47 @@ func account_progress() -> Dictionary:
 
 # Preview upgrades never change the equipped loadout. Training XP discounts coins;
 # it is not a second mandatory currency that can deadlock progression.
-func upgrade_info(kind:String,id:int,costume:int=-1) -> Dictionary:
-	var lv:int=level_for(id,costume) if kind=="character" else int(data[kind+"_levels"][id])
-	var entry:Dictionary=Catalog.CHARACTERS[id] if kind=="character" else (Catalog.BOWS[id] if kind=="bow" else Catalog.ARROWS[id])
-	var cap:int=int(entry.max_level)
-	var xp:int=int(_record(skin_key_for(id,costume)).get("xp",0)) if kind=="character" else int(data[kind+"_xp"][id])
-	var requirement:int=40+4*(lv-1) if kind=="character" else 30+3*(lv-1)
-	var base_cost:int=Catalog.upgrade_price(kind,lv,int(entry.get("tier_index",0)))
-	var trained:bool=xp>=requirement
-	var cost:int=ceili(base_cost*.75) if trained else base_cost
-	var owned:bool=is_owned(kind,id) and (kind!="character" or id!=1 or is_owned("costume",int(data.costume) if costume<0 else costume))
-	return {"level":lv,"cap":cap,"xp":xp,"requirement":requirement,"cost":cost,"trained":trained,"owned":owned,"ready":owned and lv<cap and int(data.coins)>=cost}
+func upgrade_info(kind: String, id: int, costume: int = -1) -> Dictionary:
+	var lv: int = 1
+	match kind:
+		"bow":
+			lv = bow_mastery()
+		"arrow":
+			lv = arrow_mastery()
+		"character", "archer":
+			lv = character_mastery()
+	var cap: int = 100
+	var cost: int = Catalog.upgrade_price(kind, lv)
+	var owned: bool = is_owned(kind, id) and (kind != "character" or id != 1 or is_owned("costume", int(data.costume) if costume < 0 else costume))
+	var ready: bool = owned and lv < cap and int(data.coins) >= cost
+	return {"level": lv, "cap": cap, "xp": 0, "requirement": 0, "cost": cost, "trained": false, "owned": owned, "ready": ready}
 
-func upgrade_item(kind:String,id:int,costume:int=-1) -> bool:
-	if kind not in ["bow","arrow","character"]:return false
-	var entries:Array=Catalog.CHARACTERS if kind=="character" else (Catalog.BOWS if kind=="bow" else Catalog.ARROWS)
-	if id<0 or id>=entries.size():return false
-	var info:Dictionary=upgrade_info(kind,id,costume)
-	if not info.ready:return false
-	var before:Dictionary=data.duplicate(true)
-	data.coins-=int(info.cost)
-	if kind=="character":
-		var progress:Dictionary=_record(skin_key_for(id,costume));progress.level=int(info.level)+1
-		if info.trained:progress.xp=int(progress.xp)-int(info.requirement)
-	else:
-		data[kind+"_levels"][id]=int(info.level)+1
-		if info.trained:data[kind+"_xp"][id]-=int(info.requirement)
-		if int(data["equipped_"+kind])==id:data[kind+"_level"]=int(info.level)+1
+func upgrade_item(kind: String, id: int, costume: int = -1) -> bool:
+	if kind not in ["bow", "arrow", "character"]:
+		return false
+	var entries: Array = Catalog.CHARACTERS if kind == "character" else (Catalog.BOWS if kind == "bow" else Catalog.ARROWS)
+	if id < 0 or id >= entries.size():
+		return false
+	var info: Dictionary = upgrade_info(kind, id, costume)
+	if not info.ready:
+		return false
+	var before: Dictionary = data.duplicate(true)
+	data.coins -= int(info.cost)
+	match kind:
+		"bow":
+			data.bow_level = int(info.level) + 1
+			for i in range(data.bow_levels.size()):
+				data.bow_levels[i] = data.bow_level
+		"arrow":
+			data.arrow_level = int(info.level) + 1
+			for i in range(data.arrow_levels.size()):
+				data.arrow_levels[i] = data.arrow_level
+		"character":
+			data.character_level = int(info.level) + 1
+			for key in data.get("skin_progress", {}):
+				if data.skin_progress[key] is Dictionary:
+					data.skin_progress[key]["level"] = data.character_level
+	_reset_unavailable_power()
 	return _commit(before)
 
 func _apply_campaign_economy(old:Dictionary) -> void:
@@ -662,3 +782,20 @@ func _apply_campaign_economy(old:Dictionary) -> void:
 		data[kind+"_level"]=int(data[kind+"_levels"][int(data["equipped_"+kind])])
 	data.economy_revision=2
 	data.economy_adjustment={"coins":adjustment,"reason":"Previously cleared stages repriced for the new upgrade economy"}
+
+func power_matches_gear(key:String) -> bool:
+	return power_is_unlocked(key)
+
+func is_power_purchased(key:String) -> bool:
+	return power_is_unlocked(key)
+
+func buy_power(_key:String) -> bool:
+	return false
+
+func secondary_power() -> String:
+	var secondary:String=str(data.get("power_secondary","normal"))
+	if secondary!="normal" and secondary!=str(data.power) and power_is_unlocked(secondary):return secondary
+	for definition in Catalog.POWERS:
+		var key:String=str(definition.key)
+		if key!="normal" and key!=str(data.power) and power_is_unlocked(key):return key
+	return "normal"

@@ -54,32 +54,32 @@ func _physics_process(delta: float) -> void:
 	if game.state not in ["playing", "finishing"]: return
 	age += delta
 	if age > 8: _resolve(); return
-	wind = game.current_wind()
+	wind = game.current_wind()*(.5 if str(ability.get("key","normal"))=="gale" else 1.0)
 	var acceleration := Vector3(wind, -9.8, 0)
 	var next: Vector3 = global_position + velocity * delta + .5 * acceleration * delta * delta
 	velocity += acceleration * delta
 
 	# Predict the final contact along the same trajectory for presentation only.
 	if not trail_started:
-		var prediction := PhysicsRayQueryParameters3D.create(global_position, global_position + velocity * .40 + .5 * acceleration * .16, 1 | 4)
+		var prediction := PhysicsRayQueryParameters3D.create(global_position, global_position + velocity * .40 + .5 * acceleration * .16, 1 | 4 | 8)
 		prediction.exclude = ([owner_body.get_rid()] if is_instance_valid(owner_body) else []) + excluded_rids
 		var ahead: Dictionary = get_world_3d().direct_space_state.intersect_ray(prediction)
 		if not ahead.is_empty() and ahead.collider.has_method("would_be_destroyed"):
 			game.maybe_follow_final(self, ahead.collider, ahead.position)
 			trail_started = game.final_director.is_active()
 
-	var query := PhysicsRayQueryParameters3D.create(global_position, next, 1 | 4); query.hit_from_inside = true
+	var query := PhysicsRayQueryParameters3D.create(global_position, next, 1 | 4 | 8); query.hit_from_inside = true
 	query.exclude = ([owner_body.get_rid()] if is_instance_valid(owner_body) else []) + excluded_rids
 
 	var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(query)
 	while not hit.is_empty():
 		var col = hit.collider
-		if col.has_method("campaign_hit") and bool(col.get("is_pierceable")):
+		if col.has_method("campaign_hit") and col.get("is_pierceable")==true:
 			# Soft orb / Thread Shot target pierced!
 			pierced_count += 1
 			game.max_thread_chain=maxi(game.max_thread_chain,pierced_count)
 			excluded_rids.append(col.get_rid())
-			game.current_shot_id = score_id
+			game.current_hit_actor_id=col.get_instance_id();game.current_shot_id = score_id
 			game.last_hit_position = hit.position
 			var accepted: bool = col.campaign_hit(hit.position, power, {"shot_id": shot_id, "pierce": true, "pierced_count": pierced_count})
 
@@ -107,9 +107,12 @@ func _physics_process(delta: float) -> void:
 			# Solid obstacle, standard target or terrain
 			global_position = hit.position; flying = false
 			if col.has_method("campaign_hit"):
-				game.current_shot_id = score_id; game.last_hit_position = hit.position
-				var accepted: bool = col.campaign_hit(hit.position, power, {"shot_id": shot_id, "pierced_count": pierced_count})
-				game.play_impact_sound()
+				game.current_hit_actor_id=col.get_instance_id();game.current_shot_id = score_id; game.last_hit_position = hit.position
+				var accepted: bool = col.campaign_hit(hit.position, power, {"shot_id":shot_id,"pierced_count":pierced_count,"power_key":str(ability.get("key","normal")),"draw_ratio":float(ability.get("draw_ratio",1)),"direct":true,"hit_shape":int(hit.get("shape",-1))})
+				var p_key := str(ability.get("key", "normal"))
+				if p_key=="normal" or not accepted:game.play_impact_sound()
+				if p_key != "normal" and accepted and game.has_method("play_power_impact_sound"):
+					game.play_power_impact_sound(p_key)
 				if not accepted:
 					if is_instance_valid(game) and is_instance_valid(game.stage): for target in game.stage.targets: if is_instance_valid(target): target.center_streak = 0
 				if accepted:
@@ -117,6 +120,10 @@ func _physics_process(delta: float) -> void:
 					_apply_secondary(col, hit.position)
 			else:
 				if is_instance_valid(game) and is_instance_valid(game.stage): for target in game.stage.targets: if is_instance_valid(target): target.center_streak = 0
+				var p_key := str(ability.get("key", "normal"))
+				if p_key != "normal":
+					if is_instance_valid(vfx): vfx.impact(hit.position, game.stage)
+					if game.has_method("play_power_impact_sound"): game.play_power_impact_sound(p_key)
 			game.arrow_resolved(); get_tree().create_timer(1.5).timeout.connect(queue_free)
 			return
 
@@ -126,30 +133,46 @@ func _physics_process(delta: float) -> void:
 		var up_vec: Vector3 = Vector3.FORWARD if absf(v_dir.dot(Vector3.UP)) > 0.98 else Vector3.UP
 		look_at(global_position + velocity, up_vec)
 
-func _apply_secondary(primary: Node3D, point: Vector3) -> void:
-	var key: String = str(ability.get("key", "normal"))
-	if key == "fire" and not primary.completed:
-		for tick in range(2):
-			get_tree().create_timer(.5 * (tick + 1)).timeout.connect(func():
-				if is_instance_valid(primary) and not primary.completed and game.is_playing(): primary.campaign_secondary_hit(power * .12, shot_id + 100000 + tick * 10000))
-	if game.current_definition.mode in ["precision", "ordered"]: return
-	var amount: float = float(ability.get("secondary", 0)); var limit: int = int(ability.get("chains", 0))
-	if key in ["pressure", "ultimate"]: limit = 3
-	if amount <= 0 or limit <= 0: return
-	var candidates: Array = []
-	for target in game.stage.targets:
-		if target == primary or target.completed or not target.can_receive_hit(): continue
-		if target.global_position.distance_to(point) > 4.5: continue
-		if key in ["pressure", "ultimate"]:
-			var forward: Vector3 = velocity.normalized(); var offset: Vector3 = target.global_position - point
-			if forward.dot(offset.normalized()) < .25: continue
-		candidates.append(target)
-	candidates.sort_custom(func(a, b): return a.global_position.distance_squared_to(point) < b.global_position.distance_squared_to(point))
-	for i in range(mini(limit, candidates.size())):
-		var other: Node3D = candidates[i]
-		var query := PhysicsRayQueryParameters3D.create(point + velocity.normalized() * .2, other.global_position, 1 | 4); query.exclude = [primary.get_rid()]
-		var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(query)
-		if not hit.is_empty() and hit.collider == other: other.campaign_secondary_hit(power * amount, shot_id)
+func _apply_secondary(primary:Node3D,point:Vector3) -> void:
+	var key:String=str(ability.get("key","normal"))
+	var baseline:float=power * 0.85
+	if key=="fire" and not primary.completed:
+		for old in game.stage.get_children():
+			if old.get_script()==preload("res://campaign/combat/burn_effect.gd") and old.target==primary:old.queue_free()
+		var burn=preload("res://campaign/combat/burn_effect.gd").new()
+		burn.game=game;burn.target=primary;burn.encounter=game.stage;burn.damage=baseline*.35;burn.event_id=shot_id*10000+1000000
+		game.stage.add_child(burn)
+	var amounts:Array=[]
+	var radius:=3.2
+	if key=="pressure":amounts=[.75,.75,.75];radius=4.0
+	elif key=="lightning":amounts=[.85,.65];radius=5.5
+	elif key=="super_lightning":amounts=[1.0,.85,.70];radius=7.0
+	elif key=="ultimate":amounts=[1.2,1.2,1.2,1.2];radius=5.5
+	var actors:Array=game.stage.targets.duplicate()
+	if game.is_combat():
+		actors.append_array(game.stage.combat_manager.enemies_alive)
+		if is_instance_valid(game.stage.combat_manager.boss):actors.append(game.stage.combat_manager.boss)
+	var visited:Array=[primary]
+	var origin:Vector3=point
+	for multiplier in amounts:
+		var candidates:Array=[]
+		for actor in actors:
+			if not is_instance_valid(actor) or visited.has(actor) or actor.completed:continue
+			if actor.global_position.distance_to(origin)>radius:continue
+			candidates.append(actor)
+		candidates.sort_custom(func(a,b):
+			var da:float=a.global_position.distance_squared_to(origin);var db:float=b.global_position.distance_squared_to(origin)
+			return a.get_instance_id()<b.get_instance_id() if is_equal_approx(da,db) else da<db)
+		var chosen:Node3D
+		for actor in candidates:
+			var query:=PhysicsRayQueryParameters3D.create(origin+Vector3(0,.15,0),actor.global_position+Vector3(0,.4,0),13)
+			for previous in visited:query.exclude.append(previous.get_rid())
+			var hit:Dictionary=get_world_3d().direct_space_state.intersect_ray(query)
+			if not hit.is_empty() and hit.collider==actor:chosen=actor;break
+		if not is_instance_valid(chosen):break
+		game.secondary_damage=true;chosen.campaign_secondary_hit(baseline*float(multiplier),shot_id*1000+visited.size());game.secondary_damage=false
+		visited.append(chosen)
+		if key in ["lightning","super_lightning"]:origin=chosen.global_position+Vector3(0,.4,0)
 
 func _resolve() -> void:
 	if not flying: return

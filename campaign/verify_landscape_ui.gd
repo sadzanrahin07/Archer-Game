@@ -27,14 +27,26 @@ func run():
 		audit("hud",str(entry[0]))
 		if entry[1]:
 			var geo:Dictionary=game.touch_controller.geometry()
-			for key in ["stick","draw","aim","run"]:
+			for key in ["stick","draw","aim","run","jump"]:
 				check(Rect2(Vector2.ZERO,game.ui.size).has_point(geo[key]),"Touch control outside landscape viewport: "+key)
+		var prior_bow:int=game.profile.data.bow_level;var prior_arrow:int=game.profile.data.arrow_level
+		game.profile.data.bow_level=60;game.profile.data.arrow_level=60
+		game.start_stage(59,true);game.state="playing"
+		check(game.is_combat(),"Combat HUD fixture meets its mastery entry requirement")
+		for frame in range(6):await process_frame
+		audit("combat hud",str(entry[0]))
+		check(not game.hud_ammo.is_visible_in_tree(),"Combat legacy information card is hidden")
+		if entry[1]:
+			var combat_geo:Dictionary=game.touch_controller.geometry()
+			for key in ["stick","draw","aim","run","dodge","jump"]:
+				check(Rect2(Vector2.ZERO,game.ui.size).has_point(combat_geo[key]),"Combat control outside landscape viewport: "+key)
 		game.show_pause();for frame in range(6):await process_frame
 		audit("pause",str(entry[0]))
 		game.resume_game();game.state="playing";game.finish(false,"Time expired")
 		await create_timer(2.6).timeout
 		for frame in range(8):await process_frame
 		audit("results",str(entry[0]))
+		game.profile.data.bow_level=prior_bow;game.profile.data.arrow_level=prior_arrow
 		print("LANDSCAPE LAYOUT CHECK ",entry[0]," touch=",entry[1])
 	root.size=Vector2i(844,390);game.profile.data.settings.touch_controls=true;game.show_home();game._refresh_layout()
 	game.profile.data.owned_characters=[0,1,2,3];game.profile.data.owned_costumes=[0,1,2,3,4,5]
@@ -51,7 +63,7 @@ func run():
 		check(game.profile.data.character==1 and game.profile.data.costume==skin,"Each Savi skin must remain within Savi / Erin")
 	print("CHARACTER AND SKIN UI CHECK: four separate characters, six Savi skin states")
 	game.profile.level_for(1,5)
-	game.profile.data.skin_progress[game.profile.skin_key_for(1,5)].level=100
+	game.profile.data.skin_progress[game.profile.skin_key_for(1,5)].level=100;game.profile.data.bow_level=100;game.profile.data.arrow_level=100;game.profile.data.character_level=100
 	game.profile.data.character=1;game.profile.data.costume=5
 	game._spawn_hero();game.show_characters()
 	for frame in range(6):await process_frame
@@ -73,6 +85,7 @@ func run():
 	var look:=Vector2(game.ui.size.x*0.55,game.ui.size.y*0.5)
 	emit_touch(1,look*scale_value,true);emit_drag(1,(look+Vector2(35,-12))*scale_value,Vector2(35,-12)*scale_value)
 	check(game.hero.yaw<old_yaw,"Right drag must rotate the camera")
+	emit_touch(8,geo.aim*scale_value,true);emit_touch(8,geo.aim*scale_value,false)
 	emit_touch(2,geo.draw*scale_value,true)
 	for frame in range(75):await physics_frame
 	check(game.hero.drawing,"Hold DRAW must draw the bow")

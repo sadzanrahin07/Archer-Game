@@ -33,6 +33,11 @@ var is_rising := false
 var is_pendulum := false
 var is_armor_petals := false
 var is_clasp := false
+var is_heart := false
+var is_cart := false
+var stage_id := 0
+var is_cavity_stone := false
+var cavity_orb: MeshInstance3D
 
 enum RisingState { REST, CUE, EXPOSED, RETRACT }
 var rising_state := RisingState.REST
@@ -89,21 +94,39 @@ func _ready() -> void:
 		is_armor_petals = true
 	elif material_kind == "clasp":
 		is_clasp = true
+	elif material_kind in ["heart", "restoration_heart"]:
+		is_heart = true
+	elif material_kind == "cart":
+		is_cart = true
 
 	if motion_style == 2:
 		is_pendulum = true
 	elif motion_style == 3:
 		is_rising = true
 
+	var st_idx := stage_id
+	if st_idx == 0 and is_instance_valid(get_parent()) and get_parent().get("stage_id") != null:
+		st_idx = int(get_parent().get("stage_id"))
+	if st_idx == 0 and is_instance_valid(game) and game.get("selected_stage") != null:
+		st_idx = int(game.get("selected_stage"))
+	if (material_kind in ["stone", "rune", "master"] or is_armor_petals) and (st_idx >= 90 or is_cavity_stone):
+		is_cavity_stone = true
+		max_hp = maxf(max_hp, 7500.0 if st_idx >= 95 else 5500.0)
+		hp = max_hp
+
 	if material_kind in ["stone", "rune", "master"] or is_armor_petals:
 		stone_visual = StoneVisual.new(); add_child(stone_visual)
 		body_mesh = stone_visual.build("stone" if is_armor_petals else material_kind, index + int(phase * 100))
 		var convex := ConvexPolygonShape3D.new(); convex.points = PackedVector3Array(stone_visual.facets); shape.shape = convex
 		zone_radius = .85
-		if is_armor_petals:
+		if is_cavity_stone:
+			_build_cavity_core_orb()
+		elif is_armor_petals:
 			_build_armor_petals()
 	elif is_pierceable:
 		_build_soft_orb(shape)
+	elif is_heart:
+		_build_restoration_heart(shape)
 	elif is_clasp:
 		_build_clasp(shape)
 	elif is_rising:
@@ -206,6 +229,44 @@ func _build_soft_orb(shape: CollisionShape3D) -> void:
 	var cord_mat := StandardMaterial3D.new(); cord_mat.albedo_color = Color("a38b68"); cord_mat.roughness = 0.9
 	cord.material_override = cord_mat; add_child(cord)
 
+func _build_restoration_heart(shape: CollisionShape3D) -> void:
+	var sphere := SphereShape3D.new()
+	sphere.radius = 0.52
+	shape.shape = sphere
+	zone_radius = 0.52
+	body_mesh = MeshInstance3D.new()
+	var pm := PrismMesh.new()
+	pm.size = Vector3(0.75, 0.85, 0.45)
+	body_mesh.mesh = pm
+	body_mesh.rotation.z = PI
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color("8ee5a5")
+	mat.emission_enabled = true
+	mat.emission = Color("56c97a")
+	mat.emission_energy_multiplier = 1.8
+	mat.roughness = 0.2
+	body_mesh.material_override = mat
+	add_child(body_mesh)
+
+	var petal_ring := MeshInstance3D.new()
+	var tm := TorusMesh.new()
+	tm.inner_radius = 0.55
+	tm.outer_radius = 0.65
+	petal_ring.mesh = tm
+	var pmat := StandardMaterial3D.new()
+	pmat.albedo_color = Color("ffd166")
+	pmat.emission_enabled = true
+	pmat.emission = Color("e5b84c")
+	pmat.emission_energy_multiplier = 1.4
+	petal_ring.material_override = pmat
+	add_child(petal_ring)
+
+	var light := OmniLight3D.new()
+	light.light_color = Color("8ee5a5")
+	light.light_energy = 1.8
+	light.omni_range = 6.0
+	add_child(light)
+
 func _build_clasp(shape: CollisionShape3D) -> void:
 	var box := BoxShape3D.new(); box.size = Vector3(0.5, 0.7, 0.3); shape.shape = box
 	zone_radius = 0.35
@@ -262,6 +323,10 @@ func _physics_process(delta: float) -> void:
 	if completed or not game.is_playing(): return
 	elapsed += delta
 
+	if is_instance_valid(cavity_orb):
+		cavity_orb.position.y = 0.2 + sin(elapsed * 3.5) * 0.08
+		cavity_orb.rotation.y += delta * 1.6
+
 	if is_pendulum:
 		var angle := sin(elapsed * swing_speed + phase) * swing_amplitude
 		position = base_position + Vector3(sin(angle) * pendulum_length, (1.0 - cos(angle)) * pendulum_length, 0)
@@ -272,6 +337,23 @@ func _physics_process(delta: float) -> void:
 	elif is_rising:
 		_process_rising_state(delta)
 
+	elif is_heart:
+		if is_instance_valid(body_mesh):
+			body_mesh.position.y = sin(elapsed * 2.8 + phase) * 0.08
+			body_mesh.rotation.y += delta * 1.2
+	elif is_cart:
+		var cycle_period := 5.0
+		var t := fmod(elapsed + phase, cycle_period)
+		var cart_x := 0.0
+		if t < 1.3:
+			cart_x = lerpf(-2.5, 2.5, t / 1.3)
+		elif t < 2.5:
+			cart_x = 2.5
+		elif t < 3.8:
+			cart_x = lerpf(2.5, -2.5, (t - 2.5) / 1.3)
+		else:
+			cart_x = -2.5
+		position = base_position + Vector3(cart_x, 0, 0)
 	elif moving:
 		position = base_position + Vector3(sin(elapsed * 1.4 + phase) * 1.6, .2 * cos(elapsed + phase), 0)
 		if motion_style == 1:
@@ -379,6 +461,9 @@ func _refresh() -> void:
 	elif is_pierceable:
 		marker.text = ("◎ THREAD %d" % [index + 1]) + suffix
 		marker.modulate = Color("6ee8d8")
+	elif is_cavity_stone:
+		marker.text = ("★ CAVITY CORE" if not completed else "CLEAR") + suffix
+		marker.modulate = Color("7bf3ff")
 	elif is_armor_petals:
 		marker.text = ("★ CORE SEAL" if core_exposed else "◆ MONOLITH (%d/3)" % petals_remaining) + suffix
 		marker.modulate = Color("ff881a") if core_exposed else Color("f6e1a2")
@@ -414,6 +499,9 @@ func can_receive_hit() -> bool:
 
 func would_be_destroyed(hit_pos: Vector3, power: float) -> bool:
 	if not can_receive_hit() or (is_armor_petals and petals_remaining>0): return false
+	if is_cavity_stone:
+		var local_pt: Vector3 = to_local(hit_pos)
+		if Vector2(local_pt.x, local_pt.y - 0.2).length() > 0.28: return false
 	var zone := hit_zone(hit_pos)
 	return zone >= 0 and hp <= power * damage_multiplier(zone) * (_combo_multiplier(zone))
 
@@ -430,6 +518,32 @@ func campaign_hit(hit_pos: Vector3, power: float, shot_context: Dictionary = {})
 		return false
 	var shot_id := int(shot_context.get("shot_id", -1))
 	if shot_id >= 0 and shot_id in resolved_shots: return false
+
+	if is_cavity_stone:
+		var local_pt: Vector3 = to_local(hit_pos)
+		var dist_to_orb: float = Vector2(local_pt.x, local_pt.y - 0.2).length()
+		if dist_to_orb > 0.28:
+			game.feedback("Deflected! Strike the floating core orb in the center!")
+			game.play_sound("res://campaign/audio/target-impact-single.wav", 1.4, 2.0)
+			_spark_ricochet(hit_pos)
+			return false
+		else:
+			game.feedback("★ Direct Core Hit!")
+			game.play_sound("res://campaign/audio/plate_break.wav", 1.2, 0.0)
+
+	if is_heart:
+		if shot_id >= 0: resolved_shots.append(shot_id)
+		hp = 0
+		completed = true
+		collision_layer = 0
+		for child in get_children():
+			if child is Node3D and child != marker: child.visible = false
+		_break_crystal_effect()
+		game.play_sound("res://campaign/audio/complete.wav")
+		game.feedback("🌿 Forest Heart Restored!")
+		game.target_completed(index)
+		_refresh()
+		return true
 
 	if is_armor_petals and petals_remaining > 0:
 		if shot_id >= 0: resolved_shots.append(shot_id)
@@ -504,3 +618,49 @@ func _break_effect() -> void:
 		tween.tween_property(piece, "position", Vector3(randf_range(-1.3, 1.3), randf_range(-.7, .8), randf_range(-.5, .7)), .55)
 		tween.tween_property(piece, "rotation", Vector3(randf(), randf(), randf()) * 5, .55)
 		tween.tween_property(piece, "scale", Vector3.ZERO, .4).set_delay(.55); tween.chain().tween_callback(piece.queue_free)
+
+func _build_cavity_core_orb() -> void:
+	cavity_orb = MeshInstance3D.new()
+	var sm := SphereMesh.new()
+	sm.radius = 0.22; sm.height = 0.44
+	cavity_orb.mesh = sm
+	cavity_orb.position = Vector3(0, 0.2, 0.38)
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color("7bf3ff")
+	mat.emission_enabled = true
+	mat.emission = Color("40d6ff")
+	mat.emission_energy_multiplier = 2.4
+	mat.roughness = 0.2
+	cavity_orb.material_override = mat
+	add_child(cavity_orb)
+
+	var ring := MeshInstance3D.new()
+	var tm := TorusMesh.new()
+	tm.inner_radius = 0.26; tm.outer_radius = 0.30
+	ring.mesh = tm
+	ring.position = Vector3(0, 0, 0)
+	ring.rotation.x = PI / 2.0
+	var rmat := StandardMaterial3D.new()
+	rmat.albedo_color = Color("ffe57f")
+	rmat.emission_enabled = true
+	rmat.emission = Color("ffca28")
+	rmat.emission_energy_multiplier = 2.0
+	ring.material_override = rmat
+	cavity_orb.add_child(ring)
+
+func _spark_ricochet(hit_pos: Vector3) -> void:
+	for i in range(8):
+		var p := MeshInstance3D.new()
+		var b := BoxMesh.new(); b.size = Vector3.ONE * 0.06
+		p.mesh = b
+		var sm := StandardMaterial3D.new()
+		sm.albedo_color = Color("ffea85")
+		sm.emission_enabled = true; sm.emission = Color("ffb300"); sm.emission_energy_multiplier = 2.0
+		p.material_override = sm
+		add_child(p)
+		p.global_position = hit_pos
+		var dir := Vector3(randf_range(-1, 1), randf_range(0.2, 1), randf_range(0.5, 1)).normalized()
+		var tw := create_tween().set_parallel(true)
+		tw.tween_property(p, "position", p.position + dir * 0.8, 0.3)
+		tw.tween_property(p, "scale", Vector3.ZERO, 0.3)
+		tw.chain().tween_callback(p.queue_free)

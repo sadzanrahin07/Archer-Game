@@ -2,21 +2,21 @@ extends SkeletonModifier3D
 var player: CharacterBody3D
 func _process_modification() -> void:
 	if not is_instance_valid(player):return
-	if player.character_id==2 or (player.character_id==0 and player.showcase):
+	if not player.is_dodging and not player.is_jumping and (player.showcase or player.is_on_floor()) and (player.character_id==2 or (player.character_id==0 and player.showcase)):
 		var rig:Skeleton3D=get_skeleton()
 		var left:int=rig.find_bone(player.bone_names.get("leftFoot","LeftFoot"));var right:int=rig.find_bone(player.bone_names.get("rightFoot","RightFoot"));var hips:int=rig.find_bone(player.bone_names.get("hips","Hips"))
 		if left>=0 and right>=0 and hips>=0:
 			var foot:float=minf(rig.get_bone_global_pose(left).origin.y,rig.get_bone_global_pose(right).origin.y)
 			var sole:float=minf(rig.get_bone_global_rest(left).origin.y,rig.get_bone_global_rest(right).origin.y)
 			var hip:Transform3D=rig.get_bone_global_pose(hips);hip.origin.y-=clampf(foot-sole,-.25,.30);rig.set_bone_global_pose(hips,hip)
-	if player.showcase or player.aim_blend<0.01:return
+	if player.showcase or player.is_dodging or player.aim_blend<0.01:return
 	var skeleton:=get_skeleton()
 	var bone:=skeleton.find_bone("Chest")
 	if bone<0:return
 	var pose:=skeleton.get_bone_global_pose(bone)
 	var axis:Vector3=skeleton.global_basis.inverse()*player.visuals.global_basis.x
 	var turn:=Basis(axis.normalized(),player.pitch*player.aim_blend)
-	if player.drawing or player.aim_held or player.touch_aim:
+	if player.drawing or player.aim_held or player.touch_aim or player.quick_release_left>0:
 		var left:=skeleton.get_bone_global_pose(player.left_hand)
 		var middle:=skeleton.find_bone("LeftMiddleProximal")
 		var grip:Vector3=left.origin.lerp(skeleton.get_bone_global_pose(middle).origin,0.55) if middle>=0 else left.origin

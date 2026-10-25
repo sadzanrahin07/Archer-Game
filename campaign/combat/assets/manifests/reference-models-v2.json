@@ -1,0 +1,56 @@
+[
+  {
+    "art_pass": "combat_fidelity_v3",
+    "family": "moss_slime",
+    "reference": "res://campaign/combat/assets/enemies/moss_slime-directions-v1.png",
+    "revision": 3,
+    "scene": "res://campaign/combat/models/moss_slime-v2.scn",
+    "source": "res://campaign/combat/enemy_visuals.gd",
+    "triangles": 3448
+  },
+  {
+    "art_pass": "combat_fidelity_v3",
+    "family": "briar_slime",
+    "reference": "res://campaign/combat/assets/enemies/briar_slime-directions-v1.png",
+    "revision": 3,
+    "scene": "res://campaign/combat/models/briar_slime-v2.scn",
+    "source": "res://campaign/combat/enemy_visuals.gd",
+    "triangles": 4347
+  },
+  {
+    "art_pass": "combat_fidelity_v3",
+    "family": "seed_spitter",
+    "reference": "res://campaign/combat/assets/enemies/seed_spitter-directions-v1.png",
+    "revision": 3,
+    "scene": "res://campaign/combat/models/seed_spitter-v2.scn",
+    "source": "res://campaign/combat/enemy_visuals.gd",
+    "triangles": 2064
+  },
+  {
+    "art_pass": "combat_fidelity_v3",
+    "family": "bark_stalker",
+    "reference": "res://campaign/combat/assets/enemies/bark_stalker-directions-v1.png",
+    "revision": 3,
+    "scene": "res://campaign/combat/models/bark_stalker-v2.scn",
+    "source": "res://campaign/combat/enemy_visuals.gd",
+    "triangles": 3952
+  },
+  {
+    "art_pass": "combat_fidelity_v3",
+    "family": "mirror_wisp",
+    "reference": "res://campaign/combat/assets/enemies/mirror_wisp-directions-v1.png",
+    "revision": 3,
+    "scene": "res://campaign/combat/models/mirror_wisp-v2.scn",
+    "source": "res://campaign/combat/enemy_visuals.gd",
+    "triangles": 1208
+  },
+  {
+    "art_pass": "combat_fidelity_v3",
+    "family": "root_warden",
+    "reference": "res://campaign/combat/assets/enemies/root_warden-directions-v1.png",
+    "revision": 3,
+    "scene": "res://campaign/combat/models/root_warden-v2.scn",
+    "source": "res://campaign/combat/enemy_visuals.gd",
+    "triangles": 4686
+  }
+]

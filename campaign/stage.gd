@@ -10,6 +10,7 @@ var extent := 35.0
 var safe_bounds := Rect2(-15, -25, 30, 50)
 var scenery: RefCounted
 var thread_guide: Node3D
+var combat_manager: Node3D
 var encounter:Node3D
 const TargetScript = preload("res://campaign/target.gd")
 const ScenicCourse = preload("res://campaign/scenic_course.gd")
@@ -27,11 +28,12 @@ func build(owner_game: Node, config: Dictionary) -> void:
 	scenery = ScenicCourse.new(); scenery.build(self, stage_id, width, end_z, str(definition.get("biome", "meadow")))
 	if int(definition.get("chapter_number", 1)) == 5 and stage_id % 5 == 2: _rain(length, end_z)
 
-	var count: int = definition.materials.size()
+	var enemy_encounter:bool=not definition.get("enemy_waves",[]).is_empty() or stage_id==99
+	var count:int=0 if enemy_encounter else definition.materials.size()
 	var thread_orbs: Array[Node3D] = []
 
 	for i in range(count):
-		var target := TargetScript.new(); target.game = game; target.index = i; target.material_kind = str(definition.materials[i])
+		var target := TargetScript.new(); target.game = game; target.stage_id = stage_id; target.index = i; target.material_kind = str(definition.materials[i])
 		target.hits_left = int(definition.get("hits_required", 1)); target.phase = i * 1.7
 		var hp_list: Array = definition.get("target_hp", [])
 		if i < hp_list.size(): target.hp_override = float(hp_list[i])
@@ -47,15 +49,56 @@ func build(owner_game: Node, config: Dictionary) -> void:
 			target.rising_slot=i/group_size;target.rising_total=ceili(float(count)/group_size)
 			target.rising_shuffle=group_size==2;target.rising_seed=stage_id
 
-		if route:
+		if stage_id == 0:
+			var lane_xs := [-2.8, 0.0, 2.8, -2.5, 0.0, 2.5]
+			var lane_zs := [8.0, 10.0, 12.0, 14.0, 16.0, 18.0]
+			if i < 6:
+				target.position = spawn + Vector3(lane_xs[i], 1.45, -lane_zs[i])
+			else:
+				target.position = spawn + Vector3(0.0, 1.8, -20.0)
+		elif stage_id == 1:
+			if i < 5:
+				target.is_cart = true
+				target.position = spawn + Vector3(-2.6, 1.45, -(10.0 + i * 2.0))
+			else:
+				target.is_clasp = true
+				target.position = spawn + Vector3(3.2, 2.2, -14.0)
+		elif stage_id == 2:
+			if i < 4:
+				target.position = spawn + Vector3(-2.4 + (i % 2) * 1.2, 1.45, -(10.0 + i * 2.6))
+			else:
+				target.position = spawn + Vector3(2.8, 2.5, -(16.0 + (i - 4) * 6.0))
+		elif stage_id == 3:
+			if i < 3:
+				var rx: float = [-3.0, 0.0, 3.0][i]
+				target.position = spawn + Vector3(rx, 1.45, -11.0)
+			else:
+				var cx: float = [-3.5, 0.0, 3.5][i - 3]
+				target.position = spawn + Vector3(cx, 1.6, -17.5)
+		elif stage_id == 4:
+			if i < 2:
+				target.position = spawn + Vector3(-3.4, 1.45, -(12.0 + i * 4.5))
+			elif i < 4:
+				target.position = spawn + Vector3(0.0, 1.45, -(14.0 + (i - 2) * 5.0))
+			elif i < 6:
+				target.is_cart = true
+				target.position = spawn + Vector3(3.2, 1.45, -(13.0 + (i - 4) * 4.0))
+			else:
+				target.position = spawn + Vector3(0.0, 2.6, -25.0)
+		elif stage_id == 55:
+			var rx: float = -4.5 if i == 0 else 4.5
+			target.position = spawn + Vector3(rx, 2.8, -18.0)
+		elif stage_id in [65, 75]:
+			target.position = spawn + Vector3(-5.0 + float(i) * 2.5, 2.5, -18.0)
+		elif stage_id in [85, 95]:
+			target.position = spawn + Vector3(-4.0 + float(i) * 4.0, 2.8, -18.0)
+		elif route:
 			var z := spawn.z - 8.0 - i * maxf(6.0, (route_length - 8.0) / maxi(1, count - 1))
 			var x := sin(z * .058) * 1.8 + (-2.5 if i % 2 == 0 else 2.5)
 			if roaming and i == count - 1:
 				x = 0; target.final_stone = true; target.approach_distance = float(definition.get("finish_approach_distance", 16))
 				target.moving = false; endpoint = Vector3(x, spawn.y, z)
 			target.position = Vector3(x, spawn.y + 1.45, z)
-		elif int(definition.get("chapter_number", 1)) == 1 and count == 1:
-			target.position = spawn + Vector3(0, 1.45, -float(definition.get("distance", 15.0)))
 		elif target.material_kind in ["soft_orb", "thread_orb", "hanging_orb"]:
 			# Thread Shot lane: align orbs along direct forward line at stepped Z depths
 			var lane_x := 0.0
@@ -68,19 +111,36 @@ func build(owner_game: Node, config: Dictionary) -> void:
 			if str(definition.get("mechanic",""))=="thread":x=-3.5 if i==0 else 3.5
 			target.position=Vector3(x,spawn.y+1.45+(i%2)*.2,spawn.z-float(definition.get("distance",15.0))-(i%2)*2)
 
+		if definition.has("target_positions"):
+			var pos:Array=definition.target_positions[i]
+			target.position=spawn+Vector3(float(pos[0]),float(pos[1]),float(pos[2]))
+			if target.material_kind=="cart":target.is_cart=true
+			if target.material_kind=="thread_orb":
+				if not thread_orbs.has(target):thread_orbs.append(target)
+				var tau:float=absf(float(pos[2]))/game.profile.flight_speed()
+				target.position.y-=4.9*tau*tau
+				if definition.get("moving_chain",false):
+					target.motion_style=2;target.phase=-1.05*tau;target.swing_speed=1.05;target.swing_amplitude=.18
 		add_child(target); targets.append(target)
 		if route: target.set_active(i == 0)
-		if not target.material_kind in ["stone", "rune", "master", "rising", "rising_board", "soft_orb", "thread_orb", "hanging_orb", "pendulum", "armor_petals", "core_monolith", "clasp"]:
+		if not target.material_kind in ["stone", "rune", "master", "rising", "rising_board", "soft_orb", "thread_orb", "hanging_orb", "pendulum", "armor_petals", "core_monolith", "clasp", "heart", "restoration_heart", "cart"]:
 			_stand(target)
 
 	if not thread_orbs.is_empty():
 		_build_thread_lane_guide(thread_orbs)
 
-	if not roaming: endpoint = targets.back().position - Vector3(0, 1.45, 0)
-	var line := MeshInstance3D.new(); var mesh := BoxMesh.new(); mesh.size = Vector3(3.5, .02, .12); line.mesh = mesh; line.position = spawn + Vector3(0, 0, -.4)
-	var mat := StandardMaterial3D.new(); mat.albedo_color = Color("e1d6a4"); mesh.material = mat; add_child(line)
-	if roaming: _endpoint_marker()
+	if not roaming and not targets.is_empty(): endpoint = targets.back().position - Vector3(0, 1.45, 0)
+	if not roaming and not enemy_encounter:
+		var line := MeshInstance3D.new(); var mesh := BoxMesh.new(); mesh.size = Vector3(3.5, .02, .12); line.mesh = mesh; line.position = spawn + Vector3(0, 0, -.4)
+		var mat := StandardMaterial3D.new(); mat.albedo_color = Color("e1d6a4"); mesh.material = mat; add_child(line)
+	if roaming and not enemy_encounter: _endpoint_marker()
 	encounter=preload("res://campaign/course_mechanics.gd").new();add_child(encounter);encounter.setup(self)
+	_build_story_landmark()
+	if (not definition.get("enemy_waves",[]).is_empty() or stage_id==99) and game.profile.power_level()>=60:
+		var combat_mgr = preload("res://campaign/combat/combat_manager.gd").new()
+		combat_manager = combat_mgr
+		add_child(combat_mgr)
+		combat_mgr.setup(game, self)
 	if "profile" in game and game.profile.data.chapter_rewards.has(str(stage_id/5)):
 		encounter.restore_landmark()
 
@@ -146,3 +206,21 @@ func _rain(length: float, end_z: float) -> void:
 	rain.emission_box_extents = Vector3(12, .5, length * .5); rain.position = Vector3(0, 13, (25.0 + end_z) * .5); rain.direction = Vector3(0, -1, 0); rain.spread = 5
 	rain.initial_velocity_min = 9; rain.initial_velocity_max = 12; rain.gravity = Vector3(0, -5, 0)
 	var drop := BoxMesh.new(); drop.size = Vector3(.014, .22, .014); var mat := StandardMaterial3D.new(); mat.albedo_color = Color("a1bbc9"); drop.material = mat; rain.mesh = drop; add_child(rain)
+
+var restoration_lanterns:Array[MeshInstance3D]=[]
+
+func _build_story_landmark() -> void:
+	var root:=Node3D.new();root.name="RestorationLandmark";root.position=spawn+Vector3(0,0,-25);add_child(root)
+	for i in range(5):
+		var lamp:=MeshInstance3D.new();var orb:=SphereMesh.new();orb.radius=.25;orb.height=.5;lamp.mesh=orb
+		lamp.position=Vector3((i-2)*1.3,1.5+sin(i)*.4,0)
+		var mat:=StandardMaterial3D.new();mat.albedo_color=Color("58615a");lamp.material_override=mat;root.add_child(lamp);restoration_lanterns.append(lamp)
+	var guide:=MeshInstance3D.new();var orb:=SphereMesh.new();orb.radius=.13;orb.height=.26;guide.mesh=orb
+	var mat:=StandardMaterial3D.new();mat.albedo_color=Color("dceca9");mat.emission_enabled=true;mat.emission=Color("aeedb4");mat.emission_energy_multiplier=1.2;guide.material_override=mat
+	guide.position=spawn+Vector3(-1.6,2.1,-1.5);guide.name="Luma";add_child(guide)
+	if game.profile.data.stars.has(str(stage_id)):restore_story_landmark()
+
+func restore_story_landmark() -> void:
+	for lamp in restoration_lanterns:
+		var mat:StandardMaterial3D=lamp.material_override
+		mat.albedo_color=Color("abe8b5");mat.emission_enabled=true;mat.emission=Color("9ceac6");mat.emission_energy_multiplier=1.3
