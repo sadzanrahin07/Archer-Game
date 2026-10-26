@@ -4,6 +4,7 @@ signal attack_release(power_key:String,quick:bool)
 
 const Catalog = preload("res://campaign/catalog.gd")
 const Projectile = preload("res://campaign/projectile.gd")
+const StringGeometry = preload("res://campaign/vfx/energy_geometry.gd")
 var game: Node
 var model_path := "res://campaign/characters/Enola.tscn"
 var bone_names: Dictionary = {}
@@ -13,6 +14,8 @@ var stationary := false
 var spawn_point := Vector3.ZERO
 var drawing := false
 var aim_held := false
+var mouse_aim_held := false
+var pad_aim_held := false
 var empty_aim_latched:=false
 var draw_elapsed := 0.0
 var shot_cooldown := 0.0
@@ -21,6 +24,10 @@ var yaw := 0.0
 var pitch := 0.0
 var sway_time := 0.0
 var aim_blend := 0.0
+var focus_blend := 0.0
+var aim_release_left := 0.0
+var last_shot_origin := Vector3.ZERO
+var last_shot_direction := Vector3.FORWARD
 var last_pose := ""
 var step_time := 0.0
 var rig_height := 1.6
@@ -73,6 +80,7 @@ var arrow_mesh_scale := Vector3.ONE*0.8
 var bow_tip_top := Vector3(0,0.85,-0.269)
 var bow_tip_bot := Vector3(0,-0.83,-0.269)
 var bow_string_rest := Vector3(0,0,-0.269)
+var string_hand_blend := 0.0
 var solved_left := Vector3.ZERO
 var solved_right := Vector3.ZERO
 var nock_world := Vector3.ZERO
@@ -119,12 +127,13 @@ func _ready() -> void:
 	skeleton.add_child(aim_modifier)
 	bow_hand_node = MeshInstance3D.new(); bow_hand_node.mesh = load(Catalog.BOWS[int(game.profile.data.equipped_bow)].mesh); add_child(bow_hand_node)
 	bow_string_node = MeshInstance3D.new(); bow_hand_node.add_child(bow_string_node)
-	var mat := StandardMaterial3D.new(); mat.albedo_color = Color("ebe8d6"); bow_string_node.material_override = mat
+	var mat := StandardMaterial3D.new(); mat.albedo_color = Color("ebe8d6"); mat.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED; bow_string_node.material_override = mat
+	bow_string_node.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	bow_arrow_node = MeshInstance3D.new(); bow_arrow_node.mesh = load(Catalog.ARROWS[int(game.profile.data.equipped_arrow)].mesh); add_child(bow_arrow_node)
 	Catalog.apply_arrow_finish(bow_arrow_node,int(game.profile.data.equipped_arrow))
 	var arrow_bounds:=bow_arrow_node.mesh.get_aabb()
 	var width_scale:=minf(0.8,0.085/maxf(arrow_bounds.size.x,arrow_bounds.size.z))
-	arrow_mesh_scale=Vector3(width_scale,1.0/arrow_bounds.size.y,width_scale)
+	arrow_mesh_scale=Vector3(width_scale,.72/arrow_bounds.size.y,width_scale)
 	var geometry_id: String=Catalog.BOWS[int(game.profile.data.equipped_bow)].geometry
 	if geometry_id!="standard":
 		var definition:Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://campaign/equipment/geometry.json"))[geometry_id]
@@ -160,13 +169,13 @@ func interact() -> void:
 func set_showcase(value: bool) -> void:
 	showcase = value
 	last_move_dir=Vector3.ZERO;controller_dodge_held=false;controller_trigger_held=false;controller_drawing=false
-	touch_aim=false;empty_aim_latched=false
-	quick_release_left=0;is_dodging=false;dodge_timer=0;dodge_cooldown=0;is_invulnerable=false
+	touch_aim=false;mouse_aim_held=false;pad_aim_held=false;empty_aim_latched=false
+	quick_release_left=0;string_hand_blend=0;is_dodging=false;dodge_timer=0;dodge_cooldown=0;is_invulnerable=false
 	_reset_jump_state()
 	velocity = Vector3.ZERO; drawing = false; aim_held = false; draw_elapsed = 0; shot_cooldown = 0
 	camera.current = not value
 	yaw = 0; pitch = 0
-	aim_blend = 0
+	aim_blend = 0;focus_blend=0;aim_release_left=0
 	visuals.rotation.y = PI if value else 0.0
 	camera_pivot.position = Vector3(0.47,rig_height*0.86,0)
 	camera_pivot.rotation = Vector3.ZERO
@@ -182,7 +191,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if game.touch_enabled(): return
 	if event is InputEventMouseMotion:
 		yaw -= event.relative.x * 0.0025 * float(game.profile.data.settings.get("sensitivity",1.0))
-		pitch = clampf(pitch - event.relative.y * 0.0025,-0.9,0.9)
+		pitch = clampf(pitch - event.relative.y * 0.0025 * float(game.profile.data.settings.get("sensitivity",1.0)),-0.9,0.9)
 		get_viewport().set_input_as_handled()
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode==KEY_Q and game.is_combat():
@@ -191,7 +200,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.button_index==MOUSE_BUTTON_LEFT and not game.power_charge_source.is_empty():return
 		if event.button_index==MOUSE_BUTTON_RIGHT:
 			if not event.pressed:empty_aim_latched=false
-			aim_held=event.pressed and game.arrows>0 and not empty_aim_latched
+			mouse_aim_held=event.pressed and game.arrows>0 and not empty_aim_latched
+			aim_held=mouse_aim_held or pad_aim_held
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			if event.pressed:
 				if aim_held or touch_aim:_start_draw()
@@ -215,6 +225,8 @@ func _physics_process(delta: float) -> void:
 		return
 	shot_cooldown = maxf(0,shot_cooldown-delta)
 	quick_release_left=maxf(0,quick_release_left-delta)
+	aim_release_left=maxf(0,aim_release_left-delta)
+	if not _string_follows_hand():string_hand_blend=move_toward(string_hand_blend,0.0,delta/0.12)
 	if dodge_cooldown > 0:
 		dodge_cooldown = maxf(0.0, dodge_cooldown - delta)
 	sway_time += delta
@@ -240,7 +252,8 @@ func _physics_process(delta: float) -> void:
 		var trigger := Input.get_joy_axis(joy,JOY_AXIS_TRIGGER_RIGHT) > 0.35
 		var left_held:bool=Input.get_joy_axis(joy,JOY_AXIS_TRIGGER_LEFT)>.35
 		if not left_held:empty_aim_latched=false
-		aim_held=left_held and not empty_aim_latched and game.arrows>0
+		pad_aim_held=left_held and not empty_aim_latched and game.arrows>0
+		aim_held=mouse_aim_held or pad_aim_held
 		var dodge_pressed:bool=Input.is_joy_button_pressed(joy,JOY_BUTTON_B)
 		if game.is_combat() and dodge_pressed and not controller_dodge_held:start_dodge()
 		controller_dodge_held=dodge_pressed
@@ -252,9 +265,11 @@ func _physics_process(delta: float) -> void:
 			else:instant_shoot()
 		controller_trigger_held=trigger
 		if not trigger and controller_drawing: controller_drawing = false; _fire()
-	else:controller_jump_held=false
+	else:
+		controller_jump_held=false
+		if pad_aim_held:pad_aim_held=false;aim_held=mouse_aim_held
 	if game.arrows<=0:clear_empty_aim()
-	var aiming:bool=not is_dodging and game.arrows>0 and (drawing or aim_held or touch_aim)
+	var aiming:bool=not is_dodging and game.arrows>0 and (drawing or aim_held or touch_aim or aim_release_left>0)
 	if drawing: draw_elapsed += delta
 	var draw_t: float = game.profile.draw_time() if (is_instance_valid(game) and "profile" in game and is_instance_valid(game.profile)) else 1.2
 	if is_instance_valid(game): game.draw_amount = clampf(draw_elapsed/draw_t,0,1) if drawing else 0
@@ -262,15 +277,15 @@ func _physics_process(delta: float) -> void:
 	var sway: float = 0.0028 * stability * (1+maxf(0,draw_elapsed-2)) if drawing else 0
 	if is_instance_valid(camera_pivot):
 		camera_pivot.rotation.y = yaw + sin(sway_time*1.6)*sway
-		camera_pivot.position = camera_pivot.position.lerp(Vector3(0.47,rig_height*0.86,0),1-exp(-10*delta))
+		camera_pivot.position = Vector3(0.68,rig_height*0.90,0).rotated(Vector3.UP,yaw)
 	if is_instance_valid(spring_arm):
 		spring_arm.rotation.x = pitch + cos(sway_time*1.3)*sway
-	var is_power_charging: bool = is_instance_valid(game) and game.power_armed and drawing and game.selected_power != "normal"
+	# Keep the same shoulder framing throughout charge and release.
 	var is_sniper:bool=stationary and not game.is_combat()
-	var target_fov: float = ((44.0 if game.draw_amount >= 0.95 else 50.0) if is_power_charging else (24.0 if (aiming and is_sniper) else (40.0 if aiming else 65.0)))
-	var target_arm: float = (1.25 if is_power_charging else (0.58 if (aiming and is_sniper) else (0.82 if aiming else 3.5)))
-	if is_instance_valid(spring_arm): spring_arm.spring_length = lerpf(spring_arm.spring_length, target_arm, 1-exp(-10*delta))
-	if is_instance_valid(camera): camera.fov = lerpf(camera.fov, target_fov, 1-exp(-10*delta))
+	var target_fov:float=24.0 if aiming and is_sniper else (42.0 if aiming else 65.0)
+	var target_arm:float=.95 if aiming and is_sniper else (1.35 if aiming else 3.5)
+	if is_instance_valid(spring_arm):spring_arm.spring_length=lerpf(spring_arm.spring_length,target_arm,1-exp(-12*delta))
+	if is_instance_valid(camera):camera.fov=lerpf(camera.fov,target_fov,1-exp(-12*delta))
 	var move := Vector3.ZERO
 	var sprinting := false
 	var was_grounded:bool=is_on_floor()
@@ -354,6 +369,7 @@ func _physics_process(delta: float) -> void:
 func _update_goals(delta: float, aiming: bool) -> void:
 	# The supplied X bow clips drive the complete archery stance and both hands.
 	aim_blend=move_toward(aim_blend,1 if aiming or quick_release_left>0 else 0,delta*10)
+	focus_blend=move_toward(focus_blend,1.0 if is_focus_aiming() else 0.0,delta*12)
 
 func apply_touch_look(relative: Vector2) -> void:
 	if showcase or not game.is_playing(): return
@@ -362,7 +378,7 @@ func apply_touch_look(relative: Vector2) -> void:
 	pitch = clampf(pitch-relative.y*0.0035*sensitivity,-0.85,0.85)
 
 func cancel_draw() -> void:
-	drawing=false;aim_held=false;touch_aim=false;draw_elapsed=0;controller_drawing=false
+	drawing=false;aim_held=false;mouse_aim_held=false;pad_aim_held=false;touch_aim=false;focus_blend=0;draw_elapsed=0;controller_drawing=false
 	if is_instance_valid(game): game.draw_amount=0;game.clear_power_hold()
 	if is_instance_valid(anim_player) and (last_pose.begins_with("draw") or last_pose.begins_with("aim")):_play_pose("idle")
 
@@ -402,24 +418,30 @@ func _update_equipment() -> void:
 	var basis := (left.basis.orthonormalized()*palm_binding).scaled(Vector3.ONE*scale_value)
 	bow_hand_node.global_transform = Transform3D(basis,left.origin)
 	var pull := bow_string_rest
-	if drawing or aim_held or touch_aim: pull = bow_hand_node.to_local(right.origin)
+	if _string_follows_hand():string_hand_blend=1.0
+	pull=pull.lerp(bow_hand_node.to_local(right.origin),string_hand_blend)
 	bow_string_node.mesh = _build_bowstring_mesh(bow_tip_top,pull,bow_tip_bot)
 	nock_world = bow_hand_node.to_global(pull)
 	bow_arrow_node.visible = (drawing or aim_held or touch_aim) and shot_cooldown <= 0 and (showcase or game.arrows > 0 or game.power_armed)
 	var shelf := bow_hand_node.global_position + Vector3.UP*0.035
 	var direction := (shelf-nock_world).normalized() if nock_world.distance_to(bow_hand_node.global_position)>0.15 else -visuals.global_basis.z
+	if not showcase and (drawing or aim_held or touch_aim or aim_release_left>0):
+		direction=aim_direction_from(nock_world)
 	arrow_direction = direction
 	arrow_tip_world = nock_world + direction * 0.72
-	var y_axis := direction.normalized(); var x_axis := y_axis.cross(Vector3.UP).normalized(); var z_axis := x_axis.cross(y_axis).normalized()
+	var y_axis := direction.normalized(); var x_axis := y_axis.cross(Vector3.RIGHT if absf(y_axis.y)>.98 else Vector3.UP).normalized(); var z_axis := x_axis.cross(y_axis).normalized()
 	bow_arrow_node.global_transform = Transform3D(Basis(x_axis*arrow_mesh_scale.x,y_axis*arrow_mesh_scale.y,z_axis*arrow_mesh_scale.z),nock_world+direction*(-bow_arrow_node.mesh.get_aabb().position.y*arrow_mesh_scale.y))
 
-func _build_bowstring_mesh(top: Vector3, pull: Vector3, bottom: Vector3, _radius: float = 0.003) -> ArrayMesh:
+func _string_follows_hand() -> bool:
+	return drawing or aim_held or touch_aim or quick_release_left>0
+
+func _build_bowstring_mesh(top: Vector3, pull: Vector3, bottom: Vector3, radius: float = 0.003) -> ArrayMesh:
 	var mesh := ImmediateMesh.new()
-	mesh.surface_begin(Mesh.PRIMITIVE_LINES)
-	mesh.surface_add_vertex(top); mesh.surface_add_vertex(pull); mesh.surface_add_vertex(pull); mesh.surface_add_vertex(bottom)
+	mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
+	StringGeometry.tube(mesh,PackedVector3Array([top,pull,bottom]),radius,Color.WHITE,false,5)
 	mesh.surface_end()
-	var arrays := mesh.surface_get_arrays(0)
-	var result := ArrayMesh.new(); result.add_surface_from_arrays(Mesh.PRIMITIVE_LINES,arrays)
+	var result := ArrayMesh.new()
+	result.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,mesh.surface_get_arrays(0))
 	return result
 
 func instant_shoot() -> void:
@@ -431,25 +453,33 @@ func instant_shoot() -> void:
 func _fire(quick:bool=false) -> void:
 	if not game.is_playing() or current_hp<=0 or is_dodging or game.arrows<=0 or shot_cooldown>0 or not game.power_charge_source.is_empty():return
 	if not quick and not drawing:return
-	drawing=false
+	if quick and not is_focus_aiming():
+		focus_blend=0
+		if is_instance_valid(game.focus_material):game.focus_material.set_shader_parameter("strength",0.0)
+	# Snapshot the drawn pose and camera target before changing the release pose.
+	if quick:
+		visuals.rotation.y=yaw
+		_play_pose("release")
+		anim_player.seek(0,true)
+	var target:Vector3=aim_target_world()
+	skeleton.force_update_all_bone_transforms()
+	_update_equipment()
+	var direction:Vector3=arrow_direction
+	var spawn:Vector3=shot_spawn(direction)
+	var fraction:float=clampf(draw_elapsed/game.profile.draw_time(),0.4,1)
 	var ability:Dictionary=game.begin_volley()
 	if ability.is_empty():return
+	drawing=false;aim_release_left=.25 if not quick or aim_held or touch_aim else 0.0
+	bow_arrow_node.visible=false
 	var move_input:Vector2=_movement_input()
 	release_pose_name="release_run" if move_input.length()>.1 and (Input.is_action_pressed("sprint") or touch_sprint) else ("release_walk" if move_input.length()>.1 else "release")
 	visuals.rotation.y=yaw
+	var release_length:float=anim_player.get_animation("shared/release").length
+	shot_cooldown=minf(.42 if quick else .50,release_length)
+	quick_release_left=minf(.48,release_length)
+	string_hand_blend=1.0
 	_play_pose(release_pose_name)
-	# Quick input commits now; apply the authored bow pose before sampling its muzzle.
 	anim_player.seek(0,true)
-	skeleton.force_update_all_bone_transforms()
-	_update_equipment()
-	var fraction:float=clampf(draw_elapsed/game.profile.draw_time(),0.4,1)
-	var from:Vector3=camera.project_ray_origin(get_viewport().get_visible_rect().size*0.5)
-	var direction:Vector3=camera.project_ray_normal(get_viewport().get_visible_rect().size*0.5)
-	var query:=PhysicsRayQueryParameters3D.create(from,from+direction*200,1|4|8);query.exclude=[get_rid()]
-	var hit:Dictionary=get_world_3d().direct_space_state.intersect_ray(query)
-	var target:Vector3=hit.position if not hit.is_empty() else from+direction*80
-	var spawn:Vector3=nock_world+direction*.12
-	if spawn.distance_to(global_position)>3:spawn=global_position+Vector3(0,1.4,0)
 	var is_power_shot: bool = (str(ability.get("key", "normal")) != "normal")
 	for arrow_index in range(int(ability.ammo)):
 		var projectile:=Projectile.new();projectile.owner_body=self;projectile.game=game
@@ -466,40 +496,25 @@ func _fire(quick:bool=false) -> void:
 		projectile.global_position = arrow_spawn
 		var speed:float=game.profile.flight_speed()*float(ability.speed)*lerpf(0.65,1,fraction)
 		var acceleration:=Vector3(projectile.wind,-9.8,0)
-		var offset:Vector3=target-arrow_spawn
-		var shot_velocity:Vector3=offset.normalized()*speed
-		if bool(game.profile.data.settings.get("assist",true)):
-			var a:float=0.25*acceleration.length_squared();var b:float=-(offset.dot(acceleration)+speed*speed)
-			var discriminant:float=b*b-4*a*offset.length_squared()
-			if discriminant>=0:
-				var flight_time:float=sqrt((-b-sqrt(discriminant))/(2*a))
-				if flight_time>0.001:shot_velocity=offset/flight_time-0.5*acceleration*flight_time
+		var shot_velocity:Vector3=solve_shot_velocity(arrow_spawn,target,speed,acceleration,bool(game.profile.data.settings.get("assist",true)))
 		projectile.velocity=shot_velocity
+		if arrow_index==0:last_shot_origin=arrow_spawn;last_shot_direction=shot_velocity.normalized()
 		var v_dir: Vector3 = shot_velocity.normalized()
 		var up_vec: Vector3 = Vector3.FORWARD if absf(v_dir.dot(Vector3.UP)) > 0.98 else Vector3.UP
 		projectile.look_at(arrow_spawn+shot_velocity, up_vec)
-	var release_length:float=anim_player.get_animation("shared/release").length
-	shot_cooldown=minf(.42 if quick else .50,release_length)
-	quick_release_left=minf(.48,release_length)
+		if projectile.vfx.has_method("launch"):projectile.vfx.launch()
 	_play_pose(release_pose_name)
 	game.play_sound("res://sounds/bow_release.wav",1,-12)
 	if not is_power_shot:game.play_sound("res://sounds/arrow_swoosh.wav",1,-12)
 	if is_power_shot:
-		var kick_dir := direction.normalized()
-		kick_dir.y = 0.0
-		velocity -= kick_dir * (5.5 if fraction >= 0.95 else 2.5)
 		if game.has_method("play_power_sound"):
 			game.play_power_sound(str(ability.get("key", "normal")))
 		if not game.profile.data.settings.get("reduced_motion",false):
-			apply_shockwave_shake(0.12 if fraction >= 0.95 else 0.08)
+			apply_shockwave_shake(0.045 if fraction >= 0.95 else 0.025)
 	attack_release.emit(str(ability.get("key","normal")),quick)
 
 func apply_shockwave_shake(trauma: float = 0.5) -> void:
 	if not is_instance_valid(camera): return
-	var tw := create_tween()
-	var orig_fov: float = camera.fov
-	tw.tween_property(camera, "fov", orig_fov - trauma * 3.5, 0.04).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tw.tween_property(camera, "fov", orig_fov, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	var rot_tw := create_tween()
 	var rot_offset := randf_range(-0.02, 0.02) * trauma
 	rot_tw.tween_property(camera, "rotation:z", rot_offset, 0.04)
@@ -691,3 +706,47 @@ func clear_empty_aim() -> void:
 
 func _resolve_fatal_damage() -> void:
 	if current_hp<=0 and game.is_playing():game.finish(false,"Fallen in combat")
+
+func aim_target_world() -> Vector3:
+	var center:Vector2=get_viewport().get_visible_rect().size*.5
+	var from:Vector3=camera.project_ray_origin(center)
+	var direction:Vector3=camera.project_ray_normal(center)
+	var query:=PhysicsRayQueryParameters3D.create(from,from+direction*200,1|4|8)
+	query.exclude=[get_rid()];query.hit_from_inside=true
+	var hit:Dictionary=get_world_3d().direct_space_state.intersect_ray(query)
+	return hit.position if not hit.is_empty() else from+direction*80
+
+func shot_spawn(direction:Vector3) -> Vector3:
+	var spawn:Vector3=nock_world+direction*.72
+	if spawn.distance_to(global_position)>3:spawn=global_position+Vector3(0,1.4,0)
+	# A camera-clear target cannot allow a nocked arrow to start through nearby cover.
+	var query:=PhysicsRayQueryParameters3D.create(camera.global_position,spawn,1|4|8)
+	query.exclude=[get_rid()];query.hit_from_inside=true
+	var cover:Dictionary=get_world_3d().direct_space_state.intersect_ray(query)
+	if not cover.is_empty():spawn=cover.position+cover.normal*.04
+	return spawn
+
+func aim_direction_from(origin:Vector3) -> Vector3:
+	var key:String=game.selected_power if game.power_armed else "normal"
+	var info:Dictionary=game.profile.ability_stats(key)
+	var fraction:float=clampf(draw_elapsed/game.profile.draw_time(),.4,1) if drawing else 1.0
+	var speed:float=game.profile.flight_speed()*float(info.speed)*lerpf(.65,1,fraction)
+	var acceleration:=Vector3(game.current_wind()*(.5 if key=="gale" else 1.0),-9.8,0)
+	return solve_shot_velocity(origin,aim_target_world(),speed,acceleration,bool(game.profile.data.settings.get("assist",true))).normalized()
+
+func solve_shot_velocity(origin:Vector3,target:Vector3,speed:float,acceleration:Vector3,assist:bool=true) -> Vector3:
+	var offset:Vector3=target-origin
+	if offset.length_squared()<.0001:return -camera.global_basis.z*speed
+	if assist:
+		var a:float=.25*acceleration.length_squared()
+		var b:float=-(offset.dot(acceleration)+speed*speed)
+		var discriminant:float=b*b-4*a*offset.length_squared()
+		if a>.000001 and discriminant>=0:
+			# Stable form of the low-arc solution, including crosswind.
+			var flight_time:float=sqrt(2*offset.length_squared()/maxf(.0001,-b+sqrt(discriminant)))
+			if flight_time>.001:return offset/flight_time-.5*acceleration*flight_time
+	return offset.normalized()*speed
+
+func is_focus_aiming() -> bool:
+	# Explicit aim input controls the lens; quick-shot pose blending does not.
+	return not showcase and current_hp>0 and not is_dodging and game.arrows>0 and (aim_held or touch_aim)

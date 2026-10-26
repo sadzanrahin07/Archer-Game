@@ -11,19 +11,22 @@ func _process_modification() -> void:
 			var hip:Transform3D=rig.get_bone_global_pose(hips);hip.origin.y-=clampf(foot-sole,-.25,.30);rig.set_bone_global_pose(hips,hip)
 	if player.showcase or player.is_dodging or player.aim_blend<0.01:return
 	var skeleton:=get_skeleton()
-	var bone:=skeleton.find_bone("Chest")
+	var bone:=skeleton.find_bone(player.bone_names.get("chest","J_Bip_C_Chest"))
+	if bone<0:bone=skeleton.find_bone("Chest")
 	if bone<0:return
 	var pose:=skeleton.get_bone_global_pose(bone)
 	var axis:Vector3=skeleton.global_basis.inverse()*player.visuals.global_basis.x
 	var turn:=Basis(axis.normalized(),player.pitch*player.aim_blend)
 	if player.drawing or player.aim_held or player.touch_aim or player.quick_release_left>0:
 		var left:=skeleton.get_bone_global_pose(player.left_hand)
-		var middle:=skeleton.find_bone("LeftMiddleProximal")
+		var middle:=skeleton.find_bone(player.bone_names.get("leftMiddleProximal","J_Bip_L_Middle1"))
+		if middle<0:middle=skeleton.find_bone("LeftMiddleProximal")
 		var grip:Vector3=left.origin.lerp(skeleton.get_bone_global_pose(middle).origin,0.55) if middle>=0 else left.origin
 		var right:=skeleton.get_bone_global_pose(player.right_finger if player.right_finger>=0 else player.right_hand)
 		var vector:Vector3=grip-right.origin
 		var from:Vector3=vector.normalized()
-		var desired:Vector3=(skeleton.global_basis.inverse()*(-player.camera.global_basis.z)).normalized()
+		var nock:Vector3=skeleton.to_global(right.origin)
+		var desired:Vector3=(skeleton.global_basis.inverse()*player.aim_direction_from(nock)).normalized()
 		var up:Vector3=(skeleton.global_basis.inverse()*Vector3.UP).normalized()
 		var lift:float=desired.dot(up)*0.035
 		var distance:float=lift+sqrt(maxf(0,vector.length_squared()-0.035*0.035+lift*lift))

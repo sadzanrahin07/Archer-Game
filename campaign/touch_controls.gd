@@ -109,7 +109,9 @@ func contact(id:int,pos:Vector2,pressed:bool,canceled:bool=false) -> void:
 		var role:=""
 		if can_move and pos.distance_to(geo.stick)<88*geo.factor and not roles.values().has("move"):role="move"
 		elif pos.distance_to(geo.draw)<60*geo.factor and not roles.values().has("shoot"):role="shoot"
-		elif pos.distance_to(geo.aim)<43*geo.factor:role="aim";aim=not aim if game.arrows>0 else false
+		elif pos.distance_to(geo.aim)<43*geo.factor:
+			role="aim";aim=not aim if game.arrows>0 else false
+			if is_instance_valid(game.hero):game.hero.touch_aim=aim
 		elif game.is_combat() and pos.distance_to(geo.dodge)<43*geo.factor:role="dodge";game.hero.start_dodge()
 		elif pos.distance_to(geo.jump)<43*geo.factor:role="jump";game.hero.request_jump()
 		elif can_move and pos.distance_to(geo.run)<43*geo.factor:role="run";sprint=not sprint
@@ -140,8 +142,14 @@ func contact(id:int,pos:Vector2,pressed:bool,canceled:bool=false) -> void:
 
 func motion(id:int,pos:Vector2,relative:Vector2) -> void:
 	if not roles.has(id):return
-	if roles[id]=="move":_move(pos)
-	elif roles[id]=="look":game.hero.apply_touch_look(relative)
+	var role:String=roles[id]
+	if role=="move":_move(pos)
+	elif is_instance_valid(game.hero):
+		# Aiming and charging contacts keep their release ownership while dragging.
+		var can_look:bool=role=="look" or (role=="aim" and aim)
+		if role=="shoot":can_look=game.hero.drawing and game.power_charge_source.is_empty()
+		elif role in ["power","secondary"]:can_look=game.hero.drawing and game.power_charge_source=="touch:"+str(id)
+		if can_look:game.hero.apply_touch_look(relative)
 	get_viewport().set_input_as_handled()
 
 func _move(pos:Vector2) -> void:

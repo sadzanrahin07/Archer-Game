@@ -426,6 +426,7 @@ func start_stage(id: int, is_practice: bool = false) -> void:
 	if not test_mode and id > int(profile.data.unlocked):
 		id = mini(id, int(profile.data.unlocked))
 	get_tree().paused = false
+	if is_instance_valid(touch_controller):touch_controller.reset()
 	if is_instance_valid(final_director):final_director.cancel()
 	pending_result.clear()
 	id=clampi(id,0,definitions.size()-1)
@@ -602,7 +603,7 @@ func _physics_process(delta: float) -> void:
 			if hud_ready.get_parent() is PanelContainer:
 				hud_ready.get_parent().visible = not hud_ready.text.is_empty()
 		if is_instance_valid(hud_draw): hud_draw.value = draw_amount
-		if focus_material: focus_material.set_shader_parameter("strength",hero.aim_blend)
+		if focus_material: focus_material.set_shader_parameter("strength",hero.focus_blend if state in ["playing","paused"] else 0.0)
 		message_time -= delta
 		if is_instance_valid(hud_message): hud_message.text = message if message_time > 0 else ""
 
@@ -652,6 +653,7 @@ func show_pause() -> void:
 	page = "pause"
 	get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	hero.cancel_draw()
 	hero.drawing = false
 	hero.aim_held = false
 	hero.controller_drawing = false

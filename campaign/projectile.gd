@@ -18,35 +18,17 @@ var excluded_rids: Array[RID] = []
 
 func _ready() -> void:
 	var mesh := MeshInstance3D.new()
-	var key: String = str(ability.get("key", "normal"))
-	if key != "normal":
-		# Distinct glowing energy power arrow
-		mesh.mesh = load("res://models/arrow_mesh.res")
-		var bounds := mesh.mesh.get_aabb(); var width_scale := minf(.8, .095 / maxf(bounds.size.x, bounds.size.z))
-		mesh.scale = Vector3(width_scale, 1.0 / bounds.size.y, width_scale); mesh.rotation.x = -PI / 2; mesh.position.z = bounds.end.y * mesh.scale.y; add_child(mesh)
-		var power_mat := StandardMaterial3D.new()
-		power_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		var p_color: Color = {
-			"burst": Color("45f5a8"),
-			"gale": Color("81eeff"),
-			"pressure": Color("b3f7ff"),
-			"fire": Color("ff7b39"),
-			"lightning": Color("ecfff9"),
-			"super_lightning": Color("c59dff"),
-			"ultimate": Color("ffedb5")
-		}.get(key, Color("a0ede5"))
-		power_mat.albedo_color = p_color
-		power_mat.emission_enabled = true
-		power_mat.emission = p_color
-		power_mat.emission_energy_multiplier = 2.2
-		mesh.material_override = power_mat
-	else:
-		mesh.mesh = load(mesh_path)
-		preload("res://campaign/catalog.gd").apply_arrow_finish(mesh, arrow_id)
-		var bounds := mesh.mesh.get_aabb(); var width_scale := minf(.8, .085 / maxf(bounds.size.x, bounds.size.z))
-		mesh.scale = Vector3(width_scale, 1.0 / bounds.size.y, width_scale); mesh.rotation.x = -PI / 2; mesh.position.z = bounds.end.y * mesh.scale.y; add_child(mesh)
-
-	if key in ["lightning", "super_lightning", "ultimate"]: mesh.visible = false
+	mesh.name = "ArrowModel"
+	mesh.mesh = load(mesh_path)
+	preload("res://campaign/catalog.gd").apply_arrow_finish(mesh, arrow_id)
+	var bounds := mesh.mesh.get_aabb()
+	var width_scale := minf(.8, .085 / maxf(bounds.size.x, bounds.size.z))
+	mesh.scale = Vector3(width_scale, .72 / bounds.size.y, width_scale)
+	mesh.rotation.x = -PI / 2
+	# Physics traces the leading tip; the shaft extends back to the released nock.
+	mesh.position.z = bounds.end.y * mesh.scale.y
+	add_child(mesh)
+	# Keep the equipped arrow visible; its elemental light comes from the VFX.
 	vfx = preload("res://campaign/power_vfx.gd").new(); vfx.projectile = self; add_child(vfx)
 
 func _physics_process(delta: float) -> void:
@@ -81,7 +63,7 @@ func _physics_process(delta: float) -> void:
 			excluded_rids.append(col.get_rid())
 			game.current_hit_actor_id=col.get_instance_id();game.current_shot_id = score_id
 			game.last_hit_position = hit.position
-			var accepted: bool = col.campaign_hit(hit.position, power, {"shot_id": shot_id, "pierce": true, "pierced_count": pierced_count})
+			var accepted: bool = col.campaign_hit(hit.position, power, {"shot_id": shot_id, "pierce": true, "pierced_count": pierced_count, "power_key":str(ability.get("key","normal")), "draw_ratio":float(ability.get("draw_ratio",1)), "direct":true, "hit_shape":int(hit.get("shape",-1))})
 
 			# Ascending chime pitch for consecutive threaded hits: C, E, G, C
 			var pitch: float = 1.0 + float(pierced_count - 1) * 0.25
@@ -90,7 +72,9 @@ func _physics_process(delta: float) -> void:
 			elif game.has_method("play_sound"):
 				game.play_sound("res://campaign/audio/crystal_orb.wav", pitch)
 
-			if is_instance_valid(vfx): vfx.impact(hit.position, game.stage)
+			if accepted:
+				if is_instance_valid(vfx): vfx.impact(hit.position, game.stage)
+				_apply_secondary(col, hit.position)
 			if pierced_count >= 2:
 				game.feedback("★ Thread Shot · %d in 1 Arrow!" % pierced_count)
 
@@ -166,11 +150,17 @@ func _apply_secondary(primary:Node3D,point:Vector3) -> void:
 		var chosen:Node3D
 		for actor in candidates:
 			var query:=PhysicsRayQueryParameters3D.create(origin+Vector3(0,.15,0),actor.global_position+Vector3(0,.4,0),13)
-			for previous in visited:query.exclude.append(previous.get_rid())
+			var chain_exclusions: Array[RID] = []
+			for previous in visited:
+				if is_instance_valid(previous): chain_exclusions.append(previous.get_rid())
+			query.exclude = chain_exclusions
 			var hit:Dictionary=get_world_3d().direct_space_state.intersect_ray(query)
 			if not hit.is_empty() and hit.collider==actor:chosen=actor;break
 		if not is_instance_valid(chosen):break
 		game.secondary_damage=true;chosen.campaign_secondary_hit(baseline*float(multiplier),shot_id*1000+visited.size());game.secondary_damage=false
+		if is_instance_valid(vfx):
+			vfx.chain(origin, chosen.global_position + Vector3(0,.4,0), game.stage)
+			vfx.impact(chosen.global_position + Vector3(0,.4,0), game.stage)
 		visited.append(chosen)
 		if key in ["lightning","super_lightning"]:origin=chosen.global_position+Vector3(0,.4,0)
 

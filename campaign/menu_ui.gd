@@ -1721,7 +1721,7 @@ func hud() -> void:
 	var message_y:float=210.0/maxf(1,g.ui.size.y) if g.is_combat() else (0.31 if not compact else 0.37)
 	g.hud_message=_overlay_label("",16 if g.is_combat() else 20,message_y,0.62,50 if g.is_combat() else 70)
 	g.hud_ready=_ready_banner()
-	g.hud_cross=_overlay_label("+",29,0.5,0.07,42);g.hud_cross.vertical_alignment=VERTICAL_ALIGNMENT_CENTER
+	g.hud_cross=_overlay_label("+",20,0.5,0.07,32);g.hud_cross.vertical_alignment=VERTICAL_ALIGNMENT_CENTER
 	g.hud_draw=ProgressBar.new();g.hud_draw.show_percentage=false;g.hud_draw.max_value=1
 	g.hud_draw.set_anchors_and_offsets_preset(Control.PRESET_CENTER);g.hud_draw.offset_left=-44;g.hud_draw.offset_right=44;g.hud_draw.offset_top=35;g.hud_draw.offset_bottom=41;g.ui.add_child(g.hud_draw)
 	g.hud_draw.visible=not g.is_combat()
