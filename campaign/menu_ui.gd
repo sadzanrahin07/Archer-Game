@@ -9,6 +9,11 @@ var height:=720.0
 var preview_drag:=false
 var preview_distance:=0.0
 var header_coin: Label = null
+var reference_ui:=false
+const PARCHMENT=Color("f4ead2")
+const ANTIQUE_GOLD=Color("d4b875")
+const MUTED_GOLD=Color("b6ad96")
+var serif: SystemFont
 var font_title: FontFile = load("res://assets/ui/flat-ui/fonts/Baloo2-ExtraBold.ttf") if ResourceLoader.exists("res://assets/ui/flat-ui/fonts/Baloo2-ExtraBold.ttf") else null
 var font_body: FontFile = load("res://assets/ui/flat-ui/fonts/Nunito-Bold.ttf") if ResourceLoader.exists("res://assets/ui/flat-ui/fonts/Nunito-Bold.ttf") else null
 var font_semi: FontFile = load("res://assets/ui/flat-ui/fonts/Nunito-SemiBold.ttf") if ResourceLoader.exists("res://assets/ui/flat-ui/fonts/Nunito-SemiBold.ttf") else null
@@ -16,13 +21,15 @@ var font_mono: FontFile = load("res://assets/ui/flat-ui/fonts/RobotoMono-Regular
 
 func _init(context:Node) -> void:
 	g=context
+	reference_ui=g.page in ["home","inventory","characters","settings"]
+	serif=SystemFont.new();serif.font_names=PackedStringArray(["Baskerville","Georgia","Noto Serif","DejaVu Serif","serif"])
 	width=g.ui.size.x;height=g.ui.size.y
 	portrait=false # One landscape composition on desktop, tablet and phone.
-	compact=width<1000 or height<590
+	compact=width<1000 or height<590 or (reference_ui and g.get_viewport().get_visible_rect().size.y<590)
 
 func begin() -> void:
 	g._clear_ui()
-	if g.page in ["levels","settings"]:
+	if g.page=="levels":
 		var dim_bg:=ColorRect.new()
 		dim_bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		dim_bg.color=Color(0.02,0.05,0.04,0.60)
@@ -36,10 +43,11 @@ func begin() -> void:
 
 func label(parent:Node,text:String,font_size:int=20,muted:bool=false,title_font:bool=false) -> Label:
 	var node:=Label.new();node.text=text;node.autowrap_mode=TextServer.AUTOWRAP_OFF
-	if title_font and font_title!=null:node.add_theme_font_override("font",font_title)
+	if reference_ui:node.add_theme_font_override("font",serif)
+	elif title_font and font_title!=null:node.add_theme_font_override("font",font_title)
 	elif font_body!=null:node.add_theme_font_override("font",font_body)
 	node.add_theme_font_size_override("font_size",font_size)
-	node.add_theme_color_override("font_color",FlatUiTokens.SLATE if muted else Color.WHITE)
+	node.add_theme_color_override("font_color",(MUTED_GOLD if muted else PARCHMENT) if reference_ui else (FlatUiTokens.SLATE if muted else Color.WHITE))
 	node.add_theme_color_override("font_outline_color",Color(0.02,0.03,0.06,0.9))
 	node.add_theme_constant_override("outline_size",1)
 	node.mouse_filter=Control.MOUSE_FILTER_IGNORE
@@ -60,11 +68,44 @@ func button(parent:Node,text:String,action:Callable,primary:bool=false) -> Butto
 		node.add_theme_font_size_override("font_size",maxi(20,ceili(16.0/g.ui_scale)))
 	else:
 		node.add_theme_font_size_override("font_size",maxi(20,ceili(16.0/g.ui_scale)))
+	if reference_ui:node.add_theme_font_override("font",serif)
 	style_button(node,"primary" if primary else "action")
 	node.pressed.connect(func():g.play_sound("res://campaign/audio/click.mp3");action.call_deferred())
 	parent.add_child(node);return node
 
 func style_button(node:Button,role:String,selected:bool=false) -> void:
+	if not reference_ui:
+		_legacy_style_button(node,role,selected);return
+	var gold_action:bool=role in ["primary","select","buy","equip"]
+	var active:bool=selected or gold_action
+	for state_name in ["normal","hover","pressed","disabled","focus"]:
+		var fill:=Color(0.035,0.055,0.043,0.88)
+		var edge:=Color(0.72,0.62,0.39,0.45)
+		if gold_action:fill=Color(0.43,0.31,0.12,0.94);edge=ANTIQUE_GOLD
+		elif selected or role=="upgrade":fill=Color(0.22,0.24,0.105,0.92);edge=Color(0.72,0.65,0.36,0.8)
+		if state_name in ["hover","focus"]:fill=fill.lightened(.09);edge=ANTIQUE_GOLD
+		if state_name=="pressed":fill=fill.darkened(.16)
+		if state_name=="disabled":fill=Color(.035,.045,.035,.84);edge=Color(.52,.48,.34,.30)
+		var box:StyleBoxFlat=g._box(fill,edge)
+		box.set_corner_radius_all(6);box.set_border_width_all(1)
+		if active and state_name!="disabled":
+			box.shadow_color=Color(.88,.68,.25,.10);box.shadow_size=4
+		node.add_theme_stylebox_override(state_name,box)
+		node.add_theme_color_override("font_color" if state_name=="normal" else "font_"+state_name+"_color",Color("8e8b79") if state_name=="disabled" else PARCHMENT)
+	node.add_theme_font_override("font",serif)
+	node.add_theme_constant_override("outline_size",0)
+	node.set_meta("button_role",role)
+
+func rule(parent:Node) -> void:
+	var line:=HSeparator.new();var skin:=StyleBoxLine.new()
+	skin.color=Color(.77,.66,.42,.5);skin.thickness=1
+	line.add_theme_stylebox_override("separator",skin);parent.add_child(line)
+
+func section_title(parent:Node,title:String) -> void:
+	label(parent,title,22 if compact else 26,false,true)
+	rule(parent)
+
+func _legacy_style_button(node:Button,role:String,selected:bool=false) -> void:
 	for state_name in ["normal","hover","pressed","disabled","focus"]:
 		var fill:=Color(0.025,0.10,0.075,0.94)
 		var border:=Color(0.74,0.90,0.80,0.40)
@@ -138,7 +179,7 @@ func style_button(node:Button,role:String,selected:bool=false) -> void:
 
 func tab_button(parent:Node,text:String,action:Callable,selected:bool=false) -> Button:
 	var node:=button(parent,text.to_upper(),action);style_button(node,"tab",selected)
-	node.add_theme_font_size_override("font_size",14 if compact else 16)
+	node.add_theme_font_size_override("font_size",maxi(16,ceili(13.0/g.ui_scale)) if reference_ui else (14 if compact else 16))
 	node.custom_minimum_size.y=maxf(52,44/g.ui_scale)
 	return node
 
@@ -150,8 +191,8 @@ func meter(parent:Node,title:String,amount:int,total:int) -> void:
 	var bar:=ProgressBar.new();bar.show_percentage=false;bar.max_value=maxi(1,total);bar.value=amount
 	bar.custom_minimum_size.y=6 if compact else 8
 	bar.size_flags_horizontal=Control.SIZE_EXPAND_FILL
-	bar.add_theme_stylebox_override("background",FlatUiTokens.caixa(FlatUiTokens.CHIP,3))
-	bar.add_theme_stylebox_override("fill",FlatUiTokens.caixa(FlatUiTokens.ACTION_MINT,3))
+	bar.add_theme_stylebox_override("background",FlatUiTokens.caixa(Color(.10,.12,.08,.9) if reference_ui else FlatUiTokens.CHIP,3))
+	bar.add_theme_stylebox_override("fill",FlatUiTokens.caixa(ANTIQUE_GOLD if reference_ui else FlatUiTokens.ACTION_MINT,3))
 	parent.add_child(bar)
 
 func stat_bar(parent:Node,label_text:String,current_val:float,max_val:float,val_text:String,fill_color:Color=Color("83b99a"),icon_glyph:String="") -> void:
@@ -198,6 +239,9 @@ func card(parent:Node,padding:int=20) -> VBoxContainer:
 	style.set_border_width_all(1)
 	style.set_content_margin_all(0)
 	panel.add_theme_stylebox_override("panel",style)
+	if reference_ui:
+		style.bg_color=Color(.025,.043,.031,.88);style.border_color=Color(.71,.61,.38,.58)
+		style.set_corner_radius_all(10)
 	parent.add_child(panel)
 	var margin:=MarginContainer.new()
 	for edge in ["left","right","top","bottom"]:margin.add_theme_constant_override("margin_"+edge,padding)
@@ -251,18 +295,21 @@ func image_card(parent:Node,title:String,detail:String,image_path:String,action:
 	var node:=Button.new()
 	node.custom_minimum_size=card_size
 	node.size_flags_horizontal=Control.SIZE_EXPAND_FILL
-	var bg_color:=Color(0.10,0.24,0.18,0.96) if selected else Color(0.025,0.085,0.055,0.88)
-	var border_color:=Color(0.78,0.94,0.85,0.85) if selected else Color(0.74,0.90,0.80,0.35)
+	var bg_color:=Color(.21,.22,.10,.92) if selected else Color(.025,.043,.031,.83)
+	var border_color:=Color("ecd18c") if selected else Color(.71,.61,.38,.40)
 	var box_normal:StyleBoxFlat=g._box(bg_color,border_color)
-	box_normal.set_corner_radius_all(12)
+	box_normal.set_corner_radius_all(6)
 	box_normal.set_border_width_all(2 if selected else 1)
+	if selected:
+		box_normal.shadow_color=Color(.98,.79,.35,.20);box_normal.shadow_size=5
 	node.add_theme_stylebox_override("normal",box_normal)
 	var box_hover:StyleBoxFlat=g._box(bg_color.lightened(0.08),border_color.lightened(0.2))
-	box_hover.set_corner_radius_all(12)
+	box_hover.set_corner_radius_all(6)
 	box_hover.set_border_width_all(2)
 	node.add_theme_stylebox_override("hover",box_hover)
+	node.add_theme_stylebox_override("focus",box_hover)
 	var box_pressed:StyleBoxFlat=g._box(bg_color.darkened(0.08),border_color)
-	box_pressed.set_corner_radius_all(12)
+	box_pressed.set_corner_radius_all(6)
 	box_pressed.set_border_width_all(2)
 	node.add_theme_stylebox_override("pressed",box_pressed)
 	parent.add_child(node)
@@ -313,13 +360,13 @@ func image_card(parent:Node,title:String,detail:String,image_path:String,action:
 		lock_lbl.mouse_filter=Control.MOUSE_FILTER_IGNORE
 		lock_chip.add_child(lock_lbl)
 	
-	var title_lbl:=label(box,title,12 if compact else 14,false,true)
+	var title_lbl:=label(box,title,18 if compact else 16,false,true)
 	title_lbl.autowrap_mode=TextServer.AUTOWRAP_OFF
 	title_lbl.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS
 	title_lbl.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
 	title_lbl.add_theme_color_override("font_color",Color("f1f6f3"))
 	
-	var sub_lbl:=label(box,detail,10 if compact else 12,true)
+	var sub_lbl:=label(box,detail,13 if compact else 12,true)
 	sub_lbl.autowrap_mode=TextServer.AUTOWRAP_OFF
 	sub_lbl.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS
 	sub_lbl.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
@@ -339,7 +386,7 @@ func image_card(parent:Node,title:String,detail:String,image_path:String,action:
 		)
 	return node
 
-func coin_capsule(parent:Node) -> PanelContainer:
+func _legacy_coin_capsule(parent:Node) -> PanelContainer:
 	var pill:=PanelContainer.new()
 	var pill_box:StyleBoxFlat=FlatUiTokens.caixa(Color(0.025,0.085,0.055,0.92),14)
 	pill_box.border_color=Color(0.74,0.90,0.80,0.45);pill_box.set_border_width_all(1)
@@ -386,7 +433,22 @@ func coin_capsule(parent:Node) -> PanelContainer:
 	row_box.add_child(plus_btn)
 	return pill
 
-func header(title:String,back:Callable=Callable()) -> void:
+
+func coin_capsule(parent:Node) -> PanelContainer:
+	if not reference_ui:return _legacy_coin_capsule(parent)
+	var pill:=PanelContainer.new();pill.name="Currency"
+	var skin:StyleBoxFlat=g._box(Color(.025,.043,.031,.80),Color(.71,.61,.38,.45))
+	skin.set_corner_radius_all(6);pill.add_theme_stylebox_override("panel",skin)
+	pill.size_flags_horizontal=Control.SIZE_SHRINK_END;pill.size_flags_vertical=Control.SIZE_SHRINK_CENTER
+	parent.add_child(pill)
+	var line:=row(pill,8)
+	var icon:=label(line,"◉",24);icon.size_flags_horizontal=Control.SIZE_SHRINK_BEGIN;icon.add_theme_color_override("font_color",ANTIQUE_GOLD)
+	header_coin=label(line,str(g.profile.data.coins),22)
+	header_coin.size_flags_horizontal=Control.SIZE_SHRINK_BEGIN
+	var more:=button(line,"+",g.show_store);more.custom_minimum_size=Vector2.ONE*maxf(44,44/g.ui_scale);more.size_flags_horizontal=Control.SIZE_SHRINK_END
+	more.tooltip_text="Visit the store";return pill
+
+func _legacy_header(title:String,back:Callable=Callable()) -> void:
 	var box:=card(shell,10 if compact else 14);var line:=row(box)
 	if back.is_valid():
 		var b:=button(line,"‹ Back",back);b.size_flags_horizontal=Control.SIZE_SHRINK_BEGIN;b.custom_minimum_size=Vector2(116,maxf(56,48/g.ui_scale))
@@ -395,11 +457,26 @@ func header(title:String,back:Callable=Callable()) -> void:
 	label(title_box,title,20 if compact else 26,false,true)
 	coin_capsule(line)
 
+
+func header(title:String,back:Callable=Callable()) -> void:
+	if not reference_ui:
+		_legacy_header(title,back);return
+	var heading_panel:=card(shell,10)
+	var line:=row(heading_panel,18);line.name="MenuHeader"
+	if back.is_valid():
+		var b:=button(line,"‹  Back",back);b.size_flags_horizontal=Control.SIZE_SHRINK_BEGIN;b.custom_minimum_size=Vector2(112,maxf(52,44/g.ui_scale))
+		style_button(b,"cycle")
+	var title_box:=VBoxContainer.new();title_box.size_flags_horizontal=Control.SIZE_EXPAND_FILL;line.add_child(title_box)
+	label(title_box,title,30 if compact else 36,false,true)
+	rule(title_box)
+	coin_capsule(line)
+
 func preview(parent:Node) -> Control:
 	var area:=Control.new();area.custom_minimum_size=Vector2(100,45 if compact else 80)
 	area.size_flags_horizontal=Control.SIZE_EXPAND_FILL;area.size_flags_vertical=Control.SIZE_EXPAND_FILL
 	area.mouse_filter=Control.MOUSE_FILTER_STOP;parent.add_child(area)
 	var hint:=Label.new();hint.text="Drag to rotate equipment" if g.page=="inventory" and g.inventory_tab in ["bow","arrow"] else "Drag to rotate · Tap to draw";hint.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
+	if reference_ui:hint.add_theme_font_override("font",serif)
 	hint.add_theme_font_size_override("font_size",15 if compact else 17);hint.add_theme_constant_override("outline_size",2)
 	hint.add_theme_color_override("font_outline_color",Color(0,0,0,0.8));hint.mouse_filter=Control.MOUSE_FILTER_IGNORE
 	hint.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE);hint.offset_top=-28;hint.offset_bottom=0;area.add_child(hint)
@@ -446,17 +523,6 @@ func _fit_preview(area:Control) -> void:
 	var shift:Vector3=camera.project_position(viewport_size*0.5,distance)-camera.project_position(center,distance)
 	camera.look_at(target+shift)
 
-# The lobby keeps the original forest palette; other screens have their own styling.
-func _lobby_label(parent:Node,text:String,font_size:int=20,muted:bool=false) -> Label:
-	var node:=Label.new();node.text=text
-	node.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
-	node.add_theme_font_override("font",ThemeDB.fallback_font)
-	node.add_theme_font_size_override("font_size",font_size)
-	node.add_theme_color_override("font_color",Color("c7dad1") if muted else Color("f1f6f3"))
-	node.mouse_filter=Control.MOUSE_FILTER_IGNORE
-	node.size_flags_horizontal=Control.SIZE_EXPAND_FILL
-	parent.add_child(node);return node
-
 func _lobby_panel(parent:Node,padding:int=16) -> VBoxContainer:
 	var box:=card(parent,padding)
 	var style:StyleBoxFlat=g._box(Color(0.025,0.085,0.055,0.82),Color(0.74,0.9,0.8,0.58))
@@ -465,99 +531,57 @@ func _lobby_panel(parent:Node,padding:int=16) -> VBoxContainer:
 	box.add_theme_constant_override("separation",6 if compact else 10)
 	return box
 
-func _lobby_button(parent:Node,text:String,action:Callable,primary:bool=false) -> Button:
-	var node:=button(parent,text,action)
-	node.add_theme_font_override("font",ThemeDB.fallback_font)
-	node.add_theme_font_size_override("font_size",17 if compact else 20)
-	node.custom_minimum_size.y=maxf(56,48/g.ui_scale)
-	for state_name in ["normal","hover","pressed","disabled","focus"]:
-		var fill:=Color(0.025,0.10,0.075,0.94)
-		if primary:fill=Color(0.20,0.39,0.30,0.95)
-		if state_name in ["hover","focus"]:fill=fill.lightened(0.12)
-		if state_name=="pressed":fill=fill.darkened(0.12)
-		var style:StyleBoxFlat=g._box(fill,Color(0.78,0.94,0.85,0.7 if primary else 0.5))
-		style.set_corner_radius_all(14)
-		node.add_theme_stylebox_override(state_name,style)
-		node.add_theme_color_override("font_color" if state_name=="normal" else "font_"+state_name+"_color",Color("f1f6f3") if state_name!="disabled" else Color("8ba398"))
-	return node
-
-func _lobby_stat(parent:Node,title:String,value_text:String,value:float,maximum:float) -> void:
-	var box:=VBoxContainer.new();box.add_theme_constant_override("separation",3);parent.add_child(box)
-	var heading:=row(box,6)
-	_lobby_label(heading,title,13 if compact else 15,true)
-	var number:=_lobby_label(heading,value_text,14 if compact else 16)
-	number.size_flags_horizontal=Control.SIZE_SHRINK_END
-	number.autowrap_mode=TextServer.AUTOWRAP_OFF
-	var bar:=ProgressBar.new();bar.show_percentage=false;bar.max_value=maxf(maximum,1);bar.value=value
-	bar.custom_minimum_size.y=6 if compact else 8
-	bar.add_theme_stylebox_override("background",FlatUiTokens.caixa(Color(0.03,0.10,0.07,0.85),4))
-	bar.add_theme_stylebox_override("fill",FlatUiTokens.caixa(Color("83b99a"),4))
-	box.add_child(bar)
 
 func home() -> void:
-	compact=height<650 or g.get_viewport().get_visible_rect().size.y<480
-	begin()
-	shell.add_theme_constant_override("separation",10 if compact else 14)
-	# Match the original broad header and open center, without a tinted hero frame.
-	var top:=_lobby_panel(shell,12 if compact else 18)
-	panel_of(top).name="LobbyHeader"
-	var title_row:=row(top)
-	var titles:=VBoxContainer.new();titles.size_flags_horizontal=Control.SIZE_EXPAND_FILL;title_row.add_child(titles)
-	_lobby_label(titles,"ARCHER GAME",25 if compact else 30)
-	coin_capsule(title_row)
-
-	var middle:=row(shell,14 if compact else 22);middle.size_flags_vertical=Control.SIZE_EXPAND_FILL
-	var info:=_lobby_panel(middle,14 if compact else 18)
-	var stats_panel:=panel_of(info);stats_panel.name="LobbyCharacterStats"
-	stats_panel.custom_minimum_size.x=248 if compact else 278
-	stats_panel.size_flags_horizontal=Control.SIZE_FILL;stats_panel.size_flags_vertical=Control.SIZE_SHRINK_CENTER
-	_lobby_label(info,"SELECTED ARCHER",14 if compact else 16,true)
-	_lobby_label(info,g._character_name(),24 if compact else 28)
-	var skin_name:String=g.Catalog.COSTUMES[int(g.profile.data.costume)].name if int(g.profile.data.character)==1 else ""
-	_lobby_label(info,(skin_name+" · " if not skin_name.is_empty() else "")+"Level %d / 100"%g.profile.level(),15 if compact else 17,true)
-	# These are live combat values, not placeholder percentages.
-	var bow:Dictionary=g.Catalog.BOWS[int(g.profile.data.equipped_bow)]
-	var arrow:Dictionary=g.Catalog.ARROWS[int(g.profile.data.equipped_arrow)]
-	var max_power:float=float(arrow.power)*(1+0.015*(int(arrow.max_level)-1))*float(bow.multiplier)*(1+0.015*(int(bow.max_level)-1))*g.profile.character_power()/(1+0.012*(g.profile.level()-1))*2.188
-	_lobby_stat(info,"POWER","%.1f"%g.profile.power(),g.profile.power(),max_power)
-	_lobby_stat(info,"ARROW SPEED","%.1f m/s"%g.profile.flight_speed(),g.profile.flight_speed(),float(bow.speed)*38.5)
-	_lobby_stat(info,"DRAW TIME","%.2f s"%g.profile.draw_time(),1.0/g.profile.draw_time(),1.0/(.65*float(bow.draw)))
-	_lobby_stat(info,"ACCURACY","%.0f%%"%(g.profile.accuracy()*100),g.profile.accuracy()*100,100)
-	_lobby_label(info,"%s · Lv. %d\n%s · Lv. %d"%[g.profile.bow_name(),g.profile.data.bow_level,g.profile.arrow_name(),g.profile.data.arrow_level],14 if compact else 16,true)
-	var status:=_lobby_label(info,"✓ Equipped",14 if compact else 16,true)
-	status.add_theme_color_override("font_color",Color("a8d5b8"))
+	begin();shell.add_theme_constant_override("separation",12)
+	var top:=row(shell,16);top.name="LobbyHeader"
+	var heading:=VBoxContainer.new();heading.size_flags_horizontal=Control.SIZE_EXPAND_FILL;top.add_child(heading)
+	label(heading,"Arrowglade",36 if compact else 46,false,true)
+	var ornament:=label(heading,"────────  ❧  ────────",15,true);ornament.add_theme_color_override("font_color",ANTIQUE_GOLD)
+	coin_capsule(top)
+	var middle:=row(shell,24);middle.size_flags_vertical=Control.SIZE_EXPAND_FILL
+	var info:=card(middle,14);var info_panel:=panel_of(info)
+	info_panel.name="LobbyCharacterStats";info_panel.custom_minimum_size.x=252
+	info_panel.size_flags_horizontal=Control.SIZE_FILL;info_panel.size_flags_vertical=Control.SIZE_SHRINK_END
+	info.add_theme_constant_override("separation",8)
+	label(info,g._character_name(),26,false,true)
+	label(info,"Lv. %d"%g.profile.level(),23)
+	meter(info,"XP  %d / %d"%[g.profile.xp_in_level(),g.profile.xp_requirement()],g.profile.xp_in_level(),g.profile.xp_requirement())
+	for kind in ["bow","arrow"]:
+		var item_id:int=int(g.profile.data["equipped_"+kind])
+		var equipment:=card(info,10);var equipment_row:=row(equipment,10)
+		var art:=TextureRect.new();art.custom_minimum_size=Vector2(48,48);art.expand_mode=TextureRect.EXPAND_IGNORE_SIZE;art.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		art.texture=load(_item_image_path(kind,item_id));equipment_row.add_child(art)
+		var text:=VBoxContainer.new();text.size_flags_horizontal=Control.SIZE_EXPAND_FILL;equipment_row.add_child(text)
+		label(text,g.profile.bow_name() if kind=="bow" else g.profile.arrow_name(),17)
+		label(text,"Lv. %d"%int(g.profile.data[kind+"_level"]),14,true)
 	var hero_preview:=preview(middle);hero_preview.name="LobbyHeroPreview"
-	var can_cycle:bool=g.profile.data.owned_characters.size()>1
-	for direction in [-1,1]:
-		var step:int=direction
-		var cycle_button:=button(hero_preview,"‹" if step<0 else "›",func():g._cycle_character(step))
-		cycle_button.name="PreviousCharacter" if step<0 else "NextCharacter"
-		cycle_button.disabled=not can_cycle;style_button(cycle_button,"cycle")
-		var side:float=maxf(56,48/g.ui_scale)
-		cycle_button.set_anchor(SIDE_LEFT,0 if step<0 else 1);cycle_button.set_anchor(SIDE_RIGHT,0 if step<0 else 1)
-		cycle_button.set_anchor(SIDE_TOP,.5);cycle_button.set_anchor(SIDE_BOTTOM,.5)
-		cycle_button.offset_left=0 if step<0 else -side;cycle_button.offset_right=side if step<0 else 0
-		cycle_button.offset_top=-side*.5;cycle_button.offset_bottom=side*.5
-		cycle_button.tooltip_text="Previous archer" if step<0 else "Next archer"
-
-	var journey:=_lobby_panel(middle,14 if compact else 18)
-	var journey_panel:=panel_of(journey);journey_panel.name="LobbyJourney"
-	journey_panel.custom_minimum_size.x=232 if compact else 265
-	journey_panel.size_flags_horizontal=Control.SIZE_FILL;journey_panel.size_flags_vertical=Control.SIZE_SHRINK_CENTER
+	if g.profile.data.owned_characters.size()>1:
+		for direction in [-1,1]:
+			var step:int=direction
+			var cycle:=button(hero_preview,"‹" if step<0 else "›",func():g._cycle_character(step))
+			cycle.name="PreviousCharacter" if step<0 else "NextCharacter"
+			cycle.set_anchor(SIDE_LEFT,0 if step<0 else 1);cycle.set_anchor(SIDE_RIGHT,0 if step<0 else 1)
+			cycle.set_anchor(SIDE_TOP,.5);cycle.set_anchor(SIDE_BOTTOM,.5)
+			cycle.offset_left=0 if step<0 else -48;cycle.offset_right=48 if step<0 else 0
+			cycle.offset_top=-28;cycle.offset_bottom=28;cycle.custom_minimum_size=Vector2(48,56)
+	# Keep the existing forest and the live hero unobstructed, as in the showcase reference.
+	var journey:=card(middle,14);var journey_panel:=panel_of(journey)
+	journey_panel.name="LobbyJourney";journey_panel.custom_minimum_size.x=226
+	journey_panel.size_flags_horizontal=Control.SIZE_FILL;journey_panel.size_flags_vertical=Control.SIZE_SHRINK_END
 	var definition:Dictionary=g.definitions[g.selected_stage]
-	_lobby_label(journey,"CONTINUE YOUR JOURNEY",13 if compact else 15,true)
-	_lobby_label(journey,str(definition.chapter),23 if compact else 27)
-	_lobby_label(journey,"Stage %d / 5 · %s"%[g.selected_stage%5+1,definition.name],17 if compact else 20,true)
-	_lobby_label(journey,g.preparation_hint(definition),13 if compact else 15,true)
-	button(journey,"UPGRADE LOADOUT",g.show_collection,true)
-	_lobby_label(journey,"Restoration journal · %d / 20"%g.profile.data.chapter_rewards.size(),13 if compact else 15,true)
-
-	var footer:=_lobby_panel(shell,8 if compact else 10);panel_of(footer).name="LobbyNavigation"
-	var navigation:=row(footer,6 if compact else 10)
-	var names:=["Levels","Store","Collection","Characters","Settings"]
-	var actions:Array[Callable]=[g.show_levels,g.show_store,g.show_collection,g.show_characters,g.show_settings]
-	for i in range(names.size()):_lobby_button(navigation,names[i],actions[i])
-	_lobby_button(navigation,"PLAY  ›",func():g.start_stage(g.selected_stage),true)
+	label(journey,"YOUR NEXT JOURNEY",12,true)
+	label(journey,str(definition.chapter),24,false,true)
+	label(journey,"Stage %d · %s"%[g.selected_stage%5+1,definition.name],16,true).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	var footer:=card(shell,9);panel_of(footer).name="LobbyNavigation"
+	var nav:=row(footer,8)
+	var play:=button(nav,"Play  ›",func():g.start_stage(g.selected_stage),true);play.name="PlayButton"
+	play.size_flags_stretch_ratio=1.25;play.custom_minimum_size.y=62 if not compact else 56
+	for entry in [["Levels",g.show_levels],["Store",g.show_store],["Collection",g.show_collection],["Archers",g.show_characters],["Settings",g.show_settings]]:
+		var item:=button(nav,entry[0],entry[1]);item.name=entry[0]+"Navigation";style_button(item,"nav")
+		var icon_name:String={"Levels":"map","Store":"store","Collection":"bow","Archers":"archer","Settings":"settings"}[entry[0]]
+		item.icon=load("res://campaign/ui/"+icon_name+".svg");item.add_theme_constant_override("h_separation",10)
+		item.expand_icon=true;item.add_theme_constant_override("icon_max_width",22)
 
 func readiness(parent:Node,definition:Dictionary) -> void:
 	var total_hp:int=0
@@ -605,9 +629,9 @@ func _power_selector(parent:Node,in_game:bool=false) -> void:
 	box.add_theme_constant_override("separation",6)
 	parent.add_child(box)
 	label(box,"POWERS · Mastery Lv. %d"%g.profile.power_level(),12,false,true)
-	label(box,"Equipped bow Lv. %d · arrow Lv. %d. Both must reach each unlock."%[g.profile.data.bow_level,g.profile.data.arrow_level],11,true)
+	label(box,"Bow Lv. %d · Arrow Lv. %d. Train both to unlock."%[g.profile.data.bow_level,g.profile.data.arrow_level],12,true).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 	var grid:=GridContainer.new()
-	grid.columns=3
+	grid.columns=2 if reference_ui else 3
 	grid.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	grid.add_theme_constant_override("h_separation",6)
 	grid.add_theme_constant_override("v_separation",8)
@@ -640,10 +664,12 @@ func _power_selector(parent:Node,in_game:bool=false) -> void:
 		icon_button.add_child(icon)
 		var title:=label(cell,str(power.name),11,true)
 		title.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
-		title.modulate=Color.WHITE if unlocked else Color("82958b")
+		title.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+		title.modulate=Color.WHITE if unlocked else Color("a39b83")
 		var state:=label(cell,"✓ Selected" if unlocked and key==g.selected_power else ("Available" if unlocked else g.profile.get_power_lock_reason(key)),10,true)
 		state.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
-		state.add_theme_color_override("font_color",Color("a8d5b8") if unlocked else Color("82958b"))
+		state.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+		state.add_theme_color_override("font_color",ANTIQUE_GOLD if reference_ui else Color("a8d5b8") if unlocked else Color("a39b83"))
 		buttons[key]={"button":icon_button,"state":state}
 		icon_button.pressed.connect(func():
 			if not g.profile.power_is_unlocked(key):return
@@ -884,70 +910,18 @@ func levels() -> void:
 	style_button(select_btn,"primary")
 
 func inventory() -> void:
-	begin()
-	var top_box:=card(shell,6 if compact else 8)
-	var line:=row(top_box,8 if compact else 12)
-
-	var b:=button(line,"‹ Back",g.show_home)
-	b.size_flags_horizontal=Control.SIZE_SHRINK_BEGIN
-	b.custom_minimum_size=Vector2(116,maxf(56,48/g.ui_scale))
-	style_button(b,"cycle")
-
-	var title_lbl:=label(line,"STORE" if g.shop_mode=="store" else "COLLECTION",16 if compact else 20,false,true)
-	title_lbl.size_flags_horizontal=Control.SIZE_SHRINK_BEGIN
-	title_lbl.autowrap_mode=TextServer.AUTOWRAP_OFF
-
-	var segment_panel:=PanelContainer.new()
-	segment_panel.size_flags_horizontal=Control.SIZE_EXPAND_FILL
-	segment_panel.size_flags_vertical=Control.SIZE_SHRINK_CENTER
-	var seg_box:=FlatUiTokens.caixa(Color(0.02,0.07,0.05,0.92),12)
-	seg_box.border_color=Color(0.74,0.90,0.80,0.35);seg_box.set_border_width_all(1)
-	segment_panel.add_theme_stylebox_override("panel",seg_box)
-	line.add_child(segment_panel)
-
-	var seg_margin:=MarginContainer.new()
-	seg_margin.add_theme_constant_override("margin_left",4);seg_margin.add_theme_constant_override("margin_right",4)
-	seg_margin.add_theme_constant_override("margin_top",4);seg_margin.add_theme_constant_override("margin_bottom",4)
-	segment_panel.add_child(seg_margin)
-
-	var categories:=HBoxContainer.new()
-	categories.size_flags_horizontal=Control.SIZE_EXPAND_FILL
-	categories.alignment=BoxContainer.ALIGNMENT_CENTER
-	categories.add_theme_constant_override("separation",6)
-	seg_margin.add_child(categories)
-
-	var tab_names:=[["BOWS","bow"],["ARROWS","arrow"],["ARCHERS","character"]]
-	for pair in tab_names:
+	begin();header("Store" if g.shop_mode=="store" else "Collection",g.show_home)
+	var tabs:=row(shell,8);tabs.name="InventoryCategories"
+	for pair in [["Bows","bow"],["Arrows","arrow"],["Archers","character"]]:
 		var tab:String=pair[1]
-		var is_sel:bool=(g.inventory_tab==tab or (tab=="character" and g.inventory_tab=="costumes"))
-		var t_btn:=Button.new()
-		t_btn.text=pair[0]
-		t_btn.clip_text=false
-		t_btn.size_flags_horizontal=Control.SIZE_EXPAND_FILL
-		t_btn.custom_minimum_size=Vector2(96 if compact else 114,38 if compact else 44)
-		if font_title!=null:t_btn.add_theme_font_override("font",font_title)
-		t_btn.add_theme_font_size_override("font_size",13 if compact else 15)
-		for st in ["normal","hover","pressed","focus","disabled"]:
-			var t_box:StyleBoxFlat
-			if is_sel:
-				t_box=FlatUiTokens.caixa(Color(0.20,0.39,0.30,0.98),8)
-				t_box.border_color=Color(0.78,0.94,0.85,0.80);t_box.set_border_width_all(1)
-				t_btn.add_theme_color_override("font_color",Color("f1f6f3"))
-			else:
-				t_box=FlatUiTokens.caixa(Color(0.0,0.0,0.0,0.0) if st=="normal" else Color(0.05,0.14,0.10,0.6),8)
-				t_box.border_color=Color(0.0,0.0,0.0,0.0)
-				t_btn.add_theme_color_override("font_color",Color("8ba398") if st=="normal" else Color("d0e5d8"))
-			t_btn.add_theme_stylebox_override(st,t_box)
-		t_btn.pressed.connect(func():
-			g.play_sound("res://campaign/audio/click.mp3")
-			g.inventory_tab=tab;g.preview_item=-1;g.preview_character=-1;g.preview_costume=-1;g.show_inventory()
-		)
-		categories.add_child(t_btn)
-
-	coin_capsule(line)
-
-	var kind:String="character" if g.inventory_tab in ["costumes","character"] else g.inventory_tab
-	_build_inventory_ui(kind)
+		var selected:bool=g.inventory_tab==tab or (tab=="character" and g.inventory_tab=="costumes")
+		var choice:=tab_button(tabs,pair[0],func():
+			g.inventory_tab=tab;g.preview_item=-1;g.preview_character=-1;g.preview_costume=-1;g.show_inventory(),selected)
+		choice.text=pair[0];choice.name="Category_"+tab;choice.custom_minimum_size=Vector2(145,maxf(46,44/g.ui_scale));choice.size_flags_horizontal=Control.SIZE_SHRINK_BEGIN
+	spacer(tabs,false)
+	var switch_mode:=button(tabs,("Collection  ›" if compact else "View collection  ›") if g.shop_mode=="store" else ("Store  ›" if compact else "Visit store  ›"),g.show_collection if g.shop_mode=="store" else g.show_store)
+	switch_mode.size_flags_horizontal=Control.SIZE_SHRINK_END;switch_mode.custom_minimum_size=Vector2(192,maxf(46,44/g.ui_scale))
+	_build_inventory_ui("character" if g.inventory_tab in ["costumes","character"] else g.inventory_tab)
 
 func _build_inventory_ui(kind:String) -> void:
 	var entries:Array=g.Catalog.BOWS if kind=="bow" else (g.Catalog.ARROWS if kind=="arrow" else g.Catalog.CHARACTERS)
@@ -966,91 +940,31 @@ func _build_inventory_ui(kind:String) -> void:
 
 	_update_inventory_preview(kind,selected)
 
-	# Top Split: Left 3D Showcase Box & Right SPECIFICATIONS Card (Image 3 Style)
-	var top_split:=row(shell,8 if compact else 12)
-	top_split.size_flags_vertical=Control.SIZE_EXPAND_FILL
-
-	# Left Area: 3D weapon/character showcase area (completely transparent so the 3D scene and bow are unobstructed)
-	var sc_panel:=MarginContainer.new()
-	sc_panel.size_flags_horizontal=Control.SIZE_EXPAND_FILL
-	sc_panel.size_flags_vertical=Control.SIZE_EXPAND_FILL
-	top_split.add_child(sc_panel)
-
-	var sc_layout:=VBoxContainer.new()
-	sc_layout.size_flags_horizontal=Control.SIZE_EXPAND_FILL
-	sc_layout.size_flags_vertical=Control.SIZE_EXPAND_FILL
-	sc_panel.add_child(sc_layout)
-
-	preview(sc_layout)
-
-	var skins_anchor:=VBoxContainer.new()
-	skins_anchor.size_flags_horizontal=Control.SIZE_EXPAND_FILL
-	sc_layout.add_child(skins_anchor)
-
-	# Right Box: SPECIFICATIONS Panel with lobby panel styling
-	var sp_panel:=PanelContainer.new()
-	sp_panel.custom_minimum_size.x=230 if compact else 310
-	sp_panel.size_flags_horizontal=Control.SIZE_FILL
-	sp_panel.size_flags_vertical=Control.SIZE_EXPAND_FILL
-	var sp_box:=FlatUiTokens.caixa(Color(0.025,0.085,0.055,0.85),16)
-	sp_box.border_color=Color(0.74,0.90,0.80,0.50);sp_box.set_border_width_all(1)
-	sp_panel.add_theme_stylebox_override("panel",sp_box)
-	top_split.add_child(sp_panel)
-
-	var sp_margin:=MarginContainer.new()
-	sp_margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	sp_margin.add_theme_constant_override("margin_left",10 if compact else 14)
-	sp_margin.add_theme_constant_override("margin_right",10 if compact else 14)
-	sp_margin.add_theme_constant_override("margin_top",4 if compact else 10)
-	sp_margin.add_theme_constant_override("margin_bottom",4 if compact else 10)
-	sp_panel.add_child(sp_margin)
-
-	var sp_layout:=VBoxContainer.new()
-	sp_layout.size_flags_horizontal=Control.SIZE_EXPAND_FILL
-	sp_layout.size_flags_vertical=Control.SIZE_EXPAND_FILL
-	sp_layout.add_theme_constant_override("separation",4 if compact else 6)
-	sp_margin.add_child(sp_layout)
-
-	var specs_title:=label(sp_layout,"SPECIFICATIONS",14 if compact else 17,true,true)
-	specs_title.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
-	specs_title.add_theme_color_override("font_color",Color("c7dad1"))
-
-	var stats_box:=VBoxContainer.new()
-	stats_box.size_flags_horizontal=Control.SIZE_EXPAND_FILL
-	stats_box.size_flags_vertical=Control.SIZE_EXPAND_FILL
-	stats_box.add_theme_constant_override("separation",3 if compact else 5)
-	var stats_scroll:=ScrollContainer.new();stats_scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
-	stats_scroll.size_flags_vertical=Control.SIZE_EXPAND_FILL;sp_layout.add_child(stats_scroll);stats_scroll.add_child(stats_box)
-
-	var cta_box:=VBoxContainer.new()
-	cta_box.size_flags_horizontal=Control.SIZE_EXPAND_FILL
-	cta_box.add_theme_constant_override("separation",4)
-	sp_layout.add_child(cta_box)
-
-	# Fixed-width left rail. Only its contents scroll; preview and actions stay put.
-	var shelf_container:=PanelContainer.new()
-	shelf_container.name="ItemListPanel"
-	shelf_container.custom_minimum_size.x=200 if compact else 220
-	shelf_container.size_flags_horizontal=Control.SIZE_FILL
-	shelf_container.size_flags_vertical=Control.SIZE_EXPAND_FILL
-	var shelf_style:=FlatUiTokens.caixa(Color(0.025,0.085,0.055,0.85),14)
-	shelf_style.border_color=Color(0.74,0.90,0.80,0.40);shelf_style.set_border_width_all(1)
-	shelf_container.add_theme_stylebox_override("panel",shelf_style)
-	top_split.add_child(shelf_container);top_split.move_child(shelf_container,0)
-	var rail:=VBoxContainer.new();rail.add_theme_constant_override("separation",8);shelf_container.add_child(rail)
-	var rail_title:=label(rail,"ARCHERS" if kind=="character" else ("BOWS" if kind=="bow" else "ARROWS"),18,false,true)
-	rail_title.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
-	var shelf_scroll:=ScrollContainer.new()
-	shelf_scroll.name="VerticalItemList";shelf_scroll.set_meta("is_items_scroll",true)
-	shelf_scroll.vertical_scroll_mode=ScrollContainer.SCROLL_MODE_AUTO
-	shelf_scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
-	shelf_scroll.size_flags_vertical=Control.SIZE_EXPAND_FILL
-	shelf_scroll.follow_focus=true;shelf_scroll.scroll_deadzone=12
-	rail.add_child(shelf_scroll)
-	var shelf_strip:=VBoxContainer.new()
-	shelf_strip.size_flags_horizontal=Control.SIZE_EXPAND_FILL
-	shelf_strip.add_theme_constant_override("separation",10)
+	var top_split:=row(shell,18);top_split.size_flags_vertical=Control.SIZE_EXPAND_FILL
+	var rail:=card(top_split,12);var shelf_container:=panel_of(rail)
+	shelf_container.name="ItemListPanel";shelf_container.custom_minimum_size.x=288 if compact else 310
+	shelf_container.size_flags_horizontal=Control.SIZE_FILL;shelf_container.size_flags_vertical=Control.SIZE_EXPAND_FILL
+	section_title(rail,"Archers" if kind=="character" else "Bows" if kind=="bow" else "Arrows")
+	var shelf_scroll:=ScrollContainer.new();shelf_scroll.name="VerticalItemList";shelf_scroll.set_meta("is_items_scroll",true)
+	shelf_scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED;shelf_scroll.size_flags_vertical=Control.SIZE_EXPAND_FILL
+	shelf_scroll.follow_focus=true;rail.add_child(shelf_scroll)
+	var shelf_strip:=GridContainer.new();shelf_strip.columns=2
+	shelf_strip.size_flags_horizontal=Control.SIZE_EXPAND_FILL;shelf_strip.add_theme_constant_override("h_separation",8);shelf_strip.add_theme_constant_override("v_separation",10)
 	shelf_scroll.add_child(shelf_strip)
+	var sc_layout:=VBoxContainer.new();sc_layout.size_flags_horizontal=Control.SIZE_EXPAND_FILL;sc_layout.size_flags_vertical=Control.SIZE_EXPAND_FILL
+	top_split.add_child(sc_layout)
+	var preview_area:=preview(sc_layout);preview_area.name="EquipmentPreview"
+	var skins_anchor:=VBoxContainer.new();skins_anchor.size_flags_horizontal=Control.SIZE_EXPAND_FILL;sc_layout.add_child(skins_anchor)
+	var sp_layout:=card(top_split,16);var sp_panel:=panel_of(sp_layout)
+	sp_panel.name="ItemDetailsPanel";sp_panel.custom_minimum_size.x=302 if compact else 342
+	sp_panel.size_flags_horizontal=Control.SIZE_FILL;sp_panel.size_flags_vertical=Control.SIZE_EXPAND_FILL
+	var stats_scroll:=ScrollContainer.new();stats_scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
+	stats_scroll.size_flags_vertical=Control.SIZE_EXPAND_FILL;sp_layout.add_child(stats_scroll)
+	var stats_box:=VBoxContainer.new();stats_box.name="ItemStatistics";stats_box.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	stats_box.add_theme_constant_override("separation",8);stats_scroll.add_child(stats_box)
+	rule(sp_layout)
+	var cta_box:=VBoxContainer.new();cta_box.name="ItemActions";cta_box.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	cta_box.add_theme_constant_override("separation",8);sp_layout.add_child(cta_box)
 
 	var tiles:Dictionary={}
 	for i in range(entries.size()):
@@ -1069,18 +983,18 @@ func _build_inventory_ui(kind:String) -> void:
 		elif item_tier=="Legendary": t_color=Color("b38827")
 		elif kind=="character": t_color=Color("3d8c6b") if id==1 else Color("7d4eb8")
 		
-		var card_w:=174 if compact else 194
-		var card_h:=124 if compact else 142
+		var card_w:=120 if compact else 132
+		var card_h:=136 if compact else 154
 		var item_btn:=image_card(shelf_strip,entries[id].name,detail,img_path,on_item_click,id==selected,not owned and not is_unl,Vector2(card_w,card_h),t_color)
 		var detail_lbl:Label=item_btn.get_meta("sub_lbl",null)
 		var img_rect:TextureRect=item_btn.get_meta("img",null)
 		tiles[id]={"button":item_btn,"label":detail_lbl,"img":img_rect,"tier_color":t_color}
 
 	if g.shop_mode=="collection" and kind=="character":
-		var store_card:=button(shelf_strip,"+ Get More Archers",func():
+		var store_card:=button(shelf_strip,"+ Store",func():
 			g.show_store()
 		)
-		store_card.custom_minimum_size=Vector2(174 if compact else 194, 44)
+		store_card.custom_minimum_size=Vector2(120 if compact else 132, 54)
 		style_button(store_card,"action")
 
 	_populate_inventory_stats(stats_box,kind,selected,entries)
@@ -1124,7 +1038,7 @@ func _tile_status_text(kind:String,id:int,entry:Dictionary,owned:bool) -> String
 	if owned:return "✓ Owned"
 	if g.profile.is_unlocked(kind,id):
 		return "%d coins"%int(entry.price)
-	return "🔒 %d coins · Ch. %d"%[int(entry.price), int(entry.get("unlock_chapter",1))]
+	return "Locked · Ch. %d"%int(entry.get("unlock_chapter",1))
 
 func _select_inventory_item(kind:String,id:int,entries:Array,tiles:Dictionary,stats_box:VBoxContainer,cta_box:VBoxContainer,skins_anchor:VBoxContainer) -> void:
 	if kind=="character":g.preview_character=id
@@ -1133,8 +1047,8 @@ func _select_inventory_item(kind:String,id:int,entries:Array,tiles:Dictionary,st
 		var btn:Button=tiles[item_id].get("button")
 		if is_instance_valid(btn):
 			var is_sel:bool=(item_id==id)
-			var bg_color:=Color(0.10,0.24,0.18,0.96) if is_sel else Color(0.025,0.085,0.055,0.88)
-			var border_color:=Color(0.78,0.94,0.85,0.85) if is_sel else Color(0.74,0.90,0.80,0.35)
+			var bg_color:=Color(.21,.22,.10,.92) if is_sel else Color(.025,.043,.031,.83)
+			var border_color:=Color("ecd18c") if is_sel else Color(.71,.61,.38,.40)
 			var box:StyleBoxFlat=g._box(bg_color,border_color)
 			box.set_corner_radius_all(12)
 			box.set_border_width_all(2 if is_sel else 1)
@@ -1151,40 +1065,22 @@ func _populate_inventory_stats(stats_box:VBoxContainer,kind:String,selected:int,
 	for c in stats_box.get_children():stats_box.remove_child(c);c.queue_free()
 	if selected<0 or selected>=entries.size():return
 	var item:Dictionary=entries[selected]
-	var owned:bool=g.profile.is_owned(kind,selected)
-	var is_equipped:bool=false
-	if kind=="bow":is_equipped=(int(g.profile.data.equipped_bow)==selected)
-	elif kind=="arrow":is_equipped=(int(g.profile.data.equipped_arrow)==selected)
-	elif kind=="character":is_equipped=(int(g.profile.data.character)==selected)
-
-	var tier:String=str(item.get("tier",""))
-	if not tier.is_empty():
-		var tier_color:=Color("c7dad1")
-		if tier=="Premium":tier_color=Color("a8d5b8")
-		elif tier=="Epic":tier_color=Color("c47aff")
-		elif tier=="Legendary":tier_color=Color("ffd343")
-		var tier_lbl:=label(stats_box,"["+tier.to_upper()+" EQUIPMENT]",10 if compact else 12,true)
-		tier_lbl.add_theme_color_override("font_color",tier_color)
-	elif kind=="character":
-		var archer_lbl:=label(stats_box,"[STARTER ARCHER]" if selected==1 else "[HERO ARCHER]",10 if compact else 12,true)
-		archer_lbl.add_theme_color_override("font_color",Color("a8d5b8") if selected==1 else Color("c47aff"))
-
-	var name_lbl:=label(stats_box,item.name,16 if compact else 20,false,true)
-	name_lbl.add_theme_color_override("font_color",Color("f1f6f3"))
-
 	var costume:int=g.preview_costume if kind=="character" and selected==1 and g.preview_costume>=0 else int(g.profile.data.costume)
 	var progress:Dictionary=g.profile.upgrade_info(kind,selected,costume)
-	label(stats_box,"Level %d / %d"%[progress.level,progress.cap],16,false,true)
-	label(stats_box,"Equipped shot damage %.2f"%g.profile.power(),14)
-	label(stats_box,"Equipped flight speed %.2f m/s"%g.profile.flight_speed(),14)
-	label(stats_box,"Equipped draw time %.3f s"%g.profile.draw_time(),14)
-	label(stats_box,str(item.get("trait","Cosmetic appearance")),13,true)
-	if int(progress.level)<100:
-		var next_text:String={"bow":"Next: +0.22 base damage, +0.12 m/s, faster draw","arrow":"Next: +0.18 base damage, +0.08 m/s","character":"Next: +0.10 base damage, steadier aim, faster draw"}.get(kind,"")
-		label(stats_box,next_text,13,true)
-	else:label(stats_box,"Mastery complete · Level 100",13,true)
-	label(stats_box,"Shared training stays with you when changing items.",12,true)
-	label(stats_box,"Quiver supplies are provided by each stage.",12,true)
+	label(stats_box,item.name,25 if compact else 30,false,true)
+	label(stats_box,"Lv. %d / %d"%[progress.level,progress.cap],21)
+	var tier:String=str(item.get("tier","Archer"))
+	label(stats_box,tier.to_upper(),12,true).add_theme_color_override("font_color",ANTIQUE_GOLD)
+	rule(stats_box)
+	label(stats_box,str(item.get("trait","Your companion on the forest trail.")),16,true).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	for pair in [["Shot damage","%.2f"%g.profile.power()],["Arrow speed","%.1f m/s"%g.profile.flight_speed()],["Draw time","%.2f s"%g.profile.draw_time()]]:
+		var line:=row(stats_box,10);label(line,pair[0],17,true)
+		var value:=label(line,pair[1],18);value.size_flags_horizontal=Control.SIZE_SHRINK_END
+	rule(stats_box)
+	label(stats_box,"Current loadout",12,true)
+	if int(progress.level)<int(progress.cap):
+		label(stats_box,"Next level  %d  →  %d"%[progress.level,progress.level+1],17)
+	else:label(stats_box,"Mastery complete",17)
 	if kind in ["bow","arrow"]:_power_selector(stats_box)
 
 func _populate_inventory_cta(cta_box:VBoxContainer,kind:String,selected:int,entries:Array,tiles:Dictionary,stats_box:VBoxContainer,skins_anchor:VBoxContainer) -> void:
@@ -1220,9 +1116,11 @@ func _populate_inventory_cta(cta_box:VBoxContainer,kind:String,selected:int,entr
 				if can_buy_item:btn_label="Buy · %d coins"%int(item.price)
 				else:
 					var need:int=int(item.price)-int(g.profile.data.coins)
-					btn_label="Buy · %d coins (Need %d more)"%[int(item.price),need]
+					btn_label="Buy · %d coins"%int(item.price)
+					label(cta_box,"Need %d more coins"%need,14,true)
 			else:
-				btn_label="🔒 Reach Chapter %d · %d coins"%[int(item.get("unlock_chapter",1)), int(item.price)]
+				btn_label="Locked · Chapter %d"%int(item.get("unlock_chapter",1))
+				label(cta_box,"Price · %d coins"%int(item.price),14,true)
 			var buy_btn:=button(cta_box,btn_label,func():
 				_do_buy(kind,selected,entries,tiles,stats_box,cta_box,skins_anchor)
 			,can_buy_item)
@@ -1339,8 +1237,8 @@ func _render_erin_skins(parent:Node,stats_box:VBoxContainer,cta_box:VBoxContaine
 
 		var btn:=Button.new()
 		btn.custom_minimum_size=Vector2(106,100) if compact else Vector2(120,120)
-		var bg_color:=Color(0.10,0.24,0.18,0.96) if is_sel else Color(0.025,0.085,0.055,0.88)
-		var border_color:=Color(0.78,0.94,0.85,0.85) if is_sel else (Color(0.50,0.75,0.65,0.50) if owned else Color(0.74,0.90,0.80,0.30))
+		var bg_color:=Color(.21,.22,.10,.92) if is_sel else Color(.025,.043,.031,.83)
+		var border_color:=ANTIQUE_GOLD if is_sel else (Color(.71,.61,.38,.5) if owned else Color(.71,.61,.38,.3))
 		var box:StyleBoxFlat=g._box(bg_color,border_color)
 		box.set_corner_radius_all(10)
 		box.set_border_width_all(2 if is_sel else 1)
@@ -1393,9 +1291,9 @@ func _render_erin_skins(parent:Node,stats_box:VBoxContainer,cta_box:VBoxContaine
 			detail_text="🔒 %d coins · Ch.%d"%[int(item.price),int(item.get("unlock_chapter",1))]
 		var detail_lbl:=label(content,detail_text,9 if compact else 11,true)
 		detail_lbl.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
-		if is_equipped:detail_lbl.add_theme_color_override("font_color",Color("85ffe1"))
+		if is_equipped:detail_lbl.add_theme_color_override("font_color",ANTIQUE_GOLD)
 		elif detail_text.contains("coins"):detail_lbl.add_theme_color_override("font_color",Color("edd26b"))
-		else:detail_lbl.add_theme_color_override("font_color",Color("c7dad1"))
+		else:detail_lbl.add_theme_color_override("font_color",MUTED_GOLD)
 
 		skin_buttons[skin_id]={"button":btn,"detail":detail_lbl,"item":item}
 		btn.pressed.connect(func():
@@ -1424,8 +1322,8 @@ func _select_erin_skin(skin_id:int,stats_box:VBoxContainer,cta_box:VBoxContainer
 		if is_instance_valid(btn):
 			var is_sel:bool=(sid==skin_id)
 			var owned:bool=g.profile.is_owned("costume",sid)
-			var bg_color:=Color(0.10,0.24,0.18,0.96) if is_sel else Color(0.025,0.085,0.055,0.88)
-			var border_color:=Color(0.78,0.94,0.85,0.85) if is_sel else (Color(0.50,0.75,0.65,0.50) if owned else Color(0.74,0.90,0.80,0.30))
+			var bg_color:=Color(.21,.22,.10,.92) if is_sel else Color(.025,.043,.031,.83)
+			var border_color:=ANTIQUE_GOLD if is_sel else (Color(.71,.61,.38,.5) if owned else Color(.71,.61,.38,.3))
 			var box:StyleBoxFlat=g._box(bg_color,border_color)
 			box.set_corner_radius_all(10)
 			box.set_border_width_all(2 if is_sel else 1)
@@ -1440,12 +1338,12 @@ func _populate_skin_stats(stats_box:VBoxContainer,skin_id:int) -> void:
 	var owned:bool=g.profile.is_owned("costume",skin_id)
 	var is_equipped:bool=(int(g.profile.data.character)==1 and int(g.profile.data.costume)==skin_id)
 
-	var badge_color:=Color("ffd343") if skin_id==0 else (Color("c47aff") if skin_id in [3,5] else Color("a8d5b8"))
+	var badge_color:=Color("ffd343") if skin_id==0 else (Color("c47aff") if skin_id in [3,5] else ANTIQUE_GOLD)
 	var badge:=label(stats_box,"[ERIN SPECIAL SKIN]",10 if compact else 12,true)
 	badge.add_theme_color_override("font_color",badge_color)
 
 	var sname_lbl:=label(stats_box,item.name,16 if compact else 20,false,true)
-	sname_lbl.add_theme_color_override("font_color",Color("f1f6f3"))
+	sname_lbl.add_theme_color_override("font_color",PARCHMENT)
 
 	var lv:int=g.profile.level_for(1,skin_id)
 	label(stats_box,"Skin Level %d / 100"%lv,16,false,true)
@@ -1553,9 +1451,9 @@ func _refresh_all_tiles(kind:String,entries:Array,tiles:Dictionary) -> void:
 		if is_instance_valid(detail_lbl):
 			var new_text:=_tile_status_text(kind,id,entries[id],owned)
 			detail_lbl.text=new_text
-			if new_text.contains("Equipped"):detail_lbl.add_theme_color_override("font_color",Color("85ffe1"))
+			if new_text.contains("Equipped"):detail_lbl.add_theme_color_override("font_color",ANTIQUE_GOLD)
 			elif new_text.contains("coins"):detail_lbl.add_theme_color_override("font_color",Color("edd26b"))
-			else:detail_lbl.add_theme_color_override("font_color",Color("c7dad1"))
+			else:detail_lbl.add_theme_color_override("font_color",MUTED_GOLD)
 		var img:TextureRect=tiles[id].get("img")
 		if is_instance_valid(img):
 			img.modulate=Color.WHITE if owned or is_unl else Color(.8,.85,.87,1)
@@ -1563,48 +1461,41 @@ func _refresh_all_tiles(kind:String,entries:Array,tiles:Dictionary) -> void:
 func settings() -> void:
 	begin();header("Settings",g.show_pause if g.state=="paused" else g.show_home)
 	if g.state=="menu":g.hero.visible=false
-	var panel:=card(shell,18);panel_of(panel).size_flags_vertical=Control.SIZE_EXPAND_FILL
-	var body:=scroll_box(panel)
-	var sound_title:=label(body,"SOUND",16 if compact else 19,true,true)
-	sound_title.add_theme_color_override("font_color",Color("a8d5b8"))
-	setting_toggle(body,"Background music","bg_sound")
-	setting_toggle(body,"Game sounds","game_sound")
-	setting_slider(body,"Music volume","bg_volume",0,1,0.05)
-	setting_slider(body,"Game volume","game_volume",0,1,0.05)
-	var ctrl_title:=label(body,"CONTROLS",16 if compact else 19,true,true)
-	ctrl_title.add_theme_color_override("font_color",Color("a8d5b8"))
-	setting_slider(body,"Look sensitivity","sensitivity",0.3,2,0.1)
-	if OS.has_feature("mobile"):label(body,"Touch controller enabled · Landscape only",16,true)
-	else:setting_toggle(body,"Preview touch controller","touch_controls",true)
-	setting_toggle(body,"Aim trajectory assistance","assist")
-	if not OS.has_feature("mobile"):setting_toggle(body,"Fullscreen","fullscreen")
-	setting_toggle(body,"Reduced motion","reduced_motion")
-	label(body,"Keyboard: Space jump · Q dodge · Hold F/R for power · Mouse: left shoot, right aim. Gamepad: A jump · B dodge · X/Y hold power · RT shoot · LT aim.",15,true).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
-	label(body,"Touch: left stick moves · Drag to look · Tap SHOOT for an instant arrow. Hold POWER, then release to fire. AIM + hold SHOOT also charges. JUMP vaults low attacks; DODGE cancels aim.",15,true).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
-	label(body,"Arrowglade · "+str(ProjectSettings.get_setting("application/config/version","development"))+" · Combat revision 4",14,true)
-	if g.Catalog.TEST_UNLOCK_CHARACTERS:label(body,"Character test access is enabled for this build.",15,true)
+	var columns:=row(shell,18);columns.name="SettingsColumns";columns.size_flags_vertical=Control.SIZE_EXPAND_FILL
+	var sound:=card(columns,20);panel_of(sound).size_flags_vertical=Control.SIZE_EXPAND_FILL
+	section_title(sound,"Sound & atmosphere")
+	var audio_body:=scroll_box(sound)
+	setting_toggle(audio_body,"Background music","bg_sound")
+	setting_slider(audio_body,"Music volume","bg_volume",0,1,.05)
+	setting_toggle(audio_body,"Game sounds","game_sound")
+	setting_slider(audio_body,"Effects volume","game_volume",0,1,.05)
+	label(audio_body,"A little atmosphere for the journey.",16,true)
+	var controls:=card(columns,20);panel_of(controls).size_flags_vertical=Control.SIZE_EXPAND_FILL
+	section_title(controls,"Controls & display")
+	var control_body:=scroll_box(controls)
+	setting_slider(control_body,"Look sensitivity","sensitivity",.3,2,.1)
+	if not OS.has_feature("mobile"):setting_toggle(control_body,"Preview touch controls","touch_controls",true)
+	setting_toggle(control_body,"Aim assistance","assist")
+	if not OS.has_feature("mobile"):setting_toggle(control_body,"Fullscreen","fullscreen")
+	setting_toggle(control_body,"Reduced motion","reduced_motion")
+	var instructions:=label(control_body,"Mouse · Left shoots, right aims.\nKeyboard · Space jumps, Q dodges, hold F / R for power.\nGamepad · RT shoots, LT aims, A jumps, B dodges, hold X / Y for power.\nTouch · Left stick moves, drag to look. Tap SHOOT for an instant arrow. Toggle AIM and hold SHOOT to charge, or hold POWER and release to fire.",16,true)
+	instructions.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART;instructions.visible=false
+	var guide_button:=button(control_body,"Controls guide  ▾",func():instructions.visible=not instructions.visible)
+	control_body.move_child(guide_button,control_body.get_child_count()-2)
+	var guide:=card(shell,12);var line:=row(guide,20)
+	var help:=label(line,"Left mouse · Shoot     Right mouse · Aim     Space · Jump     Q · Dodge     F / R · Power",14,true)
+	help.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	var version:=label(line,"Arrowglade  "+str(ProjectSettings.get_setting("application/config/version","")),14,true);version.size_flags_horizontal=Control.SIZE_SHRINK_END
 
 func _style_toggle(toggle:Button) -> void:
-	var on:bool=toggle.button_pressed
-	var fill:=Color(0.20,0.39,0.30,0.95) if on else Color(0.025,0.10,0.075,0.94)
-	var border:=Color(0.78,0.94,0.85,0.70) if on else Color(0.74,0.90,0.80,0.40)
-	var ink:=Color("f1f6f3") if on else Color("8ba398")
-	var box:StyleBoxFlat=g._box(fill,border)
-	box.set_corner_radius_all(12)
-	box.set_border_width_all(2 if on else 1)
-	toggle.add_theme_stylebox_override("normal",box)
-	toggle.add_theme_stylebox_override("hover",box)
-	toggle.add_theme_stylebox_override("pressed",box)
-	toggle.add_theme_stylebox_override("focus",box)
-	toggle.add_theme_color_override("font_color",ink)
-	toggle.add_theme_color_override("font_pressed_color",ink)
-	toggle.add_theme_color_override("font_hover_color",ink)
+	style_button(toggle,"tab",toggle.button_pressed)
+	toggle.add_theme_font_size_override("font_size",16)
 
 func setting_toggle(parent:Node,title:String,key:String,rebuild:bool=false) -> void:
 	var box:=row(parent);var text:=label(box,title,18 if compact else 21);text.vertical_alignment=VERTICAL_ALIGNMENT_CENTER
 	text.add_theme_color_override("font_color",Color("f1f6f3"))
-	var toggle:=Button.new();toggle.toggle_mode=true;toggle.button_pressed=bool(g.profile.data.settings.get(key,false))
-	toggle.text="ON" if toggle.button_pressed else "OFF";toggle.custom_minimum_size=Vector2(70,36) if compact else Vector2(85,42)
+	var toggle:=Button.new();toggle.name="Setting_"+key;toggle.toggle_mode=true;toggle.button_pressed=bool(g.profile.data.settings.get(key,false))
+	toggle.text="ON" if toggle.button_pressed else "OFF";toggle.custom_minimum_size=Vector2(78,maxf(44,44/g.ui_scale))
 	_style_toggle(toggle)
 	box.add_child(toggle)
 	toggle.toggled.connect(func(value:bool):
@@ -1618,17 +1509,21 @@ func setting_toggle(parent:Node,title:String,key:String,rebuild:bool=false) -> v
 	)
 
 func setting_slider(parent:Node,title:String,key:String,minimum:float,maximum:float,step:float) -> void:
-	var box:=VBoxContainer.new();box.add_theme_constant_override("separation",4);parent.add_child(box)
-	var title_lbl:=label(box,title,16 if compact else 19)
-	title_lbl.add_theme_color_override("font_color",Color("f1f6f3"))
-	var slider:=HSlider.new();slider.custom_minimum_size.y=36 if compact else 42
-	slider.min_value=minimum;slider.max_value=maximum;slider.step=step;slider.value=float(g.profile.data.settings.get(key,0.7))
+	var box:=VBoxContainer.new();box.add_theme_constant_override("separation",6);parent.add_child(box)
+	var line:=row(box,10);label(line,title,18)
+	var value_label:=label(line,"",16,true);value_label.size_flags_horizontal=Control.SIZE_SHRINK_END
+	var slider:=HSlider.new();slider.name="Setting_"+key;slider.custom_minimum_size.y=38
+	slider.min_value=minimum;slider.max_value=maximum;slider.step=step;slider.value=float(g.profile.data.settings.get(key,.7))
+	var display:Callable=func(value:float):value_label.text=("%.1f×"%value if key=="sensitivity" else "%d%%"%roundi(value*100))
+	display.call(slider.value)
+	var track:=StyleBoxFlat.new();track.bg_color=Color(.09,.11,.08,.9);track.set_corner_radius_all(3);track.content_margin_top=3;track.content_margin_bottom=3
+	slider.add_theme_stylebox_override("slider",track)
+	var fill:StyleBoxFlat=track.duplicate();fill.bg_color=ANTIQUE_GOLD.darkened(.2)
+	slider.add_theme_stylebox_override("grabber_area",fill);slider.add_theme_stylebox_override("grabber_area_highlight",fill)
+	for state in ["grabber","grabber_highlight","grabber_disabled"]:slider.add_theme_icon_override(state,load("res://campaign/ui/slider.svg"))
 	box.add_child(slider)
 	slider.value_changed.connect(func(value:float):
-		g.profile.data.settings[key]=value
-		g._apply_settings()
-		g.profile.save_profile()
-	)
+		display.call(value);g.profile.data.settings[key]=value;g._apply_settings();g.profile.save_profile())
 
 func _retry_level() -> void:
 	if not g.practice:g.profile.fail_run()
@@ -1770,7 +1665,7 @@ func _upgrade_action(parent:VBoxContainer,kind:String,id:int,costume:int,refresh
 			button(parent,("Equip owned " if next_owned else "Next tier · ")+str(entries[next_id].name),func():
 				g.shop_mode="collection" if next_owned else "store";g.inventory_tab=kind;g.preview_item=next_id;g.show_inventory(),true)
 		return
-	var text:String="UPGRADE · Lv. %d · %d coins"%[int(info.level)+1,info.cost]
+	var text:String="Upgrade · %d coins"%int(info.cost)
 	var action:Button=upgrade_button(parent,text,func():
 		if g.profile.upgrade_item(kind,id,costume):
 			if is_instance_valid(header_coin):header_coin.text=str(g.profile.data.coins)
